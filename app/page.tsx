@@ -1,51 +1,218 @@
-import AcmeLogo from '@/app/ui/acme-logo';
-import Link from 'next/link';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import { lusitana } from  '@/app/ui/fonts';
-import Image from 'next/image';
+'use client'
+
+import { PlayIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import classes from './page.module.css';
+import {
+  Box,
+  Button,
+  Grid,
+  Group,
+  Image,
+  Text,
+  Title,
+  Stack,
+  Tooltip,
+  UnstyledButton,
+  SimpleGrid,
+  Container,
+  rem,
+  ContainerProps,
+  Paper,
+  Divider,
+  Flex,
+  PaperProps,
+  Switch,
+} from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import { COMMENTS, FEATURES, PRICING } from '@/app/constants';
+import { Carousel } from '@mantine/carousel';
+import React, { useEffect, useRef, useState } from 'react';
+import AOS from 'aos';
+import Autoplay from 'embla-carousel-autoplay';
+
+import 'aos/dist/aos.css';
+import Surface from './ui/Surface';
+import Faqs from './ui/Faqs/Faqs';
+import PricingCard from './ui/PricingCard/PricingCard';
+
+const PAPER_PROPS: PaperProps = {
+  p: 'md',
+  shadow: 'md',
+  radius: 'md',
+  className: classes.paper,
+};
 
 export default function Page() {
+  const tablet_match = useMediaQuery('(max-width: 768px)');
+  const [checked, setChecked] = useState(false);
+
+  const BOX_PROPS: ContainerProps = {
+    pt: rem(120),
+    pb: rem(80),
+    px: tablet_match ? rem(36) : rem(40 * 3),
+    className: classes.section,
+  };
+  const pricingItems = PRICING.map((p) => (
+    <PricingCard key={p.tier} monthly={checked} {...p} {...PAPER_PROPS} />
+  ));
+
+  const autoplay = useRef(Autoplay({ delay: 1000 }));
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+    });
+  }, []);
+  
   return (
-    <main className="flex min-h-screen flex-col p-6">
-      <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
-        <AcmeLogo />
-      </div>
-      <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
-        <div className="h-0 w-0 border-b-[30px] border-l-[20px] border-r-[20px] border-b-black border-l-transparent border-r-transparent"
-        />
-          <p  className={`text-xl text-gray-800 md:text-3xl md:leading-normal ${lusitana.className} antialiased`}>
-            <strong>Welcome to Acme.</strong> This is the example for the{' '}
-            <a href="https://nextjs.org/learn/" className="text-blue-500">
-              Next.js Learn Course
-            </a>
-            , brought to you by Vercel.
-          </p>
-          <Link
-            href="/login"
-            className="flex items-center gap-5 self-start rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400 md:text-base"
+    <main className="flex min-h-screen flex-col">
+      <Box className={classes.hero}>
+          <Grid>
+            <Grid.Col span={{ base: 12, md: 6 }} order={{ base: 2, md: 1 }}>
+              <Stack>
+                <Text>Easy data for you</Text>
+                <Title className={classes.title}>
+                  The simplest and fastest way to get your competitors {' '}
+                  <Text component="span" inherit className={classes.highlight}>
+                    prices{' '}
+                  </Text>
+                  &{' '}
+                  <Text component="span" inherit className={classes.highlight}>
+                    insights{' '}
+                  </Text>
+
+                </Title>
+                <Group my="lg">
+                  <Button
+                    size="md"
+                    rightSection={<PlayIcon width={18} />}
+                    bg={'#3ea9c3'}
+                  >
+                    Try ScrappingCat for Free!  
+                  </Button>
+                </Group>
+              </Stack>
+            </Grid.Col>
+            <Grid.Col span={{ base: 10, md: 5 }} order={{ base: 1, md: 2 }}>
+              <Image
+                src={'/scrapping_cat.png'}
+                alt="/"
+              />
+            </Grid.Col>
+          </Grid>
+        </Box>
+        <Container fluid {...BOX_PROPS}>
+
+          <SimpleGrid
+            cols={{ base: 1, sm: 1, md: 2, lg: 3, xl: 3 }}
+            spacing={{ base: 'sm', sm: 'sm', md: 'sm', lg: 'lg' }}
+            verticalSpacing={{ base: 'sm', sm: 'sm', md: 'sm', lg: 'lg' }}
           >
-            <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
-          </Link>
-        </div>
-        <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
-        
-        <Image
-          src="/hero-desktop.png"
-          width={1000}
-          height={760}
-          className="hidden md:block"
-          alt="Screenshots of the dashboard project showing desktop version"
-        />
-        <Image
-          src="/hero-mobile.png"
-          width={560}
-          height={620}
-          className="block md:hidden"
-          alt="Screenshots of the dashboard project showing mobile version"
-        />
-        </div>
-      </div>
+            {FEATURES.map((feature) => (
+              <Paper
+                key={feature.title}
+                p="md"
+                className={classes.featureCard}
+                data-aos="fade-up"
+              >
+                <Stack align='center' >
+                  <Box w={250} h={250} >
+                    <Image
+                      src={feature.src}
+                      alt={feature.title}
+                      fit="contain"
+                      />
+                  </Box>
+                  <Stack gap={4} align='center'>
+                    <Title order={4}>{feature.title}</Title>
+                    <Text fz="md" ta="center" >{feature.description}</Text>
+                  </Stack>
+                </Stack>
+              </Paper>
+            ))}
+          </SimpleGrid>
+        </Container>
+
+        <Divider />
+        <Container fluid {...BOX_PROPS}>
+          <Title order={1} ta="center" mb="xl">
+            What Our Customers Are Saying
+          </Title>
+          <Carousel
+            height={200}
+            slideGap={{ base: 0, sm: 'md' }}
+            plugins={[autoplay.current]}
+            onMouseEnter={autoplay.current.stop}
+            onMouseLeave={autoplay.current.reset}
+            align="start"
+            withControls={false}
+          >
+            {COMMENTS.map((comment, index) => (
+              <Carousel.Slide key={index}>
+                <Paper>
+                  <Box className={classes.textBoxComment}><Text>{comment.text}</Text></Box>
+                  <Flex justify={"center"}>
+                    -<Text className={classes.authorComment}>{comment.author}</Text>
+                  </Flex>
+                </Paper>
+              </Carousel.Slide>
+            ))}
+          </Carousel>
+        </Container>
+        <Divider />
+        <Container fluid {...BOX_PROPS}>
+          <Stack gap="lg">
+            <Paper style={{ backgroundColor: 'transparent' }}>
+              <Stack>
+                <Title order={2} ta="center">
+                  Simple, fair pricing.
+                </Title>
+                <Text size="lg" ta="center">
+                  All types of businesses need access to development resources, so
+                  we give you the option to decide how much you need to use.
+                </Text>
+                <Flex justify="center" gap="md">
+                  <Text>Annual</Text>
+                  <Switch
+                  color="#3ea9c3"
+                    size="md"
+                    checked={checked}
+                    onChange={(event) => setChecked(event.currentTarget.checked)}
+                  />
+                  <Text>Monthly</Text>
+                </Flex>
+              </Stack>
+            </Paper>
+            <SimpleGrid
+              cols={{ base: 1, sm: 2, lg: 3 }}
+              spacing={{ base: 10, sm: 'xl' }}
+              verticalSpacing={{ base: 'md', sm: 'xl' }}
+            >
+              {pricingItems}
+            </SimpleGrid>
+            <Surface component={Paper} {...PAPER_PROPS}>
+              <Faqs />
+            </Surface>
+            <Surface
+              component={Paper}
+              style={{ backgroundColor: 'transparent' }}
+              p="md"
+            >
+              <Stack align="center" gap="xs">
+                <Text>Still have questions?</Text>
+                <Button
+                  variant="subtle"
+                  rightSection={<ChevronRightIcon width={18} />}
+                  c="#3ea9c3"
+                >
+                  Contact Us
+                </Button>
+              </Stack>
+            </Surface>
+          </Stack>
+        </Container>
+        <Divider />
+
     </main>
   );
 }

@@ -1,13 +1,18 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import { Metadata } from 'next';
- 
+import { MantineProvider, ColorSchemeScript } from '@mantine/core';
+import { theme } from './theme';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/carousel/styles.css';
+
 export const metadata: Metadata = {
   title: {
-    template: '%s | Acme Dashboard',
-    default: 'Acme Dashboard',
+    template: '%s | Vigilia ',
+    default: 'Vigilia',
   },
-  description: 'The official Next.js Learn Dashboard built with App Router.',
+  description: 'Vigilia is a dashboard for retailers to track competitor prices and inventory.',
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
 export default function RootLayout({
@@ -17,7 +22,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <head>
+        <ColorSchemeScript />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
+        />
+      </head>
+      <body className={`${inter.className} antialiased`}>
+        <MantineProvider theme={theme}>{children}</MantineProvider>
+      </body>
     </html>
   );
 }
