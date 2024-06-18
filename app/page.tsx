@@ -31,9 +31,10 @@ import AOS from 'aos';
 import Autoplay from 'embla-carousel-autoplay';
 
 import 'aos/dist/aos.css';
-import Surface from './ui/Surface';
+
 import Faqs from './ui/Faqs/Faqs';
 import PricingCard from './ui/PricingCard/PricingCard';
+import Surface from './ui/Surface';
 
 const PAPER_PROPS: PaperProps = {
   p: 'md',
@@ -56,7 +57,8 @@ export default function Page() {
     <PricingCard key={p.tier} monthly={checked} {...p} {...PAPER_PROPS} />
   ));
 
-  const autoplay = useRef(Autoplay({ delay: 1000 }));
+  const autoplay = useRef(Autoplay as any);
+  autoplay.current({ delay: 1000 });
 
   useEffect(() => {
     AOS.init({

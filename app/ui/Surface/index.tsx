@@ -17,5 +17,6 @@ const Surface = createPolymorphicComponent<'div', SurfaceProps>(
     </Box>
   )),
 );
+Surface.displayName = 'Surface';
 
 export default Surface;
