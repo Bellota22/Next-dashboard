@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { PetsShowTable, UsersTable } from './definitions';
  
 const FormSchema = z.object({
   id: z.string(),
@@ -21,6 +22,7 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
+
 export type State = {
     errors?: {
       customerId?: string[];
@@ -30,8 +32,106 @@ export type State = {
     message?: string | null;
   };
 
+export type CustomerState = {
+    errors?: {
+      nombre?: string[];
+      apellido?: string[];
+      dni?: string[];
+      fecha_nacimiento?: string[];
+      email?: string[];
+      celular?: string[];
+      departamento?: string[];
+      provincia?: string[];
+      distrito?: string[];
+      direccion?: string[];
+      etiquetas?: string[];
+      imagen_url?: string[];
+    };
+    message?: string | null;
+  };
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+
+export async function createCustomer(customerData: UsersTable) {
+    const fecha_creacion = new Date().toISOString().split('T')[0];
+    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
+    await sql`
+        INSERT INTO customers (nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url, fecha_creacion)
+        VALUES (${nombre}, ${apellido}, ${dni}, ${fecha_nacimiento}, ${email}, ${celular}, ${departamento}, ${provincia}, ${distrito}, ${direccion}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
+    `;
+
+   
+    revalidatePath('/dashboard/customers');
+    redirect('/dashboard/customers');
+
+}
+
+export async function editCustomer(customerId: string, customerData: UsersTable) {
+    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
+    try {
+      await sql`
+        UPDATE customers
+        SET nombre = ${nombre}, apellido = ${apellido}, dni = ${dni}, fecha_nacimiento = ${fecha_nacimiento}, email = ${email}, celular = ${celular}, departamento = ${departamento}, provincia = ${provincia}, distrito = ${distrito}, direccion = ${direccion}, etiquetas = ${etiquetas}, imagen_url = ${imagen_url}
+        WHERE id = ${customerId}
+      `;
+  
+      revalidatePath('/dashboard/customers');
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw new Error('Error updating customer');
+    }
+}
+
+export async function createMascotas(mascotasData: PetsShowTable) {
+  
+  const fecha_creacion = new Date().toISOString().split('T')[0];
+
+  const { customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url } = mascotasData
+  console.log('mascotasData::: ', mascotasData);
+    await sql`
+        INSERT INTO mascotas (
+          customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url, fecha_creacion
+        )
+        VALUES ( ${customer_id}, ${nombre}, ${especie}, ${raza}, ${fecha_nacimiento}, ${sexo}, ${esterilizado}, ${asegurado}, ${grooming}, ${grooming_freq}, ${grooming_dia}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
+    `;
+
+   
+    revalidatePath('/dashboard/mascotas');
+    redirect('/dashboard/mascotas');
+
+}
+
+export async function editMascota(petId: string, petData: PetsShowTable) {
+  
+  const {
+    nombre,
+    especie,
+    raza,
+    fecha_nacimiento,
+    sexo,
+    esterilizado,
+    asegurado,
+    grooming,
+    grooming_freq,
+    grooming_dia,
+    etiquetas,
+    imagen_url,
+  } = petData;
+  
+  
+  try {
+    await sql`
+      UPDATE mascotas
+      SET nombre = ${nombre}, especie = ${especie}, raza = ${raza}, fecha_nacimiento = ${fecha_nacimiento}, sexo = ${sexo}, esterilizado = ${esterilizado}, asegurado = ${asegurado}, grooming = ${grooming}, grooming_freq = ${grooming_freq}, grooming_dia = ${grooming_dia}, etiquetas = ${etiquetas}, imagen_url = ${imagen_url}
+      WHERE id = ${petId}
+    `;
+
+    revalidatePath('/dashboard/mascotas');
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw new Error('Error updating customer');
+  }
+}
 
 export async function createInvoice(prevState: State, formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
@@ -66,7 +166,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
     redirect('/dashboard/invoices');
 
 }
-
 export async function updateInvoice( id: string, prevState: State, formData: FormData) {
     const validatedFields = UpdateInvoice.safeParse({
         customerId: formData.get('customerId'),
@@ -98,7 +197,6 @@ export async function updateInvoice( id: string, prevState: State, formData: For
     revalidatePath('/dashboard/invoices');
     redirect('/dashboard/invoices');
 }
-
 export async function deleteInvoice(id: string) {
 
     try{
@@ -110,7 +208,27 @@ export async function deleteInvoice(id: string) {
         }
     }
 }
+export async function deleteCustomer(id: string) {
+  try{
+      await sql`DELETE FROM customers WHERE id = ${id}`;
+      revalidatePath('/dashboard/customers');
+  }catch{
+      return {
+          message: 'Failed to delete customer'
+      }
+  }
+}
 
+export async function deletePet(id: string) {
+    try{
+        await sql`DELETE FROM mascotas WHERE id = ${id}`;
+        revalidatePath('/dashboard/mascotas');
+    }catch{
+        return {
+            message: 'Failed to delete pet'
+        }
+    }
+  }
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
@@ -128,4 +246,4 @@ export async function authenticate(
       }
       throw error;
     }
-  }
+}

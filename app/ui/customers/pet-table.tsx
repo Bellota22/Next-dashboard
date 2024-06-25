@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image';
-import { UpdateCustomer, DeleteCustomer } from '@/app/ui/customers/buttons';
+import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
@@ -8,65 +8,80 @@ import { useState } from 'react';
 import { Table, Checkbox } from '@mantine/core';
 import Link from 'next/link';
 
-export default function CustomerTable({
+export default function PetsTable({
   query,
   currentPage,
-  users,
+  pets,
 }: {
   query: string;
   currentPage: number;
-  users: any;
+  pets: any;
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const rows = users.map((user: any) => (
+  const rows = pets.map((pet: any) => (
     <Table.Tr
-      key={user.id}
-      bg={selectedRows.includes(user.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
+      key={pet.id}
+      bg={selectedRows.includes(pet.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(user.nombre)}
+          checked={selectedRows.includes(pet.nombre)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, user.nombre]
-                : selectedRows.filter((nombre) => nombre !== user.nombre)
+                ? [...selectedRows, pet.nombre]
+                : selectedRows.filter((nombre) => nombre !== pet.nombre)
             )
           }
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.nombre} {user.apellido}
+      <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {pet.pet_nombre}
       </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.celular}
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {pet.especie}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.email}
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {pet.raza}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.direccion}
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {pet.sexo ? "Macho" : "Hembra"}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {formatDateToLocal(user.fecha_creacion)}
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {formatDateToLocal(pet.pet_fecha_nacimiento)}
+        </Link>
+      </Table.Td>
+      <Table.Td>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        {pet.customer_nombre}  {pet.customer_apellido}
+        </Link>
+      </Table.Td>
+      <Table.Td>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+          Activo
+        </Link>
+      </Table.Td>
+      <Table.Td>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+          {pet.pet_etiquetas}
         </Link>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
-          <UpdateCustomer id={user.id} />
-          <DeleteCustomer id={user.id} />
+          <UpdatePet id={pet.id} />
+          <DeletePets id={pet.id} />
         </div>
       </Table.Td>
     </Table.Tr>
@@ -119,10 +134,13 @@ export default function CustomerTable({
               <Table.Tr>
                 <Table.Th />
                 <Table.Th>Nombre</Table.Th>
-                <Table.Th>Celular</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Dirección</Table.Th>
-                <Table.Th>Fecha de registro</Table.Th>
+                <Table.Th>Especie</Table.Th>
+                <Table.Th>Raza</Table.Th>
+                <Table.Th>Género</Table.Th>
+                <Table.Th>Fecha de nacimiento</Table.Th>
+                <Table.Th>Cliente</Table.Th>
+                <Table.Th>Estado</Table.Th>
+                <Table.Th>Etiquetas</Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>

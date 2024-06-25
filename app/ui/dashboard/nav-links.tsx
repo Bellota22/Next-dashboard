@@ -9,6 +9,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { IconPaw } from '@tabler/icons-react';
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -19,8 +20,8 @@ const links = [
     href: '/dashboard/invoices',
     icon: DocumentDuplicateIcon,
   },
-  { name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon },
-  { name: 'Products', href: '/dashboard/products', icon: ShoppingCartIcon },
+  { name: 'Clientes', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: 'Mascotas', href: '/dashboard/mascotas', icon: IconPaw },
 ];
 
 export default function NavLinks() {

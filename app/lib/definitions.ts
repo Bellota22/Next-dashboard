@@ -21,8 +21,6 @@ export type Invoice = {
   customer_id: string;
   amount: number;
   date: string;
-  // In TypeScript, this is called a string union type.
-  // It means that the "status" property can only be one of the two strings: 'pending' or 'paid'.
   status: 'pending' | 'paid';
 };
 
@@ -55,6 +53,74 @@ export type InvoicesTable = {
   status: 'pending' | 'paid';
 };
 
+export type UsersTable = {
+  nombre: string;
+  apellido: string;
+  email: string;
+  dni: string;
+  celular: string;
+  direccion: string;
+  departamento: string;
+  fecha_nacimiento?: string;
+  provincia: string;
+  distrito: string;
+  imagen_url?: string;
+  etiquetas?: string;
+  
+};
+
+export type PetsTable = {
+  customer_id: string;
+  nombre: string;
+  especie: string;
+  raza: string;
+  fecha_nacimiento: string;
+  sexo: boolean;
+  esterilizado: boolean;
+  asegurado: boolean;
+  grooming?: boolean;
+  grooming_freq?: string;
+  grooming_dia?: string;
+  etiquetas?: string;
+  imagen_url?: string;
+  
+};
+
+export type UsersShowTable = {
+  id: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  dni: string;
+  celular: string;
+  direccion: string;
+  departamento: string;
+  provincia: string;
+  distrito: string;
+  imagen_url?: string;
+  etiquetas?: string;
+  fecha_creacion: string;
+  
+};
+
+export type PetsShowTable = {
+  customer_id: string;
+  nombre: string;
+  especie: string;
+  raza: string;
+  fecha_nacimiento: string | null;
+  sexo: boolean;
+  esterilizado: boolean | null;
+  asegurado: boolean | null;
+  grooming?: boolean | null;
+  grooming_freq?: string | null;
+  grooming_dia?: string | null;
+  etiquetas?: string | null;
+  imagen_url?: string | null;
+  
+};
+
+
 export type CustomersTableType = {
   id: string;
   name: string;
@@ -77,7 +143,8 @@ export type FormattedCustomersTable = {
 
 export type CustomerField = {
   id: string;
-  name: string;
+  nombre: string;
+  apellido: string;
 };
 
 export type InvoiceForm = {

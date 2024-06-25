@@ -6,13 +6,14 @@ import { theme } from './theme';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/carousel/styles.css';
+import '@mantine/dropzone/styles.css';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Vigilia ',
-    default: 'Vigilia',
+    template: '%s | PettoCare ',
+    default: 'PettoCare',
   },
-  description: 'Vigilia is a dashboard for retailers to track competitor prices and inventory.',
+  description: 'PettoCare is a dashboard for retailers to track competitor prices and inventory.',
   metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
 };
 export default function RootLayout({
