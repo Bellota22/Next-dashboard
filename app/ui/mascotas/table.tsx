@@ -39,42 +39,42 @@ export default function PetsTable({
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+      <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {pet.pet_nombre}
       </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {pet.especie}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {pet.raza}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {pet.sexo ? "Macho" : "Hembra"}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {formatDateToLocal(pet.pet_fecha_nacimiento)}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
         {pet.customer_nombre}  {pet.customer_apellido}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
           Activo
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} target="_blank" style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
           {pet.pet_etiquetas}
         </Link>
       </Table.Td>

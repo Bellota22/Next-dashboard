@@ -10,6 +10,7 @@ import {
   UsersTable,
   UsersShowTable,
   PetsShowTable,
+  ProductsShowTable,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -132,6 +133,7 @@ export async function fetchFilteredInvoices(
     throw new Error('Failed to fetch invoices.');
   }
 }
+
 export async function fetchFilteredCustomers(
   query: string,
   currentPage: number,
@@ -432,6 +434,49 @@ export async function fetchAllPets(query: string, currentPage: number) {
   return pets.rows;
 }
 
+export async function fetchAllProducts(query: string, currentPage: number) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const products = await sql<ProductsShowTable>`
+    SELECT
+      p.id,
+      p.user_id,
+      p.nombre,
+      p.marca,
+      p.unidad_medida,
+      p.presentacion,
+      p.contenido,
+      p.proveedor,
+      p.codigo_barras,
+      p.categoria,
+      p.subcategoria,
+      p.min_stock,
+      p.max_stock,
+      p.points,
+      p.precio_compra,
+      p.precio_venta,
+      p.estado,
+      p.fecha_creacion AS product_fecha_creacion
+    FROM products p
+    JOIN users u ON p.user_id = u.id
+    WHERE
+      p.nombre ILIKE ${`%${query}%`} OR
+      p.marca ILIKE ${`%${query}%`} OR
+      p.categoria ILIKE ${`%${query}%`} OR
+      p.subcategoria ILIKE ${`%${query}%`} OR
+      p.proveedor ILIKE ${`%${query}%`} OR
+      p.codigo_barras ILIKE ${`%${query}%`} OR
+      p.presentacion ILIKE ${`%${query}%`} OR
+      p.contenido ILIKE ${`%${query}%`} OR
+      p.unidad_medida ILIKE ${`%${query}%`} OR
+      p.precio_compra::text ILIKE ${`%${query}%`} OR
+      p.precio_venta::text ILIKE ${`%${query}%`}
+    ORDER BY p.nombre ASC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return products.rows;
+}
 // export async function fetchFilteredCustomers(query: string) {
 //   noStore();
 

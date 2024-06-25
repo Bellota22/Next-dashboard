@@ -120,6 +120,26 @@ export type PetsShowTable = {
   
 };
 
+export type ProductsShowTable = {
+  id: string;
+  user_id: string;
+  nombre: string;
+  marca: string;
+  unidad_medida: string;
+  presentacion: string;
+  contenido: string;
+  proveedor: string;
+  codigo_barras: string;
+  categoria: string;
+  subcategoria: string;
+  min_stock: number;
+  max_stock: number;
+  points: number;
+  precio_compra: number;
+  precio_venta: number;
+  estado: boolean;
+  fecha_creacion: string;
+};
 
 export type CustomersTableType = {
   id: string;

@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image';
-import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
+import { UpdatePet, DeleteProduct } from '@/app/ui/products/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
@@ -8,80 +8,85 @@ import { useState } from 'react';
 import { Table, Checkbox } from '@mantine/core';
 import Link from 'next/link';
 
-export default function PetsTable({
+export default function ProductsTable({
   query,
   currentPage,
-  pets,
+  products,
 }: {
   query: string;
   currentPage: number;
-  pets: any;
+  products: any;
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const rows = pets.map((pet: any) => (
+  const rows = products.map((product: any) => (
     <Table.Tr
-      key={pet.id}
-      bg={selectedRows.includes(pet.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
+      key={product.id}
+      bg={selectedRows.includes(product.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(pet.nombre)}
+          checked={selectedRows.includes(product.nombre)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, pet.nombre]
-                : selectedRows.filter((nombre) => nombre !== pet.nombre)
+                ? [...selectedRows, product.nombre]
+                : selectedRows.filter((nombre) => nombre !== product.nombre)
             )
           }
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.pet_nombre}
+      <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.codigo_barras}
       </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.especie}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.nombre}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.raza}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.marca}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.sexo ? "Macho" : "Hembra"}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.proveedor}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {formatDateToLocal(pet.pet_fecha_nacimiento)}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.categoria}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.customer_nombre}  {pet.customer_apellido}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.subcategoria}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-          Activo
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        11
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-          {pet.pet_etiquetas}
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        5
+        </Link>
+      </Table.Td>
+      <Table.Td>
+        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        {product.estado ? "Activo" : "Inactivo"}
         </Link>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
-          <UpdatePet id={pet.id} />
-          <DeletePets id={pet.id} />
+          {/* <UpdatePet id={product.id} /> */}
+          <DeleteProduct id={product.id} />
         </div>
       </Table.Td>
     </Table.Tr>
@@ -133,14 +138,15 @@ export default function PetsTable({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th />
+                <Table.Th>Cod. de barras</Table.Th>
                 <Table.Th>Nombre</Table.Th>
-                <Table.Th>Especie</Table.Th>
-                <Table.Th>Raza</Table.Th>
-                <Table.Th>Género</Table.Th>
-                <Table.Th>Fecha de nacimiento</Table.Th>
-                <Table.Th>Cliente</Table.Th>
+                <Table.Th>Marca</Table.Th>
+                <Table.Th>Proveedor</Table.Th>
+                <Table.Th>Categoria</Table.Th>
+                <Table.Th>SubCategoria</Table.Th>
+                <Table.Th>Stock Contable</Table.Th>
+                <Table.Th>Stock Disponible</Table.Th>
                 <Table.Th>Estado</Table.Th>
-                <Table.Th>Etiquetas</Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>

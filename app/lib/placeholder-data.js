@@ -9,6 +9,12 @@ const users = [
     email: 'user@nextmail.com',
     password: '123456',
   },
+  {
+    id: '410544b2-4001-4271-9855-fec4b6a64422',
+    name: 'User2',
+    email: 'user2@nextmail.com',
+    password: '123456',
+  },
 ];
 
 const customers = [
@@ -221,6 +227,123 @@ const eventos = [
   },
 ];
 
+const products = [
+  {
+    id: uuidv4(),
+    user_id: users[0].id,
+    nombre: 'Product 1',
+    marca: 'Brand 1',
+    unidad_medida: 'YD',
+    presentacion: 'botella',
+    contenido: 'agua',
+    proveedor: 'Proveedor 1',
+    codigo_barras: '123456789',
+    categoria: 'Categoria 1',
+    subcategoria: 'Subcategoria 1',
+    min_stock: 10,
+    max_stock: 100,
+    points: 10,
+    precio_compra: 10,
+    precio_venta: 20,
+    estado: true
+  },
+  {
+    id: uuidv4(),
+    user_id: users[0].id,
+    nombre: 'Product 2',
+    marca: 'Brand 2',
+    unidad_medida: 'KG',
+    presentacion: 'paquete',
+    contenido: 'arroz',
+    proveedor: 'Proveedor 2',
+    codigo_barras: '987654321',
+    categoria: 'Categoria 2',
+    subcategoria: 'Subcategoria 2',
+    min_stock: 20,
+    max_stock: 200,
+    points: 15,
+    precio_compra: 15,
+    precio_venta: 30,
+    estado: true
+  },
+  {
+    id: uuidv4(),
+    user_id: users[0].id,
+    nombre: 'Product 3',
+    marca: 'Brand 3',
+    unidad_medida: 'L',
+    presentacion: 'garrafa',
+    contenido: 'aceite',
+    proveedor: 'Proveedor 3',
+    codigo_barras: '112233445',
+    categoria: 'Categoria 3',
+    subcategoria: 'Subcategoria 3',
+    min_stock: 5,
+    max_stock: 50,
+    points: 20,
+    precio_compra: 20,
+    precio_venta: 40,
+    estado: true
+  },
+  {
+    id: uuidv4(),
+    user_id: users[0].id,
+    nombre: 'Product 4',
+    marca: 'Brand 4',
+    unidad_medida: 'M',
+    presentacion: 'rollo',
+    contenido: 'papel',
+    proveedor: 'Proveedor 4',
+    codigo_barras: '556677889',
+    categoria: 'Categoria 4',
+    subcategoria: 'Subcategoria 4',
+    min_stock: 30,
+    max_stock: 300,
+    points: 25,
+    precio_compra: 25,
+    precio_venta: 50,
+    estado: true
+  },
+  {
+    id: uuidv4(),
+    user_id: users[0].id,
+    nombre: 'Product 5',
+    marca: 'Brand 5',
+    unidad_medida: 'CM',
+    presentacion: 'caja',
+    contenido: 'juguetes',
+    proveedor: 'Proveedor 5',
+    codigo_barras: '998877665',
+    categoria: 'Categoria 5',
+    subcategoria: 'Subcategoria 5',
+    min_stock: 15,
+    max_stock: 150,
+    points: 30,
+    precio_compra: 30,
+    precio_venta: 60,
+    estado: true
+  },
+  {
+    id: uuidv4(),
+    user_id: users[1].id,
+    nombre: 'Product 7',
+    marca: 'Brand 7',
+    unidad_medida: 'CM',
+    presentacion: 'caja',
+    contenido: 'juguetes',
+    proveedor: 'Proveedor 7',
+    codigo_barras: '998877667',
+    categoria: 'Categoria 7',
+    subcategoria: 'Subcategoria 7',
+    min_stock: 15,
+    max_stock: 150,
+    points: 30,
+    precio_compra: 30,
+    precio_venta: 60,
+    estado: true
+  }
+];
+
 // const customers3 = [
 //   {
 //     id: '3958dc9e-712f-4377-85e9-fec4b6a6442a',
@@ -400,4 +523,5 @@ module.exports = {
   // customers,
   mascotas,
   eventos,
+  products
 };

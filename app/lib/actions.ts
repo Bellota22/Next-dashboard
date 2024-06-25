@@ -218,7 +218,6 @@ export async function deleteCustomer(id: string) {
       }
   }
 }
-
 export async function deletePet(id: string) {
     try{
         await sql`DELETE FROM mascotas WHERE id = ${id}`;
@@ -228,7 +227,18 @@ export async function deletePet(id: string) {
             message: 'Failed to delete pet'
         }
     }
-  }
+}
+export async function deleteProduct(id: string) {
+    try{
+        await sql`DELETE FROM products WHERE id = ${id}`;
+        revalidatePath('/dashboard/products');
+    }catch{
+        return {
+            message: 'Failed to delete pet'
+        }
+    }
+}
+
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
