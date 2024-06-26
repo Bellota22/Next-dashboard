@@ -1,12 +1,14 @@
 'use client'
 import Image from 'next/image';
-import { UpdatePet, DeleteProduct } from '@/app/ui/products/buttons';
+import { UpdateProduct, DeleteProduct } from '@/app/ui/products/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
 import { useState } from 'react';
-import { Table, Checkbox } from '@mantine/core';
+import { Table, Checkbox, Chip, rem, Switch, useMantineTheme } from '@mantine/core';
 import Link from 'next/link';
+import { IconCheck, IconX } from '@tabler/icons-react';
+import { updateProductState } from '@/app/lib/actions';
 
 export default function ProductsTable({
   query,
@@ -19,6 +21,23 @@ export default function ProductsTable({
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const theme = useMantineTheme();
+  const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
+    Object.fromEntries(products.map((product: any) => [product.id, product.estado]))
+  );
+  const handleSwitchChange = async (productId: string) => {
+    const newState = !switchStates[productId];
+    setSwitchStates((prevStates) => ({
+      ...prevStates,
+      [productId]: newState,
+    }));
+    try {
+      await updateProductState(productId, newState); // Actualiza el estado en la base de datos
+    } catch (error) {
+      console.error('Failed to update product state:', error);
+    }
+  };
+
 
   const rows = products.map((product: any) => (
     <Table.Tr
@@ -39,53 +58,66 @@ export default function ProductsTable({
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+      <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         {product.codigo_barras}
       </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         {product.nombre}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         {product.marca}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         {product.proveedor}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         {product.categoria}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.subcategoria}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         11
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
+        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
         5
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.estado ? "Activo" : "Inactivo"}
-        </Link>
+      <Switch
+          checked={switchStates[product.id]}
+          onChange={() => handleSwitchChange(product.id)}
+          color='green'
+          size='sm'
+          thumbIcon={
+            switchStates[product.id] ? (
+              <IconCheck
+                style={{ width: rem(12), height: rem(12) }}
+                color={theme.colors.green[6]}
+                stroke={3}
+              />
+            ) : (
+              <IconX
+                style={{ width: rem(12), height: rem(12) }}
+                color={theme.colors.red[6]}
+                stroke={3}
+              />
+            )
+          }
+        />
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
-          {/* <UpdatePet id={product.id} /> */}
+          <UpdateProduct id={product.id} />
           <DeleteProduct id={product.id} />
         </div>
       </Table.Td>
@@ -143,7 +175,6 @@ export default function ProductsTable({
                 <Table.Th>Marca</Table.Th>
                 <Table.Th>Proveedor</Table.Th>
                 <Table.Th>Categoria</Table.Th>
-                <Table.Th>SubCategoria</Table.Th>
                 <Table.Th>Stock Contable</Table.Th>
                 <Table.Th>Stock Disponible</Table.Th>
                 <Table.Th>Estado</Table.Th>

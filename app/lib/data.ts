@@ -452,7 +452,6 @@ export async function fetchAllProducts(query: string, currentPage: number) {
       p.subcategoria,
       p.min_stock,
       p.max_stock,
-      p.points,
       p.precio_compra,
       p.precio_venta,
       p.estado,
@@ -477,6 +476,40 @@ export async function fetchAllProducts(query: string, currentPage: number) {
 
   return products.rows;
 }
+export async function fetchProductById(id: string) {
+  try {
+    const data = await sql<ProductsShowTable>`
+      SELECT
+        p.user_id,
+        p.nombre,
+        p.marca,
+        p.unidad_medida,
+        p.presentacion,
+        p.contenido,
+        p.proveedor,
+        p.codigo_barras,
+        p.categoria,
+        p.subcategoria,
+        p.min_stock,
+        p.max_stock,
+        p.precio_compra,
+        p.precio_venta,
+        p.estado,
+        p.fecha_creacion AS product_fecha_creacion
+      FROM products p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.id = ${id};
+    `;
+
+    const product = data.rows[0];
+    return product;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch product.');
+  }
+}
+
+
 // export async function fetchFilteredCustomers(query: string) {
 //   noStore();
 

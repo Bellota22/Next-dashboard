@@ -216,10 +216,10 @@ async function seedProducts(client) {
         subcategoria VARCHAR(255),
         min_stock INT,
         max_stock INT,
-        points INT,
         precio_compra DECIMAL,
         precio_venta DECIMAL,
         estado BOOLEAN DEFAULT TRUE,
+        imagen_url VARCHAR(255),
         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
@@ -228,8 +228,8 @@ async function seedProducts(client) {
     const insertedProducts = await Promise.all(
       products.map(
         (p) => client.sql`
-        INSERT INTO products (id, user_id, nombre, marca, unidad_medida, presentacion, contenido, proveedor, codigo_barras, categoria, subcategoria, min_stock, max_stock, points, precio_compra, precio_venta, estado)
-        VALUES (${p.id}, ${p.user_id}, ${p.nombre}, ${p.marca}, ${p.unidad_medida}, ${p.presentacion}, ${p.contenido}, ${p.proveedor}, ${p.codigo_barras}, ${p.categoria}, ${p.subcategoria}, ${p.min_stock}, ${p.max_stock}, ${p.points}, ${p.precio_compra}, ${p.precio_venta}, ${p.estado}) 
+        INSERT INTO products (id, user_id, nombre, marca, unidad_medida, presentacion, contenido, proveedor, codigo_barras, categoria, subcategoria, min_stock, max_stock, precio_compra, precio_venta, estado, imagen_url)
+        VALUES (${p.id}, ${p.user_id}, ${p.nombre}, ${p.marca}, ${p.unidad_medida}, ${p.presentacion}, ${p.contenido}, ${p.proveedor}, ${p.codigo_barras}, ${p.categoria}, ${p.subcategoria}, ${p.min_stock}, ${p.max_stock}, ${p.precio_compra}, ${p.precio_venta}, ${p.estado}, ${p.imagen_url}) 
         ON CONFLICT (id) DO NOTHING;
       `,
       ),

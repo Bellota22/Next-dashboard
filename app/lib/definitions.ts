@@ -121,7 +121,6 @@ export type PetsShowTable = {
 };
 
 export type ProductsShowTable = {
-  id: string;
   user_id: string;
   nombre: string;
   marca: string;
@@ -134,11 +133,10 @@ export type ProductsShowTable = {
   subcategoria: string;
   min_stock: number;
   max_stock: number;
-  points: number;
   precio_compra: number;
   precio_venta: number;
   estado: boolean;
-  fecha_creacion: string;
+  imagen_url?: string;
 };
 
 export type CustomersTableType = {
