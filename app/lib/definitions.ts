@@ -131,8 +131,7 @@ export type ProductsShowTable = {
   codigo_barras: string;
   categoria: string;
   subcategoria: string;
-  min_stock: number;
-  max_stock: number;
+  stock: number;
   precio_compra: number;
   precio_venta: number;
   estado: boolean;

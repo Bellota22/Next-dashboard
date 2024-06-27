@@ -5,9 +5,9 @@ import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
 import { useState } from 'react';
-import { Table, Checkbox, Chip, rem, Switch, useMantineTheme } from '@mantine/core';
+import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex } from '@mantine/core';
 import Link from 'next/link';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { IconCheck, IconCreditCard, IconMinus, IconPaywall, IconPlus, IconShoppingBag, IconX } from '@tabler/icons-react';
 import { updateProductState } from '@/app/lib/actions';
 
 export default function ProductsTable({
@@ -21,6 +21,7 @@ export default function ProductsTable({
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const theme = useMantineTheme();
   const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
     Object.fromEntries(products.map((product: any) => [product.id, product.estado]))
@@ -32,12 +33,36 @@ export default function ProductsTable({
       [productId]: newState,
     }));
     try {
-      await updateProductState(productId, newState); // Actualiza el estado en la base de datos
+      await updateProductState(productId, newState);
     } catch (error) {
       console.error('Failed to update product state:', error);
     }
   };
 
+  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+
+  const handleCheckboxChange = (product: any, isChecked: boolean) => {
+    setSelectedProducts((prevSelected) =>
+      isChecked
+        ? [...prevSelected, product]
+        : prevSelected.filter((p) => p.id !== product.id)
+    );
+    setSelectedRows((prevSelected) =>
+      isChecked
+        ? [...prevSelected, product.nombre]
+        : prevSelected.filter((p) => p !== product
+        .nombre)
+    );
+    if (isChecked) {
+      setQuantities((prevQuantities) => ({ ...prevQuantities, [product.id]: 0 }));
+    } else {
+      setQuantities((prevQuantities) => {
+        const newQuantities = { ...prevQuantities };
+        delete newQuantities[product.id];
+        return newQuantities;
+      });
+    }
+  };
 
   const rows = products.map((product: any) => (
     <Table.Tr
@@ -45,15 +70,11 @@ export default function ProductsTable({
       bg={selectedRows.includes(product.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
-        <Checkbox
+      <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(product.nombre)}
+          checked={selectedProducts.some((p) => p.id === product.id)}
           onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, product.nombre]
-                : selectedRows.filter((nombre) => nombre !== product.nombre)
-            )
+            handleCheckboxChange(product, event.currentTarget.checked)
           }
         />
       </Table.Td>
@@ -84,12 +105,7 @@ export default function ProductsTable({
       </Table.Td>
       <Table.Td>
         <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        11
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        5
+        {product.stock}
         </Link>
       </Table.Td>
       <Table.Td>
@@ -124,48 +140,70 @@ export default function ProductsTable({
     </Table.Tr>
   ));
 
+  const [slowTransitionOpened, setSlowTransitionOpened] = useState(false);
+
+
+  const handleQuantityChange = (productId: string, amount: number) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [productId]: Math.min(Math.max(0, (prevQuantities[productId] || 0) + amount), products.find((p: any) => p.id === productId)?.stock || 0),
+    }));
+  };
+
+  const cartItems = selectedProducts.map((product) => (
+    <Box key={product.id} className="flex items-center justify-between p-2 border-b">
+      <Image src={product.imagen_url} alt={product.nombre} width={50} height={50} />
+      <Box className="ml-4">
+        <Box>{product.nombre}</Box>
+        <Box>{formatCurrency(product.precio_venta)}</Box>
+      </Box>
+      <Box className="flex items-center">
+      <Button
+          size="xs"
+          variant="light"
+          onClick={() => handleQuantityChange(product.id, -1)}
+          disabled={product.stock === 0}
+        >
+          <IconMinus size={14} />
+        </Button>
+        <span className="mx-2">{quantities[product.id] || 0}</span>
+        <Button
+          size="xs"
+          variant="light"
+          onClick={() => handleQuantityChange(product.id, 1)}
+          disabled={product.quantity === product.stock}
+        >
+          <IconPlus size={14} />
+        </Button>
+      </Box>
+      <Box>
+      {formatCurrency((product.precio_venta * (quantities[product.id] || 0)))}
+      </Box>
+    </Box>
+  ));
+  const total = selectedProducts.reduce((acc, product) => acc + product.precio_venta * (quantities[product.id] || 0), 0);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            {/* {invoices?.map((invoice) => (
-              <div
-                key={invoice.id}
-                className="mb-2 w-full rounded-md bg-white p-4"
-              >
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <div className="mb-2 flex items-center">
-                      <Image
-                        src={invoice.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${invoice.name}'s profile picture`}
-                      />
-                      <p>{invoice.name}</p>
-                    </div>
-                    <p className="text-sm text-gray-500">{invoice.email}</p>
-                  </div>
-                  <InvoiceStatus status={invoice.status} />
-                </div>
-                <div className="flex w-full items-center justify-between pt-4">
-                  <div>
-                    <p className="text-xl font-medium">
-                      {formatCurrency(invoice.amount)}
-                    </p>
-                    <p>{formatDateToLocal(invoice.date)}</p>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <UpdateInvoice id={invoice.id} />
-                    <DeleteInvoice id={invoice.id} />
-                  </div>
-                </div>
-              </div>
-            ))} */}
-          </div>
+        <Modal
+            opened={slowTransitionOpened}
+            onClose={() => setSlowTransitionOpened(false)}
+            title="Carrito"
+            size="lg"
+            transitionProps={{ transition: 'rotate-left' }}
+          >
+            <Stack>
+              <Box className="space-y-4">
+                {cartItems.length > 0 ? cartItems : <Box>No hay productos en el carrito</Box>}
+              </Box>
+              <Flex justify="flex-end" className="mt-4">
+                <Box mr="auto">Total: {formatCurrency(total)}</Box>
+                <Button rightSection={<IconCreditCard />}>Ir a pagar</Button>
+              </Flex>
+            </Stack>
+          </Modal>
           <Table>
             <Table.Thead>
               <Table.Tr>
@@ -175,10 +213,20 @@ export default function ProductsTable({
                 <Table.Th>Marca</Table.Th>
                 <Table.Th>Proveedor</Table.Th>
                 <Table.Th>Categoria</Table.Th>
-                <Table.Th>Stock Contable</Table.Th>
                 <Table.Th>Stock Disponible</Table.Th>
                 <Table.Th>Estado</Table.Th>
-                <Table.Th></Table.Th>
+                <Table.Th className="flex justify-end" >
+                <Indicator
+                    size={12}
+                    label={selectedProducts.length.toString()}
+                    inline
+                    onClick={() => setSlowTransitionOpened(true)}
+                    color="red"
+                    className="cursor-pointer transition ease-in-out delay-120 hover:-translate-y-1 hover:scale-110 hover:bg-gray-100 duration-150"
+                  >
+                  <IconShoppingBag className="w-6 h-6 "  />
+                </Indicator>
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

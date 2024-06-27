@@ -31,16 +31,14 @@ export default function Form() {
       precio_compra: 0,
       precio_venta: 0,
       min_stock: 0,
-      max_stock: 0,
+      stock: 0,
       imagen_url: '',
       estado: true,
     },
     validate: {
       precio_compra: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
       precio_venta: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
-      min_stock: (value) => (value > 0 ? null : 'Stock debe ser mayor a 0'),
-      max_stock: (value) => (value > 0 ? null : 'Stock debe ser mayor a 0'),
-      
+      stock: (value) => (value > 0 ? null : 'Stock debe ser mayor a 0'),
     },
     
   });
@@ -126,21 +124,12 @@ export default function Form() {
               /> */}
               <NumberInput
                 withAsterisk
-                label="Minimo de stock"
-                placeholder="10"
-                required
-                hideControls 
-                key={form.key('min_stock')}
-                {...form.getInputProps('min_stock')}
-              />
-              <NumberInput
-                withAsterisk
-                label="Máximo de stock"
+                label="Stock"
                 placeholder="155"
                 required
                 hideControls 
-                key={form.key('max_stock')}
-                {...form.getInputProps('max_stock')}
+                key={form.key('stock')}
+                {...form.getInputProps('stock')}
               />
               <NativeSelect
                 withAsterisk

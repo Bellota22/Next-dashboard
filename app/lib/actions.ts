@@ -168,14 +168,13 @@ export async function createProducts(productsData: ProductsShowTable) {
     contenido,
     precio_compra,
     precio_venta,
-    min_stock,
-    max_stock,
+    stock,
     imagen_url,
     estado,
   } = productsData;
   await sql`
-  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, min_stock, max_stock, imagen_url, estado, fecha_creacion)
-  VALUES (${user_id}, ${codigo_barras}, ${nombre}, ${marca}, ${unidad_medida}, ${proveedor}, ${categoria}, ${subcategoria}, ${presentacion}, ${contenido}, ${precio_compra}, ${precio_venta}, ${min_stock}, ${max_stock}, ${imagen_url}, ${estado}, ${fecha_creacion})
+  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, min_stock, stock, imagen_url, estado, fecha_creacion)
+  VALUES (${user_id}, ${codigo_barras}, ${nombre}, ${marca}, ${unidad_medida}, ${proveedor}, ${categoria}, ${subcategoria}, ${presentacion}, ${contenido}, ${precio_compra}, ${precio_venta}, ${stock}, ${imagen_url}, ${estado}, ${fecha_creacion})
 `;
 revalidatePath('/dashboard/products');
 redirect('/dashboard/products');
@@ -195,8 +194,7 @@ export async function updateProduct(id: string, productData: ProductsShowTable) 
     contenido,
     precio_compra,
     precio_venta,
-    min_stock,
-    max_stock,
+    stock,
     imagen_url,
     estado,
   } = productData;
@@ -216,8 +214,7 @@ export async function updateProduct(id: string, productData: ProductsShowTable) 
       contenido = ${contenido}, 
       precio_compra = ${precio_compra}, 
       precio_venta = ${precio_venta}, 
-      min_stock = ${min_stock}, 
-      max_stock = ${max_stock}, 
+      stock = ${stock}, 
       imagen_url = ${imagen_url}, 
       estado = ${estado}
     WHERE id = ${id}
