@@ -1,6 +1,7 @@
 import Form from '@/app/ui/customers/create-form';
 import { lusitana } from '@/app/ui/fonts';
 import { Breadcrumbs, Anchor } from '@mantine/core';
+import { Suspense } from 'react';
  
 export default async function Page() {
  
@@ -20,10 +21,11 @@ export default async function Page() {
   return (
     <main>
       <Breadcrumbs style={{ color: 'black' }}> 
-      {items}
+        {items}
       </Breadcrumbs>
-      
+      <Suspense fallback="Loading...">
       <Form />
+      </Suspense>
     </main>
   );
 }

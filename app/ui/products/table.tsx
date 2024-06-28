@@ -1,7 +1,6 @@
 'use client'
 import Image from 'next/image';
 import { UpdateProduct, DeleteProduct } from '@/app/ui/products/buttons';
-import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatCurrency } from '@/app/lib/utils';
 import { useEffect, useState } from 'react';
 import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete } from '@mantine/core';

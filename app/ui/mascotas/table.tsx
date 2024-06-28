@@ -1,7 +1,6 @@
 'use client'
 import Image from 'next/image';
 import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
-import InvoiceStatus from '@/app/ui/invoices/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
 import { useState } from 'react';
