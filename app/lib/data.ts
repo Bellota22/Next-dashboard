@@ -11,6 +11,8 @@ import {
   UsersShowTable,
   PetsShowTable,
   ProductsShowTable,
+  SalesProductsTableType,
+  SaleWithProductsType,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -276,7 +278,8 @@ export async function fetchCustomerById(id: string) {
   }
 }
 
-export async function fetchCustomers() {
+export async function fetchCustomers(query: string, currentPage: number) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
     const data = await sql<CustomerField>`
@@ -285,7 +288,10 @@ export async function fetchCustomers() {
         nombre,
         apellido
       FROM customers
+      WHERE nombre ILIKE ${`%${query}%`} OR apellido ILIKE ${`%${query}%`}
       ORDER BY nombre ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+
     `;
 
     const customers = data.rows;
@@ -507,6 +513,67 @@ export async function fetchProductById(id: string) {
   }
 }
 
+export async function fetchAllSells(query: string, currentPage: number): Promise<SaleWithProductsType[]> {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const sells = await sql`
+    SELECT
+      v.id AS venta_id,
+      v.user_id,
+      v.customer_id,
+      v.total,
+      v.fecha,
+      v.estado,
+      v.fecha_creacion,
+      vp.producto_id,
+      vp.cantidad,
+      vp.precio
+
+    FROM ventas v
+    JOIN ventas_productos vp ON v.id = vp.venta_id
+    
+    ORDER BY v.fecha DESC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  // Procesar los resultados y agrupar los productos por venta
+  const salesMap: { [key: string]: SaleWithProductsType } = {};
+
+  sells.rows.forEach(row => {
+    const ventaId = row.venta_id;
+
+    if (!salesMap[ventaId]) {
+      salesMap[ventaId] = {
+        venta: {
+          id: row.venta_id,
+          user_id: row.user_id,
+          customer_id: row.customer_id,
+          total: row.total,
+          fecha: new Date(row.fecha),
+          estado: row.estado,
+          fecha_creacion: new Date(row.fecha_creacion),
+        },
+        productos: [],
+      };
+    }
+
+    const product: SalesProductsTableType = {
+      venta_id: row.venta_id,
+      producto_id: row.producto_id,
+      cantidad: row.cantidad,
+      precio: row.precio,
+      producto_nombre: row.producto_nombre,
+      producto_marca: row.producto_marca,
+    };
+
+    salesMap[ventaId].productos.push(product);
+  });
+
+  // Convertir el mapa de ventas en un array
+  const salesWithProducts: SaleWithProductsType[] = Object.values(salesMap);
+
+  return salesWithProducts;
+}
 
 // export async function fetchFilteredCustomers(query: string) {
 //   noStore();

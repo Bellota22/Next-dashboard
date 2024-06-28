@@ -1,6 +1,6 @@
 
 import Form from '@/app/ui/customers/edit-form';
-import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
+import { Breadcrumbs, Anchor } from '@mantine/core';
 import { fetchCustomerPets } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
@@ -13,6 +13,7 @@ import { useSpring, animated } from '@react-spring/web'
 import { IconDog } from '@tabler/icons-react';
 import { Button } from '@/app/ui/button';
 import { NotFound } from '@/app/ui/customers/not-found';
+import { lusitana } from '@/app/ui/fonts';
 
 export const metadata: Metadata = {
   title: 'Edit invoice',
@@ -22,17 +23,21 @@ export default async function Page({ params }: { params: { id: string; query?: s
   const query = params?.query || '';
   const currentPage = Number(params?.page) || 1;
   const pets = await fetchCustomerPets(id); 
- 
+  const items = [
+    { label: 'Clientes', href: '/dashboard/customers' },
+    { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`},
+    { label: 'Mascotas', href: `/dashboard/customers/${id}/pets`, active: true },
+    
+  ].map((item, index) => (
+    <Anchor className={`${lusitana.className}`}  href={item.href} key={index}>
+      {item.label}
+    </Anchor>
+  ));
     return (
     <main>
-      <Breadcrumbs
-        breadcrumbs={[
-          { label: 'Clientes', href: '/dashboard/customers' },
-          { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`},
-          { label: 'Mascotas', href: `/dashboard/customers/${id}/pets`, active: true },
-          
-        ]}
-      />
+      <Breadcrumbs style={{ color: 'black' }}> 
+      {items}
+      </Breadcrumbs>
       <Suspense fallback={<InvoicesTableSkeleton />}>
         {pets.length > 0 ? (
           <Table pets={pets} query={query} currentPage={currentPage} />

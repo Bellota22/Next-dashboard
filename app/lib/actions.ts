@@ -62,7 +62,6 @@ export async function createCustomer(customerData: UsersTable) {
 
    
     revalidatePath('/dashboard/customers');
-    redirect('/dashboard/customers');
 
 }
 export async function editCustomer(customerId: string, customerData: UsersTable) {
@@ -173,7 +172,7 @@ export async function createProducts(productsData: ProductsShowTable) {
     estado,
   } = productsData;
   await sql`
-  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, min_stock, stock, imagen_url, estado, fecha_creacion)
+  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, stock, imagen_url, estado, fecha_creacion)
   VALUES (${user_id}, ${codigo_barras}, ${nombre}, ${marca}, ${unidad_medida}, ${proveedor}, ${categoria}, ${subcategoria}, ${presentacion}, ${contenido}, ${precio_compra}, ${precio_venta}, ${stock}, ${imagen_url}, ${estado}, ${fecha_creacion})
 `;
 revalidatePath('/dashboard/products');
@@ -223,7 +222,6 @@ export async function updateProduct(id: string, productData: ProductsShowTable) 
   revalidatePath('/dashboard/products');
   redirect('/dashboard/products');
 }
-
 export async function updateProductState(id: string, estado: boolean) {
   try {
     await sql`
@@ -237,7 +235,6 @@ export async function updateProductState(id: string, estado: boolean) {
     throw new Error('Failed to update product state.');
   }
 }
-
 export async function deleteProduct(id: string) {
     try{
         await sql`DELETE FROM products WHERE id = ${id}`;
@@ -248,6 +245,41 @@ export async function deleteProduct(id: string) {
         }
     }
 }
+
+export async function createSale(userId: string, customerId: string, products: any[]) {
+  const fecha = new Date().toISOString();
+  const estado = true;
+  const total = products.reduce((sum, product) => sum + product.precio_venta * product.cantidad, 0);
+
+  const venta = await sql`
+    INSERT INTO ventas (user_id, customer_id, total, fecha, estado, fecha_creacion)
+    VALUES (${userId}, ${customerId}, ${total}, ${fecha}, ${estado}, ${fecha})
+    RETURNING id
+  `;
+
+  const ventaId = venta.rows[0].id;
+
+  for (const product of products) {
+    await sql`
+      INSERT INTO ventas_productos (venta_id, producto_id, cantidad, precio)
+      VALUES (${ventaId}, ${product.id}, ${product.cantidad}, ${product.precio_venta})
+    `;
+  }
+
+  return ventaId;
+}
+export async function deleteSell(id: string) {
+  try{
+      await sql`DELETE FROM sells WHERE id = ${id}`;
+      revalidatePath('/dashboard/sells');
+  }catch{
+      return {
+          message: 'Failed to delete sell'
+      }
+  }
+}
+
+
 
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({

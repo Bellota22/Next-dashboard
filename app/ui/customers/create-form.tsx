@@ -10,8 +10,16 @@ import { useEffect, useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import data from '@/app/lib/cities_data';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { setCookie } from 'cookies-next';
 
 export default function Form() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const fromModal = searchParams.get('fromModal') === 'true';
+
+  
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
@@ -74,10 +82,21 @@ export default function Form() {
       form.setFieldValue('distrito', '');
     }
   }, [form.values.provincia, form.values.departamento]);
-
+  
+  const handleSubmit = async (values: any) => {
+    await createCustomer(values);
+    if (fromModal) {
+      setCookie('fromModal', 'true');
+      setCookie('nombre', values.nombre);
+      setCookie('customer', values);
+      router.push("/dashboard/products?fromModal=true");
+    } else {
+      router.push('/dashboard/customers');
+    }
+  };
 
   return (
-    <form onSubmit={form.onSubmit((values) => createCustomer(values))}>
+    <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>

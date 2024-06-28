@@ -5,15 +5,14 @@ import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllProducts } from '@/app/lib/data';
+import { fetchAllProducts, fetchCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
-import { IconShoppingBag } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
-import { Avatar, Indicator, Button, Stack } from '@mantine/core';
+import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Productos | PettoCare',
 };
+
 
 export default async function Page({
   searchParams,
@@ -27,7 +26,13 @@ export default async function Page({
   const currentPage = Number(searchParams?.page) || 1;
   // const totalPages = await fetchInvoicesPages(query);
   const products = await fetchAllProducts(query, currentPage);
+  const customers = await fetchCustomers(query, currentPage);
+  const cookieStore = cookies();
+
+  const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
   
+  const savedQuantities = JSON.parse(cookieStore.get('quantities')?.value || '{}');
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
@@ -35,11 +40,18 @@ export default async function Page({
         
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Search invoices..." />
+        <Search placeholder="Search products..." />
         <CreateProduct />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table products={products} query={query} currentPage={currentPage} />
+        <Table
+          customers={customers}
+          products={products}
+          query={query}
+          currentPage={currentPage}
+          savedSelectedProducts={savedSelectedProducts}
+          savedQuantities={savedQuantities}
+        />
       </Suspense>
       {/* <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

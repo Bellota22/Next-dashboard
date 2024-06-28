@@ -148,6 +148,30 @@ export type CustomersTableType = {
   total_paid: number;
 };
 
+export type SalesTableType = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  total: number;
+  fecha: Date;
+  estado: boolean;
+  fecha_creacion: Date;
+};
+
+export type SalesProductsTableType = {
+  venta_id: string;
+  producto_id: string;
+  cantidad: number;
+  precio: number;
+  producto_nombre: string;
+  producto_marca: string;
+};
+
+export type SaleWithProductsType = {
+  venta: SalesTableType;
+  productos: SalesProductsTableType[];
+};
+
 export type FormattedCustomersTable = {
   id: string;
   name: string;

@@ -1,21 +1,28 @@
 import Form from '@/app/ui/customers/create-form';
-import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
-import { fetchCustomers } from '@/app/lib/data';
+import { lusitana } from '@/app/ui/fonts';
+import { Breadcrumbs, Anchor } from '@mantine/core';
  
 export default async function Page() {
  
+  const items = [
+    { label: 'Clientes', href: '/dashboard/customers' },
+    {
+      label: 'Crear cliente',
+      href: '/dashboard/customers/create',
+      active: true,
+    },
+  ].map((item, index) => (
+    <Anchor className={`${lusitana.className}`}  href={item.href} key={index}>
+      {item.label}
+    </Anchor>
+  ));
+
   return (
     <main>
-      <Breadcrumbs
-        breadcrumbs={[
-          { label: 'Clientes', href: '/dashboard/customers' },
-          {
-            label: 'Crear cliente',
-            href: '/dashboard/customers/create',
-            active: true,
-          },
-        ]}
-      />
+      <Breadcrumbs style={{ color: 'black' }}> 
+      {items}
+      </Breadcrumbs>
+      
       <Form />
     </main>
   );
