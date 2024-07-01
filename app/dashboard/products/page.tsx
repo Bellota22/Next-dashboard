@@ -4,7 +4,7 @@ import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllProducts, fetchCustomers, fetchProductsPages } from '@/app/lib/data';
+import { fetchProductsPages, getAllCostumers, getAllProducts } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Flex } from '@mantine/core';
@@ -31,16 +31,14 @@ export default async function Page({
     customers,
     totalPages,
   ] = await Promise.all([
-    fetchAllProducts(query, currentPage, userId),
-    fetchCustomers(query, currentPage),
+    getAllProducts(query, currentPage, userId),
+    getAllCostumers(query, currentPage, userId),
     fetchProductsPages(query, userId),
   ]);
-  console.log('products::: ', products.length);
   
-  const cookieStore = cookies();
 
+  const cookieStore = cookies();
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
-  
   const savedQuantities = JSON.parse(cookieStore.get('quantities')?.value || '{}');
 
   return (

@@ -3,12 +3,19 @@ import Image from 'next/image';
 import { UpdateProduct, DeleteProduct } from '@/app/ui/products/buttons';
 import { formatCurrency } from '@/app/lib/utils';
 import { useEffect, useState } from 'react';
-import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete } from '@mantine/core';
+import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete, Text, Title } from '@mantine/core';
 import { IconCheck, IconCreditCard, IconMinus, IconPaywall, IconPlus, IconShoppingBag, IconUser, IconUsersGroup, IconX } from '@tabler/icons-react';
 import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
 import { useSearchParams } from 'next/navigation';
+import { Products } from '@/app/lib/definitions';
+import { products } from '@/app/lib/placeholder-data';
+
+interface ProductsSelected {
+  products: Products[];
+  quantities: Record<string, number>; 
+};
 
 export default function ProductsTable({
   query,
@@ -20,21 +27,23 @@ export default function ProductsTable({
 }: {
   query: string;
   currentPage: number;
-  products: any;
+  products: Products[];
   customers: any;
-  savedSelectedProducts: any[];
+  savedSelectedProducts: Products[];
   savedQuantities: Record<string, number>;
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
-  const [selectedProducts, setSelectedProducts] = useState<any[]>(savedSelectedProducts);
-  const [quantities, setQuantities] = useState<Record<string, number>>(savedQuantities);
   const theme = useMantineTheme();
+  const [selectedProducts, setSelectedProducts] = useState<Products[]>(savedSelectedProducts);
+  const [quantities, setQuantities] = useState<Record<string, number>>(savedQuantities);
+  
   const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
-    Object.fromEntries(products.map((product: any) => [product.id, product.estado]))
+    Object.fromEntries(products.map((product: Products) => [product.id, product.status]))
   );
 
   const [slowTransitionOpened, setSlowTransitionOpened] = useState(false);
   const [inputValue, setInputValue] = useState<string>('');
+
   useEffect(() => {
     const fromModal = getCookie('fromModal') === 'true';
     const newCustomer = getCookie('customer') || '';
@@ -44,9 +53,9 @@ export default function ProductsTable({
       setInputValue(JSON.parse(newCustomer).nombre);
     }
 
-    setCookie('fromModal', 'false'); // Reset the cookie
-    setCookie('customer', ''); // Reset the cookie
-    setCookie('id', ''); // Reset the
+    setCookie('fromModal', 'false'); 
+    setCookie('customer', ''); 
+    setCookie('id', '');
   }, []);
   
   useEffect(() => {
@@ -68,7 +77,7 @@ export default function ProductsTable({
   };
 
 
-  const handleCheckboxChange = (product: any, isChecked: boolean) => {
+  const handleCheckboxChange = (product: Products, isChecked: boolean) => {
     setSelectedProducts((prevSelected) =>
       isChecked
         ? [...prevSelected, product]
@@ -86,83 +95,7 @@ export default function ProductsTable({
     }
   };
 
-  const rows = products.map((product: any) => (
-    <Table.Tr
-      key={product.id}
-      bg={selectedProducts.some((p) => p.id === product.id) ? theme.colors.primary[1]: undefined}
-    >
-      <Table.Td>
-      <Checkbox
-          aria-label="Select row"
-          checked={selectedProducts.some((p) => p.id === product.id)}
-          onChange={(event) =>
-            handleCheckboxChange(product, event.currentTarget.checked)
-          }
-          variant='outline'
-          color='primary' 
-        />
-      </Table.Td>
-      <Table.Td>
-      <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.codigo_barras}
-      </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.nombre}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.marca}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.precio_venta}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.categoria}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-        <Link href={`/dashboard/products/${product.id}/edit`} style={{ cursor: "pointer" }}>
-        {product.stock}
-        </Link>
-      </Table.Td>
-      <Table.Td>
-      <Switch
-          checked={switchStates[product.id]}
-          onChange={() => handleSwitchChange(product.id)}
-          color='green'
-          size='sm'
-          thumbIcon={
-            switchStates[product.id] ? (
-              <IconCheck
-                style={{ width: rem(12), height: rem(12) }}
-                color={theme.colors.green[6]}
-                stroke={3}
-              />
-            ) : (
-              <IconX
-                style={{ width: rem(12), height: rem(12) }}
-                color={theme.colors.red[6]}
-                stroke={3}
-              />
-            )
-          }
-        />
-      </Table.Td>
-      <Table.Td>
-        <div className="flex justify-end gap-2">
-          <UpdateProduct id={product.id} />
-          <DeleteProduct id={product.id} />
-        </div>
-      </Table.Td>
-    </Table.Tr>
-  ));
+
 
 
   const handleRemoveProduct = (productId: string) => {
@@ -175,19 +108,21 @@ export default function ProductsTable({
       return newQuantities;
     });
   };
+  
   const handleQuantityChange = (productId: string, amount: number) => {
     setQuantities((prevQuantities) => ({
       ...prevQuantities,
-      [productId]: Math.min(Math.max(0, (prevQuantities[productId] || 0) + amount), products.find((p: any) => p.id === productId)?.stock || 0),
+      [productId]: Math.min(Math.max(0, (prevQuantities[productId] || 0) + amount), products.find((p: Products) => p.id === productId)?.stock || 0),
     }));
   };
 
   const cartItems = selectedProducts.map((product) => (
     <Box key={product.id} className="flex items-center justify-between p-2 border-b gap-4">
-      <IconX size={14} onClick={() => handleRemoveProduct(product.id)} style={{ cursor: "pointer" }} />      <Image src={product.imagen_url} alt={product.nombre} width={50} height={50} />
+      <IconX size={14} onClick={() => handleRemoveProduct(product.id)} style={{ cursor: "pointer" }} />     
+      {/* <Image src={product.image_url!} alt={product.name} width={50} height={50} /> */}
       <Box className="flex-1 flex flex-col justify-start mx-2">
-        <Box className="truncate text-gray-600">{product.nombre}</Box>
-        <Box className="text-sm font-semibold">S/{product.precio_venta}</Box>
+        <Box className="truncate text-gray-600">{product.name}</Box>
+        <Box className="text-sm font-semibold">S/{product.sell_price}</Box>
       </Box>
       <Box className="flex items-center space-x-2">
         <Button
@@ -203,18 +138,18 @@ export default function ProductsTable({
           size="xs"
           variant="light"
           onClick={() => handleQuantityChange(product.id, 1)}
-          disabled={product.quantity === product.stock}
+          disabled={quantities[product.id] === product.stock}
         >
           <IconPlus size={14} />
         </Button>
       </Box>
       <Box w={60}>
-        S/{(product.precio_venta * (quantities[product.id] || 0)).toFixed(2)}
+        S/{(product.sell_price * (quantities[product.id] || 0)).toFixed(2)}
       </Box>
     </Box>
   ));
 
-  const total = selectedProducts.reduce((acc, product) => acc + product.precio_venta * (quantities[product.id] || 0), 0);
+  const total = selectedProducts.reduce((acc, product) => acc + product.sell_price * (quantities[product.id] || 0), 0);
 
   const handleCustomerChange = (value: string) => {
     setInputValue(value);
@@ -232,7 +167,7 @@ export default function ProductsTable({
     const productsToSell = selectedProducts.map((product) => ({
       id: product.id,
       cantidad: quantities[product.id],
-      precio_venta: product.precio_venta,
+      precio_venta: product.sell_price,
     }));
 
     try {
@@ -249,11 +184,93 @@ export default function ProductsTable({
       alert('Failed to register sale');
     }
   };
+
+  
+
+  const rows = products.map((product: Products) => {
+    const isSelected = selectedProducts.some((p) => p.id === product.id);
+    const linkStyle = { cursor: "pointer" };
+    const linkProps = {
+      component: Link,
+      href: `/dashboard/products/${product.id}/edit`,
+      style: linkStyle,
+    };
+    
+    return (
+      <Table.Tr
+        ta="right"
+        key={product.id}
+        bg={isSelected ? theme.colors.primary[1] : undefined}
+      >
+        <Table.Td>
+          <Checkbox
+            color="primary"
+            variant="outline"
+            aria-label="Select row"
+            checked={isSelected}
+            onChange={(event) => handleCheckboxChange(product, event.currentTarget.checked)}
+          />
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.image_url}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.name}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.brand}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.sell_price}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.buy_price}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.category}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text {...linkProps}>{product.stock}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Switch
+            className="flex items-center justify-end"
+            checked={switchStates[product.id]}
+            onChange={() => handleSwitchChange(product.id)}
+            color="green"
+            size="sm"
+            thumbIcon={
+              switchStates[product.id] ? (
+                <IconCheck
+                  style={{ width: rem(12), height: rem(12) }}
+                  color={theme.colors.green[6]}
+                  stroke={3}
+                />
+              ) : (
+                <IconX
+                  style={{ width: rem(12), height: rem(12) }}
+                  color={theme.colors.red[6]}
+                  stroke={3}
+                />
+              )
+            }
+          />
+        </Table.Td>
+        <Table.Td>
+          <div className="flex justify-end gap-2">
+            <UpdateProduct id={product.id} />
+            <DeleteProduct id={product.id} />
+          </div>
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
+  
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-        <Modal
+          <Modal
             opened={slowTransitionOpened}
             onClose={() => setSlowTransitionOpened(false)}
             title="Carrito"
@@ -284,7 +301,7 @@ export default function ProductsTable({
               <Flex justify="flex-end" className="mt-4">
                 <Box mr="auto" className="font-semibold">Total: {total}</Box>
                 <Button rightSection={<IconCreditCard size={15} />} onClick={handleRegisterSale}>Registrar Venta</Button>
-                </Flex>
+              </Flex>
             </Stack>
           </Modal>
           <Table>
@@ -302,16 +319,17 @@ export default function ProductsTable({
                     <IconShoppingBag className="w-6 h-6 "  />
                   </Indicator>
                 </Table.Th>
-                <Table.Th>Cod. de barras</Table.Th>
-                <Table.Th>Nombre</Table.Th>
-                <Table.Th>Marca</Table.Th>
-                <Table.Th>Precio venta</Table.Th>
-                <Table.Th>Categoria</Table.Th>
-                <Table.Th>Stock Disponible</Table.Th>
-                <Table.Th>Estado</Table.Th>
-                <Table.Th className="flex justify-end" >
+                <Table.Th aria-label="image" />
+
+                <Table.Th><Title ta="right" order={6}>Nombre</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Marca</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Precio Venta</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Precio compra</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Categoria</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Stock</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Status</Title></Table.Th>
                 
-                </Table.Th>
+                <Table.Th aria-label="actionables" className="flex justify-end" />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

@@ -9,47 +9,145 @@ const {
   eventos,
   products
 } = require('../app/lib/placeholder-data.js');
+const bcrypt = require('bcryptjs');
 
-// async function seedCustomers(client) {
-//   try {
-//     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-//     // Create the "users" table if it doesn't exist
-//     const createTable = await client.sql`
-//       CREATE TABLE IF NOT EXISTS users (
-//         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//         name VARCHAR(255) NOT NULL,
-//         email TEXT NOT NULL UNIQUE,
-//         password TEXT NOT NULL
-//       );
-//     `;
+async function seedUsers(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    // Create the "users" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        status BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
 
-//     console.log(`Created "users" table`);
+    const insertedUsers = await Promise.all(
+      users.map(async (user) => {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        return client.sql`
+        INSERT INTO users (id, name, email, password, status)
+        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword}, ${user.status})
+        ON CONFLICT (id) DO NOTHING;
+      `;
+      }),
+    );
 
-//     // Insert data into the "users" table
-//     const insertedUsers = await Promise.all(
-//       users.map(async (user) => {
-//         const hashedPassword = await bcrypt.hash(user.password, 10);
-//         return client.sql`
-//         INSERT INTO users (id, name, email, password)
-//         VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-//         ON CONFLICT (id) DO NOTHING;
-//       `;
-//       }),
-//     );
+    console.log(`Seeded ${insertedUsers.length} users`);
 
-//     console.log(`Seeded ${insertedUsers.length} users`);
+    return {
+      createTable,
+      users: insertedUsers,
+    };
+  } catch (error) {
+    console.error('Error seeding users:', error);
+    throw error;
+  }
+}
 
-//     return {
-//       createTable,
-//       users: insertedUsers,
-//     };
-//   } catch (error) {
-//     console.error('Error seeding users:', error);
-//     throw error;
-//   }
-// }
+async function seedProducts(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+    // Create the "products" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS products (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        name VARCHAR(255),
+        brand VARCHAR(255),
+        measure_unit VARCHAR(255),
+        presentation VARCHAR(255),
+        content VARCHAR(255),
+        supplier VARCHAR(255),
+        bar_code VARCHAR(255),
+        category VARCHAR(255),
+        stock INTEGER,
+        sell_price DECIMAL,
+        buy_price DECIMAL,
+        status BOOLEAN DEFAULT TRUE,
+        image_url VARCHAR(255),
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `;
 
+    // Insert data into the "products" table
+    const insertedProducts = await Promise.all(
+      products.map(
+        (p) => client.sql`
+        INSERT INTO products (id, user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, sell_price, buy_price, status, image_url)
+        VALUES (${p.id}, ${p.user_id}, ${p.name}, ${p.brand}, ${p.measure_unit}, ${p.presentation}, ${p.content}, ${p.supplier}, ${p.bar_code}, ${p.category}, ${p.stock}, ${p.sell_price}, ${p.buy_price}, ${p.status}, ${p.image_url}) 
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedProducts.length} products`);
+
+    return {
+      createTable,
+      products: insertedProducts,
+    };
+  } catch (error) {
+    console.error('Error seeding products:', error);
+    throw error;
+  }
+}
+
+async function seedCustomers(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "clients" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS customers (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        name VARCHAR(255),
+        dni INT UNIQUE,
+        birthday DATE,
+        email VARCHAR(255) UNIQUE,
+        cellphone VARCHAR(255),
+        department VARCHAR(255),
+        province VARCHAR(255),
+        district VARCHAR(255),
+        address VARCHAR(255),
+        tags VARCHAR(255),
+        image_url VARCHAR(255),
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    const insertedClients = await Promise.all(
+      customers.map(
+        (c) => client.sql`
+        INSERT INTO customers (id, user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url)
+        VALUES (${c.id}, ${c.user_id}, ${c.name}, ${c.dni}, ${c.birthday}, ${c.email}, ${c.cellphone}, ${c.department}, ${c.province}, ${c.district}, ${c.address}, ${c.tags}, ${c.image_url}) 
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedClients.length} clients`);
+
+    return {
+      createTable,
+      clients: insertedClients,
+    };
+  } catch (error) {
+    console.error('Error seeding clients:', error);
+    throw error;
+  }
+
+}
 
 async function seedMascotas(client) {
   try {
@@ -149,7 +247,7 @@ async function seedEventos(client) {
     throw error;
   }
 }
-async function seedCustomers(client) {
+async function seedCustomers2(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -196,7 +294,7 @@ async function seedCustomers(client) {
   }
 
 }
-async function seedProducts(client) {
+async function seedProducts1(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -315,8 +413,9 @@ async function main() {
 
   // await seedEventos(client);
   // await seedMascotas(client);
-  // await seedCustomers(client);
-  await seedProducts(client);
+  await seedCustomers(client);
+  // await seedUsers(client);
+  // await seedProducts(client);
   // await seedVentas(client);
 
   await client.end();

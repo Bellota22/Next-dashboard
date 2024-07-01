@@ -8,11 +8,13 @@ import {
   ProductsShowTable,
   SalesProductsTableType,
   SaleWithProductsType,
+  Products,
+  Customers,
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 2;
 
 
 export async function fetchFilteredCustomers(
@@ -86,6 +88,47 @@ export async function fetchCustomerById(id: string) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch customer.');
   }
+}
+
+export async function getAllCostumers(query: string, currentPage: number, userId: string) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    const data = await sql<Customers>`
+      SELECT
+        c.id,
+        c.user_id,
+        c.name,
+        c.dni,
+        c.birthday,
+        c.email,
+        c.cellphone,
+        c.department,
+        c.province,
+        c.district,
+        c.address,
+        c.tags,
+        c.image_url
+      FROM customers c
+      JOIN users u ON c.user_id = u.id
+      WHERE 
+      c.user_id = ${userId} AND (
+        c.name ILIKE ${`%${query}%`} OR 
+        c.dni::text ILIKE ${`%${query}%`} OR
+        c.email ILIKE ${`%${query}%`} OR
+        c.cellphone ILIKE ${`%${query}%`} OR
+        c.department ILIKE ${`%${query}%`} OR
+        c.province ILIKE ${`%${query}%`} OR
+        c.district ILIKE ${`%${query}%`} OR
+        c.address ILIKE ${`%${query}%`} OR
+        c.tags ILIKE ${`%${query}%`}
+      )
+      ORDER BY c.name ASC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    const customers = data.rows;
+    return customers;
+
 }
 
 export async function fetchCustomers(query: string, currentPage: number) {
@@ -254,13 +297,13 @@ export async function fetchProductsPages(query: string, userId: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM products
+      FROM products p
       WHERE
         user_id = ${userId} AND (
-          products.nombre::text ILIKE ${`%${query}%`} OR
-          products.marca::text ILIKE ${`%${query}%`} OR
-          products.categoria::text ILIKE ${`%${query}%`} OR
-          products.precio_venta::text ILIKE ${`%${query}%`}
+          p.name ILIKE ${`%${query}%`} OR
+          p.brand ILIKE ${`%${query}%`} OR
+          p.category ILIKE ${`%${query}%`} OR
+          p.sell_price::text ILIKE ${`%${query}%`}
         )
     `;
 
@@ -270,6 +313,50 @@ export async function fetchProductsPages(query: string, userId: string) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of products.');
   }
+}
+
+export async function getAllProducts(query: string, currentPage: number, userId: string) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const products = await sql<Products>`
+    SELECT 
+      p.id,
+      p.user_id,
+      p.name,
+      p.brand,
+      p.measure_unit,
+      p.presentation,
+      p.content,
+      p.supplier,
+      p.bar_code,
+      p.category,
+      p.stock,
+      p.sell_price,
+      p.buy_price,
+      p.status,
+      p.image_url,
+      p.created_date,
+      p.updated_date
+    FROM products p
+    JOIN users u ON p.user_id = u.id
+    WHERE
+      p.user_id = ${userId} AND (
+      p.name ILIKE ${`%${query}%`} OR
+      p.brand ILIKE ${`%${query}%`} OR
+      p.measure_unit ILIKE ${`%${query}%`} OR
+      p.presentation ILIKE ${`%${query}%`} OR
+      p.content ILIKE ${`%${query}%`} OR
+      p.supplier ILIKE ${`%${query}%`} OR
+      p.category ILIKE ${`%${query}%`} OR
+      p.status::text ILIKE ${`%${query}%`} OR
+      p.sell_price::text ILIKE ${`%${query}%`} OR
+      p.buy_price::text ILIKE ${`%${query}%`}
+    )
+    ORDER BY p.name ASC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return products.rows;
 }
 
 export async function fetchAllProducts(query: string, currentPage: number, userId: string) {
