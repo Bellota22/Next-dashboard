@@ -279,15 +279,16 @@ type SignInResult = {
 };
 
 export async function authenticate(
-    prevState: string | undefined,
-    formData: FormData,
-  ) {
+  prevState: string | undefined,
+  formData: FormData,
+): Promise<string | undefined> {
     try {
-      const result: SignInResult  = await signIn('credentials', formData);
+      const result = await signIn('credentials', formData) as unknown as SignInResult;
 
       if (result && !result.ok) {
         throw new Error('Invalid credentials.');
       }
+      return undefined;
 
     } catch (error) {
       console.error('Authentication error:', error);

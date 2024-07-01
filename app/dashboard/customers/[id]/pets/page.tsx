@@ -2,16 +2,10 @@
 import Form from '@/app/ui/customers/edit-form';
 import { Breadcrumbs, Anchor } from '@mantine/core';
 import { fetchCustomerPets } from '@/app/lib/data';
-import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import Table from '@/app/ui/customers/pet-table';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import Image from 'next/image';
-import { Box, Container, Group, Text } from '@mantine/core';
-import { useSpring, animated } from '@react-spring/web'
-import { IconDog } from '@tabler/icons-react';
-import { Button } from '@/app/ui/button';
 import { NotFound } from '@/app/ui/customers/not-found';
 import { lusitana } from '@/app/ui/fonts';
 

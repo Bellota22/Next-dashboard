@@ -1,8 +1,7 @@
 'use client'
 import Image from 'next/image';
 import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
-import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
+import { formatDateToLocal,  } from '@/app/lib/utils';
 import { useState } from 'react';
 import { Table, Checkbox } from '@mantine/core';
 import Link from 'next/link';

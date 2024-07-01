@@ -1,4 +1,3 @@
-import Pagination from '@/app/ui/invoices/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/ventas/table';
 import { CreatePet } from '@/app/ui/ventas/buttons';
@@ -26,7 +25,7 @@ export default async function Page({
   const [customers, sells, products] = await Promise.all([
     fetchCustomers(query, currentPage),
     fetchAllSells(query, currentPage),
-    fetchAllProducts(query, currentPage)
+    fetchAllProducts(query, currentPage, '410544b2-4001-4271-9855-fec4b6a6442a')
   ]);
 
   return (

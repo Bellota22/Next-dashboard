@@ -2,7 +2,6 @@
 import Image from 'next/image';
 import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices, fetchFilteredCustomers } from '@/app/lib/data';
 import { useState } from 'react';
 import { Table, Checkbox } from '@mantine/core';
 import Link from 'next/link';
@@ -16,7 +15,6 @@ export default function PetsTable({
   currentPage: number;
   pets: any;
 }) {
-  // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   const rows = pets.map((pet: any) => (

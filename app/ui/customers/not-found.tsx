@@ -1,8 +1,7 @@
 'use client'
-import { Container, Group, Stack, Text } from '@mantine/core';
+import { Button, Container, Group, Stack, Text } from '@mantine/core';
 import { useSpring, animated } from '@react-spring/web'
 import React from 'react';
-import { Button } from '../button';
 import { IconDog } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation'
 

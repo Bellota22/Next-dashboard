@@ -1,13 +1,13 @@
 'use client'
+import React, { useEffect, useRef } from 'react'
 import { Carousel } from "@mantine/carousel";
 import { Box, Center, Image, Space, Stack, Text, Title } from "@mantine/core";
-import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import Autoplay from 'embla-carousel-autoplay';
 import { ASSETS } from '@/app/constants';
 import styles from './Slider.module.css';
 
 export default function Slider() {
-  const autoplay = useRef(Autoplay({ delay: 5000 }));
+  const autoplay = useRef(Autoplay({ delay: 2000 }));
   return (
     <Carousel
       mx="auto"
