@@ -1,0 +1,53 @@
+/* faqs.module.css */
+.root {
+    background-color: var(--mantine-color-black);
+    padding: var(--mantine-spacing-md);
+  }
+  
+  .item {
+    background-color: var(--mantine-color-black);
+    color: var(--mantine-color-white);
+    border:  transparent;
+    position: relative;
+    z-index: 0;
+  
+    &[data-active] {
+      z-index: 1;
+      background-color: #3ea9c3;
+      color: var(--mantine-color-white);
+      box-shadow: var(--mantine-shadow-md);
+      border-radius: var(--mantine-radius-md);
+      font-weight: 600;
+    }
+    
+  }
+  
+  .control {
+    background-color: var(--mantine-color-black);
+    color: var(--mantine-color-white);
+    font-size: var(--mantine-font-size-lg);
+    font-weight: 600;
+    border: none;
+    &:hover {
+      background-color: var(--mantine-color-black);
+    }
+  }
+
+  
+  .label {
+    font-size: var(--mantine-font-size-lg);
+    font-weight: 600;
+    color: var(--mantine-color-white);
+  }
+  .panel {
+    color: var(--mantine-color-white);
+    font-size: var(--mantine-font-size-sm);
+  }
+  
+  .chevron {
+    color: white;
+    &[data-rotate] {
+      transform: rotate(-90deg);
+    }
+  }
+  

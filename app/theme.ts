@@ -1,12 +1,28 @@
-import { createTheme } from '@mantine/core';
+import { createTheme, MantineColorsTuple, rem } from '@mantine/core';
+
+const primary: MantineColorsTuple = [
+  '#e3fbff',
+  '#d6f0f7',
+  '#b1dde8',
+  '#89cada',
+  '#68bbce',
+  '#52b0c7',
+  '#43abc5',
+  '#3296ae',
+  '#21869d',
+  '#00748a'
+];
+
 
 export const theme = createTheme({
-  fontFamily: 'Open Sans, sans-serif',
-  colors: {
-    primary: ['', '#F4CCC8', '#EBA59E', '#E27D73', '#DA584B', '', '', '', '', ''],
-    secondary: ['', '#C8E1BC', '#AAD199', '#8DC275', '#70B252', '', '', '', '', ''],
-    tertiary: ['', '#F9EED7', '#F2DAAB', '#EBC77F', '#E5B454', '', '', '', '', ''],
-    neutral: ['', '#FFFFFF', '#94979A', '#393D41', '#2C2F33', '#222528', '', '', '', ''],
+  fontSizes: {
+    xs: rem(10),
+    sm: rem(11),
+    md: rem(14),
+    lg: rem(16),
+    xl: rem(20),
   },
-
+  colors: {
+    primary,
+  },
 });

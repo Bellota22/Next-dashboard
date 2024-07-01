@@ -92,9 +92,64 @@ const COMMENTS = [
     },
   ];
 
-  
+  const ASSETS = [
+    {
+      src: '/image4.png',
+      title: "Welcome to PettoCare",
+      text: "Start managing your business smarter and more efficiently.",
+      sunText: "Empower your business with our comprehensive scrapping solutions.",
+      id: 4,
+    },
+    {
+      src: '/image1.png',
+      title: "Maximize Your Savings",
+      text: "Our scrapping tool helps you save money by finding the best prices and offers.",
+      sunText: "Save more, spend less with our advanced scrapping technology.",
+      id: 1,
+    },
+    {
+      src: '/image2.png',
+      title: "Boost Your Sales",
+      text: "Increase your sales by understanding market trends and competitor pricing.",
+      sunText: "Stay ahead of the competition and maximize your revenue.",
+      id: 2,
+    },
+    {
+      src: '/image3.png',
+      title: "Make Informed Decisions",
+      text: "Gain insights into market dynamics and make data-driven decisions.",
+      sunText: "Leverage our tools to make strategic and informed business choices.",
+      id: 3,
+    },
+    
+];
+
+const FAQS = [
+  {
+    question: 'How can I reset my password?',
+    answer: 'To reset your password, go to the login page and click on "Forgot Password". Follow the instructions to reset your password via email.',
+  },
+  {
+    question: 'Can I create more than one account?',
+    answer: 'Yes, you can create multiple accounts using different email addresses. However, each account must have a unique email address.',
+  },
+  {
+    question: 'How can I subscribe to the monthly newsletter?',
+    answer: 'To subscribe to our monthly newsletter, go to the subscription page and enter your email address. You will start receiving our newsletters from the next month.',
+  },
+  {
+    question: 'Do you store credit card information securely?',
+    answer: 'Yes, we store credit card information securely using industry-standard encryption methods to protect your data.',
+  },
+  {
+    question: 'What payment systems do you work with?',
+    answer: 'We work with various payment systems including PayPal, Stripe, and major credit cards to ensure a smooth and secure payment experience.',
+  },
+];
 export {
     FEATURES,
     COMMENTS,
-    PRICING
+    PRICING,
+    ASSETS,
+    FAQS
 }

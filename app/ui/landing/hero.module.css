@@ -1,0 +1,96 @@
+/* hero.module.css */
+.hero {
+    padding-top: calc(var(--mantine-spacing-xl) * 4);
+    overflow: hidden; 
+    background-color: var(--mantine-color-black);
+    color: var(--mantine-color-white);
+    width: 100%;
+    height: 100vh;
+  }
+  
+.title {
+    font-weight: 700;
+    font-size: var(--mantine-font-size-xl); /* o usa var(--mantine-font-size-xl) * 2 si quieres rems */
+    letter-spacing: -1px;
+    margin-bottom: var(--mantine-spacing-xs);
+}
+  
+.button {
+    margin-top: var(--mantine-spacing-lg);
+    font-weight: var(--mantine-font-size-lg);
+    height: calc(var(--mantine-spacing-xl) * 2);
+    font-size: calc(var(--mantine-font-size-lg)*1.5); /* o usa var(--mantine-font-size-lg) * 1.75 si quieres rems */
+    border-radius: var(--mantine-radius-md);
+    background-color: var(--mantine-color-primary);
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+}
+.image {
+  width: 100%;
+  max-width: 300px;
+}
+.imageContainer {
+  display: flex;
+  justify-content: center;
+  width: "auto";
+}
+
+.mobile {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .imageContainer {
+    display: flex;
+    justify-content: center;
+  }
+  .title {
+    font-size: calc(var(--mantine-font-size-lg)* 1.5); /* o usa var(--mantine-font-size-lg) * 1.75 si quieres rems */
+    text-align: center;
+  }
+  .image {
+    display: none;
+  }
+  .hero {
+    height: 100vh;
+    width: 100%;
+  }
+ 
+  .mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: calc(var(--mantine-spacing-xl) * 8);
+  }
+  
+  
+}
+  @media (max-width: $mantine-breakpoint-xs) {
+    .imageContainer {
+        display: none
+    }
+    .hero {
+      padding-left: var(--mantine-spacing-xl);
+      padding-right: var(--mantine-spacing-xl);
+    }
+    .mobile {
+      height: calc(var(--mantine-spacing-xl) * 16);
+      display: flex;
+      justify-content: space-between;
+    }
+    .title {
+      font-weight: 700;
+      font-size: calc(var(--mantine-font-size-lg)* 2); /* o usa var(--mantine-font-size-lg) * 1.75 si quieres rems */
+      letter-spacing: -1px;
+      margin-bottom: var(--mantine-spacing-xs);
+
+    }
+    .hero {
+        height: 100vh;
+    }
+  }
+
+

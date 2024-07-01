@@ -1,0 +1,11 @@
+.section {
+    @mixin light {
+      color: var(--mantine-color-black);
+      background-color: var(--mantine-color-white);
+    }
+  
+    @mixin dark {
+      color: var(--mantine-color-white);
+      background-color: var(--mantine-color-dark-8);
+    }
+  }
