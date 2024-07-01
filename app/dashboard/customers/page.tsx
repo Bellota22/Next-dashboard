@@ -1,11 +1,10 @@
-import Pagination from '@/app/ui/invoices/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/customers/table';
 import { CreateCustomer } from '@/app/ui/customers/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchFilteredCustomers, fetchInvoicesPages } from '@/app/lib/data';
+import { fetchFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -22,7 +21,6 @@ export default async function Page({
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  // const totalPages = await fetchInvoicesPages(query);
   const users = await fetchFilteredCustomers(query, currentPage);
 
   return (

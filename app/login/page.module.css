@@ -1,0 +1,46 @@
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+  }
+  
+  .container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+  }
+  
+  .sliderContainer {
+    background-color: #f6f6f6;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .formContainer {
+    background-color: white;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+  
+    .sliderContainer {
+      display: none;
+    }
+  
+    .formContainer {
+      width: 100%;
+      height: 50vh;
+    }
+  }
+  

@@ -89,7 +89,7 @@ export default function ProductsTable({
   const rows = products.map((product: any) => (
     <Table.Tr
       key={product.id}
-      bg={selectedProducts.some((p) => p.id === product.id) ? 'var(--mantine-color-blue-light)' : undefined}
+      bg={selectedProducts.some((p) => p.id === product.id) ? theme.colors.primary[1]: undefined}
     >
       <Table.Td>
       <Checkbox
@@ -98,6 +98,8 @@ export default function ProductsTable({
           onChange={(event) =>
             handleCheckboxChange(product, event.currentTarget.checked)
           }
+          variant='outline'
+          color='primary' 
         />
       </Table.Td>
       <Table.Td>

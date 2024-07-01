@@ -1,0 +1,21 @@
+/* features.module.css */
+.section {
+    padding-top: 120px;
+    padding-bottom: 80px;
+    padding-left: calc(40px * 3);
+    padding-right: calc(40px * 3);
+    
+    @media (max-width: 768px) {
+      padding-left: 36px;
+      padding-right: 36px;
+    }
+    
+    color: var(--mantine-color-black);
+    background-color: var(--mantine-color-white);
+  }
+  
+  .section.dark {
+    color: var(--mantine-color-white);
+    background-color: var(--mantine-color-dark-8);
+  }
+  

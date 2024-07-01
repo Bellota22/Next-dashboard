@@ -1,4 +1,3 @@
-import Pagination from '@/app/ui/invoices/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/mascotas/table';
 import { CreatePet } from '@/app/ui/mascotas/buttons';

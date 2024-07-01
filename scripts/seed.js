@@ -9,7 +9,6 @@ const {
   eventos,
   products
 } = require('../app/lib/placeholder-data.js');
-const bcrypt = require('bcrypt');
 
 // async function seedCustomers(client) {
 //   try {
@@ -315,10 +314,10 @@ async function main() {
   const client = await db.connect();
 
   // await seedEventos(client);
-  await seedMascotas(client);
-  await seedCustomers(client);
+  // await seedMascotas(client);
+  // await seedCustomers(client);
   await seedProducts(client);
-  await seedVentas(client);
+  // await seedVentas(client);
 
   await client.end();
 }

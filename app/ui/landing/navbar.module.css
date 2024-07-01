@@ -1,0 +1,117 @@
+.background {
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between; /* Changed to space-between */
+    align-items: center;
+    background-color: var(--mantine-color-black);
+    color: var(--mantine-color-white);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  }
+  
+  .visible {
+    transform: translateY(0);
+  }
+  
+  .hidden {
+    transform: translateY(-100%);
+  }
+  
+  .nav-link {
+    color: var(--mantine-color-white);
+    text-decoration: none;
+    margin-right: var(--mantine-spacing-sm);
+  }
+  
+  .nav-link:hover {
+    color: var(--mantine-color-gray-6);
+  }
+  
+  .navbarItems {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .navbarItemsResponsive, .navbarRightItems {
+    color: gray;
+    transition: color 0.3s, box-shadow 0.3s;
+    position: relative;
+    display: inline-block;
+}
+  .navbarRightItems::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .navbarItemsResponsive::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .burger {
+    display: none;
+  }
+  
+  .navbarItemsResponsive, .navbarRightItems:hover {
+    color: var(--mantine-color-white);
+  }
+  
+  .navbarItemsResponsive, .navbarRightItems:hover::after {
+    opacity: 1;
+  }
+  .nav-link:hover {
+    color: var(--mantine-color-white);
+  }
+  
+  @media (max-width: $mantine-breakpoint-md) {
+    .navbarItems {
+        justify-content: space-between;
+    }
+    .mobileMenu {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--mantine-color-white);
+        position: fixed;
+        top: 40px; /* Adjust as needed */
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        padding: var(--mantine-spacing-md);
+        background-color: var(--mantine-color-black);
+    }
+  
+    .mobileMenu a {
+        padding: var(--mantine-spacing-md);
+        width: 100%;
+        text-align: center;
+    }
+}
+  
+@media (max-width: $mantine-breakpoint-xs) {
+    .burger {
+        display: block;
+        cursor: pointer;
+    }
+    .navbarRightItems {
+        display: none;
+    }
+    
+}

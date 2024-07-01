@@ -5,52 +5,39 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { AuthError } from 'next-auth';
-import { PetsShowTable, ProductsShowTable, UsersTable } from './definitions';
- 
-const FormSchema = z.object({
-  id: z.string(),
-  customerId: z.string({
-    invalid_type_error: 'Please select a customer.',
+import { PetsShowTable, ProductsShowTable, User, UsersTable } from './definitions';
+import bcrypt from 'bcryptjs';
+
+const registerSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  password: z.string().min(6),
+  terms: z.boolean().refine((val) => val === true, {
+    message: 'You must accept the terms and conditions',
   }),
-  amount: z.coerce
-    .number()
-    .gt(0, { message: 'Please enter an amount greater than $0.' }),
-  status: z.enum(['pending', 'paid'], {
-    invalid_type_error: 'Please select an invoice status.',
-  }),
-  date: z.string(),
 });
 
+export async function registerUser({ email, name, password, terms }: z.infer<typeof registerSchema>): Promise<User> {
+  const parsed = registerSchema.safeParse({ email, name, password, terms });
 
-export type State = {
-    errors?: {
-      customerId?: string[];
-      amount?: string[];
-      status?: string[];
-    };
-    message?: string | null;
-  };
+  if (!parsed.success) {
+    throw new Error(parsed.error.errors.map((err) => err.message).join(', '));
+  }
 
-export type CustomerState = {
-    errors?: {
-      nombre?: string[];
-      apellido?: string[];
-      dni?: string[];
-      fecha_nacimiento?: string[];
-      email?: string[];
-      celular?: string[];
-      departamento?: string[];
-      provincia?: string[];
-      distrito?: string[];
-      direccion?: string[];
-      etiquetas?: string[];
-      imagen_url?: string[];
-    };
-    message?: string | null;
-  };
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+  const existingUser = await sql<User>`SELECT * FROM users WHERE email=${email}`;
+  if (existingUser.rows.length > 0) {
+    throw new Error('User already exists with this email');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = await sql<User>`
+    INSERT INTO users (email, name, password)
+    VALUES (${email}, ${name}, ${hashedPassword})
+    RETURNING *;
+  `;
+
+  return newUser.rows[0];
+}
 
 export async function createCustomer(customerData: UsersTable) {
     const fecha_creacion = new Date().toISOString().split('T')[0];
@@ -59,11 +46,10 @@ export async function createCustomer(customerData: UsersTable) {
         INSERT INTO customers (nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url, fecha_creacion)
         VALUES (${nombre}, ${apellido}, ${dni}, ${fecha_nacimiento}, ${email}, ${celular}, ${departamento}, ${provincia}, ${distrito}, ${direccion}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
     `;
-
-   
     revalidatePath('/dashboard/customers');
 
 }
+
 export async function editCustomer(customerId: string, customerData: UsersTable) {
     const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
     try {
@@ -79,6 +65,7 @@ export async function editCustomer(customerId: string, customerData: UsersTable)
       throw new Error('Error updating customer');
     }
 }
+
 export async function deleteCustomer(id: string) {
   try{
       await sql`DELETE FROM customers WHERE id = ${id}`;
@@ -108,6 +95,7 @@ export async function createMascotas(mascotasData: PetsShowTable) {
     redirect('/dashboard/mascotas');
 
 }
+
 export async function editMascota(petId: string, petData: PetsShowTable) {
   
   const {
@@ -139,6 +127,7 @@ export async function editMascota(petId: string, petData: PetsShowTable) {
     throw new Error('Error updating customer');
   }
 }
+
 export async function deletePet(id: string) {
   try{
       await sql`DELETE FROM mascotas WHERE id = ${id}`;
@@ -179,6 +168,7 @@ revalidatePath('/dashboard/products');
 redirect('/dashboard/products');
 
 }
+
 export async function updateProduct(id: string, productData: ProductsShowTable) {
   const {
     user_id,
@@ -222,6 +212,7 @@ export async function updateProduct(id: string, productData: ProductsShowTable) 
   revalidatePath('/dashboard/products');
   redirect('/dashboard/products');
 }
+
 export async function updateProductState(id: string, estado: boolean) {
   try {
     await sql`
@@ -235,6 +226,7 @@ export async function updateProductState(id: string, estado: boolean) {
     throw new Error('Failed to update product state.');
   }
 }
+
 export async function deleteProduct(id: string) {
     try{
         await sql`DELETE FROM products WHERE id = ${id}`;
@@ -268,6 +260,7 @@ export async function createSale(userId: string, customerId: string, products: a
 
   return ventaId;
 }
+
 export async function deleteSell(id: string) {
   try{
       await sql`DELETE FROM sells WHERE id = ${id}`;
@@ -279,98 +272,25 @@ export async function deleteSell(id: string) {
   }
 }
 
+type SignInResult = {
+  ok: boolean;
+  error?: string;
+  [key: string]: any;
+};
 
-
-export async function createInvoice(prevState: State, formData: FormData) {
-  const validatedFields = CreateInvoice.safeParse({
-      customerId: formData.get('customerId'),
-      amount: formData.get('amount'),
-      status: formData.get('status'),
-    });
-  if (!validatedFields.success) {
-      return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create Invoice.',
-      };
-    }
-  const { customerId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
-  const date = new Date().toISOString().split('T')[0];
-
-  // const rawFormData = Object.fromEntries(formData.entries())
-  try {
-      await sql`
-          INSERT INTO invoices (customer_id, amount, status, date)
-          VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-      `;
-
-  }catch (error) {
-      return {
-          message: 'Failed to create invoice'
-      
-      }
-  }
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
-
-}
-export async function updateInvoice( id: string, prevState: State, formData: FormData) {
-  const validatedFields = UpdateInvoice.safeParse({
-      customerId: formData.get('customerId'),
-      amount: formData.get('amount'),
-      status: formData.get('status'),
-    });
-  if (!validatedFields.success) {
-      return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create Invoice.',
-      };
-    }
-  const { customerId, amount, status } = validatedFields.data;
-
- 
-  const amountInCents = amount * 100;
-  try{
-      await sql`
-        UPDATE invoices
-        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-        WHERE id = ${id}
-      `;
-  }catch{
-      return {
-          message: 'Failed to update invoice'
-      }
-  }
- 
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
-}
-export async function deleteInvoice(id: string) {
-
-  try{
-      await sql`DELETE FROM invoices WHERE id = ${id}`;
-      revalidatePath('/dashboard/invoices');
-  }catch{
-      return {
-          message: 'Failed to delete invoice'
-      }
-  }
-}
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
   ) {
     try {
-      await signIn('credentials', formData);
-    } catch (error) {
-      if (error instanceof AuthError) {
-        switch (error.type) {
-          case 'CredentialsSignin':
-            return 'Invalid credentials.';
-          default:
-            return 'Something went wrong.';
-        }
+      const result: SignInResult  = await signIn('credentials', formData);
+
+      if (result && !result.ok) {
+        throw new Error('Invalid credentials.');
       }
+
+    } catch (error) {
+      console.error('Authentication error:', error);
       throw error;
     }
 }

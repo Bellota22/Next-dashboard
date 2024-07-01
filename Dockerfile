@@ -1,27 +1,22 @@
 # Usa una imagen base de Node.js
-FROM node:18-alpine
+FROM node:20.14.0-alpine
 
 # Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de package.json y pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
-
-
-# Instala pnpm
-RUN npm install -g pnpm
+# Copia los archivos de package.json y package-lock.json
+COPY package.json package-lock.json ./
 
 # Instala las dependencias
-RUN pnpm install --frozen-lockfile
+RUN npm install
 
 # Copia el resto del código de la aplicación
 COPY . .
 
-# Compila el proyecto
-RUN pnpm build
+# Construye la aplicación Next.js en modo producción
+RUN npm run build
 
 # Expone el puerto de la aplicación
 EXPOSE 3000
-
 # Comando para iniciar la aplicación en modo producción
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]

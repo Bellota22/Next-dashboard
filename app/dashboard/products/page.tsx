@@ -1,13 +1,14 @@
-import Pagination from '@/app/ui/invoices/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/products/table';
 import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllProducts, fetchCustomers } from '@/app/lib/data';
+import { fetchAllProducts, fetchCustomers, fetchProductsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { Flex } from '@mantine/core';
+import PaginationProduct from '@/app/ui/products/pagination';
 
 export const metadata: Metadata = {
   title: 'Productos | PettoCare',
@@ -22,11 +23,20 @@ export default async function Page({
     page?: string;
   };
 }) {
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  // const totalPages = await fetchInvoicesPages(query);
-  const products = await fetchAllProducts(query, currentPage);
-  const customers = await fetchCustomers(query, currentPage);
+  const [
+    products,
+    customers,
+    totalPages,
+  ] = await Promise.all([
+    fetchAllProducts(query, currentPage, userId),
+    fetchCustomers(query, currentPage),
+    fetchProductsPages(query, userId),
+  ]);
+  console.log('products::: ', products.length);
+  
   const cookieStore = cookies();
 
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
@@ -53,9 +63,9 @@ export default async function Page({
           savedQuantities={savedQuantities}
         />
       </Suspense>
-      {/* <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={totalPages} />
-      </div> */}
+      <Flex justify="center" mt="md">
+        <PaginationProduct totalPages={totalPages} currentPage={currentPage} />
+      </Flex>
     </div>
   );
 }
