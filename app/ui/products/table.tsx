@@ -9,7 +9,7 @@ import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
 import { useSearchParams } from 'next/navigation';
-import { Products } from '@/app/lib/definitions';
+import { Customers, Products } from '@/app/lib/definitions';
 import { products } from '@/app/lib/placeholder-data';
 
 interface ProductsSelected {
@@ -28,13 +28,15 @@ export default function ProductsTable({
   query: string;
   currentPage: number;
   products: Products[];
-  customers: any;
+  customers: Customers[];
   savedSelectedProducts: Products[];
   savedQuantities: Record<string, number>;
 }) {
+  console.log('customers::: ', customers);
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const theme = useMantineTheme();
   const [selectedProducts, setSelectedProducts] = useState<Products[]>(savedSelectedProducts);
+  console.log('selectedProducts::: ', selectedProducts);
   const [quantities, setQuantities] = useState<Record<string, number>>(savedQuantities);
   
   const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
@@ -96,8 +98,6 @@ export default function ProductsTable({
   };
 
 
-
-
   const handleRemoveProduct = (productId: string) => {
     setSelectedProducts((prevSelected) =>
       prevSelected.filter((p) => p.id !== productId)
@@ -156,7 +156,7 @@ export default function ProductsTable({
   };
 
   const handleRegisterSale = async () => {
-    const customer = customers.find((c:any) => `${c.nombre} ${c.apellido}` === inputValue);
+    const customer = customers.find((c: Customers) => `${c.name}` === inputValue);
     const userId = "410544b2-4001-4271-9855-fec4b6a6442a"; // Supón que tienes el userId almacenado en una cookie
 
     if (!customer) {
@@ -283,7 +283,7 @@ export default function ProductsTable({
                   required
                   label="Cliente"
                   placeholder="Buscar cliente..."
-                  data={customers.map((customer: any) => ({ value: `${customer.nombre} ${customer.apellido}`, label: `${customer.nombre} ${customer.apellido}` }))}
+                  data={customers.map((customer: any) => ({ value: `${customer.name}`, label: `${customer.name}` }))}
                   limit={5}
                   comboboxProps={{ transitionProps: { transition: 'pop', duration: 200 } }}
                   value={inputValue}

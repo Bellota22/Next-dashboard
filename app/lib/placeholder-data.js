@@ -591,47 +591,59 @@ const products = [
 ];
 
 
-const revenue = [
+const sales = [
   {
     id: uuidv4(),
     user_id: users[0].id,
     customer_id: customers[0].id,
-    total: 60,
-    fecha: new Date('2024-06-27'),
+    status: 'completed',
+    total_price: 60
   },
   {
     id: uuidv4(),
     user_id: users[1].id,
     customer_id: customers[1].id,
-    total: 90,
-    fecha: new Date('2024-06-27'),
+    status: 'pending',
+    total_price: 60
   },
 ];
 
 const salesProducts = [
   {
-    venta_id: revenue[0].id,
-    producto_id: products[0].id,
-    cantidad: 2,
-    precio: products[0].precio_venta,
+    id: uuidv4(),
+    user_id: users[0].id,
+    product_id: products[0].id,
+    sale_id: sales[0].id,
+    quantity: 2,
+    product_price: products[0].sell_price,
+    total_price: 40, 
   },
   {
-    venta_id: revenue[0].id,
-    producto_id: products[1].id,
-    cantidad: 1,
-    precio: products[1].precio_venta,
+    id: uuidv4(),
+    user_id: users[0].id,
+    product_id: products[1].id,
+    sale_id: sales[0].id,
+    quantity: 1,
+    product_price: products[1].sell_price,
+    total_price: 40, 
   },
   {
-    venta_id: revenue[1].id,
-    producto_id: products[1].id,
-    cantidad: 3,
-    precio: products[1].precio_venta,
+    id: uuidv4(),
+    user_id: users[0].id,
+    product_id: products[2].id,
+    sale_id: sales[0].id,
+    quantity: 3,
+    product_price: products[0].sell_price,
+    total_price: 40, 
   },
   {
-    venta_id: revenue[1].id,
-    producto_id: products[0].id,
-    cantidad: 1,
-    precio: products[0].precio_venta,
+    id: uuidv4(),
+    user_id: users[0].id,
+    product_id: products[0].id,
+    sale_id: sales[1].id,
+    quantity: 1,
+    product_price: products[0].sell_price,
+    total_price: 40, 
   },
 ];
 
@@ -640,7 +652,7 @@ const salesProducts = [
 module.exports = {
   users,
   customers,
-  revenue,
+  sales,
   mascotas,
   eventos,
   products,

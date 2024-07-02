@@ -402,6 +402,7 @@ export async function fetchAllProducts(query: string, currentPage: number, userI
 
   return products.rows;
 }
+
 export async function fetchProductById(id: string) {
   try {
     const data = await sql<ProductsShowTable>`

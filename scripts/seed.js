@@ -1,7 +1,7 @@
 const { db } = require('@vercel/postgres');
 const {
   customers,
-  revenue,
+  sales,
   users,
   usuarios,
   salesProducts,
@@ -101,7 +101,7 @@ async function seedProducts(client) {
   }
 }
 
-async function seedCustomers(client) {
+async function seedCustomers(client) {  
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -122,7 +122,8 @@ async function seedCustomers(client) {
         tags VARCHAR(255),
         image_url VARCHAR(255),
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       );
     `;
 
@@ -147,6 +148,105 @@ async function seedCustomers(client) {
     throw error;
   }
 
+}
+
+async function seedSales(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Crear tabla de ventas
+    await client.sql`
+      CREATE TABLE IF NOT EXISTS sales (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id  UUID,
+        customer_id UUID,
+        status VARCHAR(255),
+        total_price DECIMAL,
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
+      );
+    `;
+
+    // Crear tabla intermedia sales_productos
+    await client.sql`
+      CREATE TABLE IF NOT  EXISTS sales_products (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id  UUID,
+        product_id UUID,
+        sale_id UUID,
+        quantity INT,
+        product_price DECIMAL,
+        total_price DECIMAL,
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (product_id) REFERENCES products(id),
+        FOREIGN KEY (sale_id) REFERENCES sales(id)
+      );
+    `;
+
+    // Insertar datos en la tabla de sales
+    const insertedSales = await Promise.all(
+      sales.map((r) =>
+        client.sql`
+          INSERT INTO sales (
+            id,
+            user_id,
+            customer_id,
+            status,
+            total_price
+          )
+          VALUES (
+            ${r.id}, 
+            ${r.user_id}, 
+            ${r.customer_id}, 
+            ${r.status}, 
+            ${r.total_price}
+          )
+          ON CONFLICT (id) DO NOTHING;
+        `
+      )
+    );
+
+    // Insertar datos en la tabla intermedia sales_productos
+    const insertedSalesProducts = await Promise.all(
+      salesProducts.map((sp) =>
+        client.sql`
+          INSERT INTO sales_products (
+            id,
+            user_id,
+            product_id,
+            sale_id,
+            quantity,
+            product_price,
+            total_price
+          )
+          VALUES (
+            ${sp.id},
+            ${sp.user_id},
+            ${sp.product_id},
+            ${sp.sale_id},
+            ${sp.quantity},
+            ${sp.product_price},
+            ${sp.total_price})
+          ON CONFLICT (id) DO NOTHING;
+        `
+      )
+    );
+
+    console.log(`Seeded ${insertedSales.length} sales`);
+    console.log(`Seeded ${insertedSalesProducts.length} sales products`);
+
+    return {
+      insertedSales,
+      insertedSalesProducts,
+    };
+  } catch (error) {
+    console.error('Error seeding sales:', error);
+    throw error;
+  }
 }
 
 async function seedMascotas(client) {
@@ -374,7 +474,7 @@ async function seedVentas(client) {
 
     // Insertar datos en la tabla de ventas
     const insertedSales = await Promise.all(
-      revenue.map((r) =>
+      sales.map((r) =>
         client.sql`
           INSERT INTO ventas (id, user_id, customer_id, total, fecha)
           VALUES (${r.id}, ${r.user_id}, ${r.customer_id}, ${r.total}, ${r.fecha})
@@ -413,10 +513,10 @@ async function main() {
 
   // await seedEventos(client);
   // await seedMascotas(client);
-  await seedCustomers(client);
   // await seedUsers(client);
   // await seedProducts(client);
-  // await seedVentas(client);
+  // await seedCustomers(client);
+  await seedSales(client);
 
   await client.end();
 }

@@ -36,6 +36,7 @@ export default async function Page({
     fetchProductsPages(query, userId),
   ]);
   
+  console.log('customers::: ', customers);
 
   const cookieStore = cookies();
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
