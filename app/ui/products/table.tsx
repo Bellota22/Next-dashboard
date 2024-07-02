@@ -12,10 +12,10 @@ import { useSearchParams } from 'next/navigation';
 import { Customers, Products } from '@/app/lib/definitions';
 import { products } from '@/app/lib/placeholder-data';
 
-interface ProductsSelected {
-  products: Products[];
-  quantities: Record<string, number>; 
-};
+export interface ProductToSell extends Products {
+  quantity: number; 
+}
+
 
 export default function ProductsTable({
   query,
@@ -32,7 +32,6 @@ export default function ProductsTable({
   savedSelectedProducts: Products[];
   savedQuantities: Record<string, number>;
 }) {
-  console.log('customers::: ', customers);
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const theme = useMantineTheme();
   const [selectedProducts, setSelectedProducts] = useState<Products[]>(savedSelectedProducts);
@@ -157,6 +156,7 @@ export default function ProductsTable({
 
   const handleRegisterSale = async () => {
     const customer = customers.find((c: Customers) => `${c.name}` === inputValue);
+    console.log('11customer::: ', customer);
     const userId = "410544b2-4001-4271-9855-fec4b6a6442a"; // Supón que tienes el userId almacenado en una cookie
 
     if (!customer) {
@@ -164,10 +164,9 @@ export default function ProductsTable({
       return;
     }
 
-    const productsToSell = selectedProducts.map((product) => ({
-      id: product.id,
-      cantidad: quantities[product.id],
-      precio_venta: product.sell_price,
+    const productsToSell: ProductToSell[] = selectedProducts.map((product) => ({
+      quantity: quantities[product.id],
+      ...product
     }));
 
     try {

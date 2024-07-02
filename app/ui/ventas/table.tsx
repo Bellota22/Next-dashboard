@@ -4,86 +4,75 @@ import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { useState } from 'react';
 import { Table, Checkbox, Text } from '@mantine/core';
 import Link from 'next/link';
+import { Customers, ProductSold, SaleWithProducts } from '@/app/lib/definitions';
 
 export default function SalesTable({
   query,
   currentPage,
-  sells,
-  customers,
-  products
+  sales,
 }: {
   query: string;
   currentPage: number;
-  sells: any;
-  customers: any;
-  products: any;
+  sales: SaleWithProducts[];
+  
 }) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const getCustomerName = (customerId: string) => {
-    const customer = customers.find((customer: any) => customer.id === customerId);
-    return customer ? `${customer.nombre} ${customer.apellido}` : 'Unknown';
-  };
 
-  const getProductName = (productId: string) => {
-    const product = products.find((product: any) => product.id === productId);
-    return product ? product.nombre : 'Unknown';
-  };
 
-  const rows = sells.map((sale: any) => (
+  const rows = sales.map((sale) => (
     <Table.Tr
-      key={sale.venta.id}
-      bg={selectedRows.includes(sale.venta.id) ? 'var(--mantine-color-blue-light)' : undefined}
+      key={sale.id}
+      bg={selectedRows.includes(sale.id) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(sale.venta.id)}
+          checked={selectedRows.includes(sale.id)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, sale.venta.id]
-                : selectedRows.filter((id) => id !== sale.venta.id)
+                ? [...selectedRows, sale.id]
+                : selectedRows.filter((id) => id !== sale.id)
             )
           }
         />
       </Table.Td>
       
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.venta.id}/edit`} style={{ cursor: "pointer" }}>
-          {getCustomerName(sale.venta.customer_id)}
+        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
+          {sale.customer_name}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.venta.id}/edit`} style={{ cursor: "pointer" }}>
-          {formatCurrency(sale.venta.total)}
+        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
+          {formatCurrency(sale.total_price)}
         </Link>
       </Table.Td>
       <Table.Td>
-        {sale.productos.map((producto: any) => (
-          <div key={producto.producto_id}>
-            {getProductName(producto.producto_id)}: {producto.cantidad}
+        {sale.products.map((product: ProductSold) => (
+          <div key={product.product_id}>
+            {product.product_name}: {product.quantity}
           </div>
         ))}
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.venta.id}/edit`} style={{ cursor: "pointer" }}>
-          {sale.venta.estado ? "Completed" : "Pending"}
+        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
+          {sale.status ? "Completed" : "Pending"}
         </Link>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.venta.id}/edit`} style={{ cursor: "pointer" }}>
-          {formatDateToLocal(sale.venta.fecha_creacion)}
+        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
+          {formatDateToLocal(sale.created_date)}
         </Link>
       </Table.Td>
       <Table.Td w={200}>
-        <Link href={`/dashboard/sales/${sale.venta.id}/edit`} style={{ cursor: "pointer" }}>
-        {sale.venta.id.substring(0, 8)}
-
+        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
+          {sale.id.substring(0, 8)}
         </Link>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
-          {/* <UpdateSale id={sale.venta.id} /> */}
+          {/* <UpdateSale id={sale.id} /> */}
         </div>
       </Table.Td>
     </Table.Tr>

@@ -17,7 +17,6 @@ type FormProps = {
   customer: UsersTable;
 };
 export default function Form({ customerId, customer }: FormProps) {
-  console.log('customer::: ', customer);
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {

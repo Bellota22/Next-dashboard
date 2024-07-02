@@ -4,6 +4,8 @@ export type User = {
   name: string;
   email: string;
   password: string;
+  created_date: Date;
+  updated_date: Date;
 };
 
 export type Customers = {
@@ -20,6 +22,8 @@ export type Customers = {
   address?: string;
   tags?: string;
   image_url?: string;
+  created_date: Date;
+  updated_date: Date;
 };
 
 
@@ -39,9 +43,48 @@ export type Products ={
   buy_price: number;
   status: boolean;
   image_url?: string;
-  created_at: Date;
-  updated_at: Date;
+  created_date: Date;
+  updated_date: Date;
 };
+
+export type Sales = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  status: string;
+  total_price: number;
+  created_date: Date;
+  updated_date: Date;
+};
+
+export type ProductSold = {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+};
+
+export type SaleWithProducts = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  customer_name: string;
+  status: string;
+  total_price: number;
+  created_date: string;
+  updated_date: string;
+  products: ProductSold[];
+};
+
+export type SalesProductsTable = {
+  id: string;
+  user_id: string;
+  product_id: string;
+  sale_id: number;
+  quantity: number;
+  total_price: number;
+
+};
+
 
 export type UsersTable = {
   nombre: string;

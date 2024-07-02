@@ -6,15 +6,17 @@ import {
   UsersShowTable,
   PetsShowTable,
   ProductsShowTable,
-  SalesProductsTableType,
   SaleWithProductsType,
   Products,
   Customers,
+  SaleWithProducts,
+  SalesProductsTable,
+  Sales,
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 10;
 
 
 export async function fetchFilteredCustomers(
@@ -108,7 +110,7 @@ export async function getAllCostumers(query: string, currentPage: number, userId
         c.address,
         c.tags,
         c.image_url
-      FROM customers c
+      FROM customers1 c
       JOIN users u ON c.user_id = u.id
       WHERE 
       c.user_id = ${userId} AND (
@@ -297,7 +299,7 @@ export async function fetchProductsPages(query: string, userId: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM products p
+      FROM products1 p
       WHERE
         user_id = ${userId} AND (
           p.name ILIKE ${`%${query}%`} OR
@@ -337,7 +339,7 @@ export async function getAllProducts(query: string, currentPage: number, userId:
       p.image_url,
       p.created_date,
       p.updated_date
-    FROM products p
+    FROM products1 p
     JOIN users u ON p.user_id = u.id
     WHERE
       p.user_id = ${userId} AND (
@@ -435,67 +437,156 @@ export async function fetchProductById(id: string) {
   }
 }
 
-export async function fetchAllSells(query: string, currentPage: number): Promise<SaleWithProductsType[]> {
+export async function getSalesPages(query: string, userId: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM sales s
+      JOIN users u ON s.user_id = u.id
+      WHERE
+        user_id = ${userId} AND (
+          s.status ILIKE ${`%${query}%`} OR
+          s.total_price::text ILIKE ${`%${query}%`}
+        )
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of products.');
+  }
+}
+
+export async function getAllSales(query: string, currentPage: number, userId: string): Promise<SaleWithProducts[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  console.log('offset::: ', offset);
 
-  const sells = await sql`
+  const sales = await sql`
     SELECT
-      v.id AS venta_id,
-      v.user_id,
-      v.customer_id,
-      v.total,
-      v.fecha,
-      v.estado,
-      v.fecha_creacion,
-      vp.producto_id,
-      vp.cantidad,
-      vp.precio
-
-    FROM ventas v
-    JOIN ventas_productos vp ON v.id = vp.venta_id
-    
-    ORDER BY v.fecha DESC
+      s.id as sale_id,
+      s.user_id,
+      s.customer_id,
+      c.name as customer_name,
+      s.total_price,
+      s.status,
+      s.created_date,
+      s.updated_date
+    FROM sales s
+    JOIN customers1 c ON s.customer_id = c.id
+    WHERE s.user_id = ${userId}
+    ORDER BY s.created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
-  // Procesar los resultados y agrupar los productos por venta
-  const salesMap: { [key: string]: SaleWithProductsType } = {};
+  // Ahora obtendremos los productos asociados a estas ventas
+  const saleIds = sales.rows.map(sale => sale.sale_id);
 
-  sells.rows.forEach(row => {
-    const ventaId = row.venta_id;
+  if (saleIds.length === 0) {
+    return [];
+  }
 
-    if (!salesMap[ventaId]) {
-      salesMap[ventaId] = {
-        venta: {
-          id: row.venta_id,
-          user_id: row.user_id,
-          customer_id: row.customer_id,
-          total: row.total,
-          fecha: new Date(row.fecha),
-          estado: row.estado,
-          fecha_creacion: new Date(row.fecha_creacion),
-        },
-        productos: [],
-      };
-    }
+  const products = await sql`
+    SELECT
+      sp.sale_id,
+      sp.product_id,
+      p.name as product_name,
+      sp.quantity
+    FROM sales_products sp
+    JOIN products1 p ON sp.product_id = p.id
+    WHERE sp.sale_id = ANY(${saleIds})
+  `;
 
-    const product: SalesProductsTableType = {
-      venta_id: row.venta_id,
-      producto_id: row.producto_id,
-      cantidad: row.cantidad,
-      precio: row.precio,
-      producto_nombre: row.producto_nombre,
-      producto_marca: row.producto_marca,
+  const salesMap: Record<string, SaleWithProducts> = {};
+
+  sales.rows.forEach((sale) => {
+    salesMap[sale.sale_id] = {
+      id: sale.sale_id,
+      user_id: sale.user_id,
+      customer_id: sale.customer_id,
+      customer_name: sale.customer_name,
+      total_price: sale.total_price,
+      status: sale.status,
+      created_date: sale.created_date,
+      updated_date: sale.updated_date,
+      products: [],
     };
-
-    salesMap[ventaId].productos.push(product);
   });
 
-  // Convertir el mapa de ventas en un array
-  const salesWithProducts: SaleWithProductsType[] = Object.values(salesMap);
+  products.rows.forEach((product) => {
+    if (salesMap[product.sale_id]) {
+      salesMap[product.sale_id].products.push({
+        product_id: product.product_id,
+        product_name: product.product_name,
+        quantity: product.quantity,
+      });
+    }
+  });
 
-  return salesWithProducts;
+  return Object.values(salesMap);
 }
+
+// export async function fetchAllSells(query: string, currentPage: number): Promise<SaleWithProductsType[]> {
+//   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+//   const sells = await sql`
+//     SELECT
+//       v.id AS venta_id,
+//       v.user_id,
+//       v.customer_id,
+//       v.total,
+//       v.fecha,
+//       v.estado,
+//       v.fecha_creacion,
+//       vp.producto_id,
+//       vp.cantidad,
+//       vp.precio
+
+//     FROM ventas v
+//     JOIN ventas_productos vp ON v.id = vp.venta_id
+    
+//     ORDER BY v.fecha DESC
+//     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+//   `;
+
+//   // Procesar los resultados y agrupar los productos por venta
+//   const salesMap: { [key: string]: SaleWithProductsType } = {};
+
+//   sells.rows.forEach(row => {
+//     const ventaId = row.venta_id;
+
+//     if (!salesMap[ventaId]) {
+//       salesMap[ventaId] = {
+//         venta: {
+//           id: row.venta_id,
+//           user_id: row.user_id,
+//           customer_id: row.customer_id,
+//           total: row.total,
+//           fecha: new Date(row.fecha),
+//           estado: row.estado,
+//           fecha_creacion: new Date(row.fecha_creacion),
+//         },
+//         productos: [],
+//       };
+//     }
+
+//     const product: SalesProductsTableType = {
+//       venta_id: row.venta_id,
+//       producto_id: row.producto_id,
+//       cantidad: row.cantidad,
+//       precio: row.precio,
+//       producto_nombre: row.producto_nombre,
+//       producto_marca: row.producto_marca,
+//     };
+
+//     salesMap[ventaId].productos.push(product);
+//   });
+
+//   // Convertir el mapa de ventas en un array
+//   const salesWithProducts: SaleWithProductsType[] = Object.values(salesMap);
+
+//   return salesWithProducts;
+// }
 
 export async function getUser(email: string) {
   

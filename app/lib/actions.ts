@@ -5,8 +5,9 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { PetsShowTable, ProductsShowTable, User, UsersTable } from './definitions';
+import { PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
 import bcrypt from 'bcryptjs';
+import { ProductToSell } from '../ui/products/table';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -238,27 +239,27 @@ export async function deleteProduct(id: string) {
     }
 }
 
-export async function createSale(userId: string, customerId: string, products: any[]) {
-  const fecha = new Date().toISOString();
-  const estado = true;
-  const total = products.reduce((sum, product) => sum + product.precio_venta * product.cantidad, 0);
+export async function createSale(userId: string, customerId: string, products: ProductToSell[] ) {
 
-  const venta = await sql`
-    INSERT INTO ventas (user_id, customer_id, total, fecha, estado, fecha_creacion)
-    VALUES (${userId}, ${customerId}, ${total}, ${fecha}, ${estado}, ${fecha})
+  const status = true;
+  const total_price = products.reduce((sum, product) => sum + product.sell_price * product.quantity, 0);
+
+  const sale = await sql<Sales>`
+    INSERT INTO sales (user_id, customer_id, status, total_price)
+    VALUES (${userId}, ${customerId}, ${status}, ${total_price})
     RETURNING id
   `;
 
-  const ventaId = venta.rows[0].id;
+  const sale_id = sale.rows[0].id;
 
   for (const product of products) {
     await sql`
-      INSERT INTO ventas_productos (venta_id, producto_id, cantidad, precio)
-      VALUES (${ventaId}, ${product.id}, ${product.cantidad}, ${product.precio_venta})
+      INSERT INTO sales_products (user_id, product_id, sale_id, quantity,  total_price)
+      VALUES (${userId}, ${product.id}, ${sale_id} , ${product.quantity},  ${product.sell_price * product.quantity})
     `;
   }
 
-  return ventaId;
+  return sale_id;
 }
 
 export async function deleteSell(id: string) {

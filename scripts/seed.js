@@ -56,7 +56,7 @@ async function seedProducts(client) {
 
     // Create the "products" table if it doesn't exist
     const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS products (
+      CREATE TABLE IF NOT EXISTS products1 (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         name VARCHAR(255),
@@ -82,7 +82,7 @@ async function seedProducts(client) {
     const insertedProducts = await Promise.all(
       products.map(
         (p) => client.sql`
-        INSERT INTO products (id, user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, sell_price, buy_price, status, image_url)
+        INSERT INTO products1 (id, user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, sell_price, buy_price, status, image_url)
         VALUES (${p.id}, ${p.user_id}, ${p.name}, ${p.brand}, ${p.measure_unit}, ${p.presentation}, ${p.content}, ${p.supplier}, ${p.bar_code}, ${p.category}, ${p.stock}, ${p.sell_price}, ${p.buy_price}, ${p.status}, ${p.image_url}) 
         ON CONFLICT (id) DO NOTHING;
       `,
@@ -107,7 +107,7 @@ async function seedCustomers(client) {
 
     // Create the "clients" table if it doesn't exist
     const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS customers (
+      CREATE TABLE IF NOT EXISTS customers1 (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         name VARCHAR(255),
@@ -130,7 +130,7 @@ async function seedCustomers(client) {
     const insertedClients = await Promise.all(
       customers.map(
         (c) => client.sql`
-        INSERT INTO customers (id, user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url)
+        INSERT INTO customers1 (id, user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url)
         VALUES (${c.id}, ${c.user_id}, ${c.name}, ${c.dni}, ${c.birthday}, ${c.email}, ${c.cellphone}, ${c.department}, ${c.province}, ${c.district}, ${c.address}, ${c.tags}, ${c.image_url}) 
         ON CONFLICT (id) DO NOTHING;
       `,
@@ -165,7 +165,7 @@ async function seedSales(client) {
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (customer_id) REFERENCES customers(id)
+        FOREIGN KEY (customer_id) REFERENCES customers1(id)
       );
     `;
 
@@ -177,12 +177,11 @@ async function seedSales(client) {
         product_id UUID,
         sale_id UUID,
         quantity INT,
-        product_price DECIMAL,
         total_price DECIMAL,
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (product_id) REFERENCES products(id),
+        FOREIGN KEY (product_id) REFERENCES products1(id),
         FOREIGN KEY (sale_id) REFERENCES sales(id)
       );
     `;
@@ -220,7 +219,6 @@ async function seedSales(client) {
             product_id,
             sale_id,
             quantity,
-            product_price,
             total_price
           )
           VALUES (
@@ -229,7 +227,6 @@ async function seedSales(client) {
             ${sp.product_id},
             ${sp.sale_id},
             ${sp.quantity},
-            ${sp.product_price},
             ${sp.total_price})
           ON CONFLICT (id) DO NOTHING;
         `
@@ -514,8 +511,8 @@ async function main() {
   // await seedEventos(client);
   // await seedMascotas(client);
   // await seedUsers(client);
-  // await seedProducts(client);
-  // await seedCustomers(client);
+  await seedCustomers(client);
+  await seedProducts(client);
   await seedSales(client);
 
   await client.end();

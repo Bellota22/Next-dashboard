@@ -4,8 +4,10 @@ import { CreatePet } from '@/app/ui/ventas/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllProducts, fetchAllSells,  fetchCustomers } from '@/app/lib/data';
+import { getAllCostumers, getAllProducts, getAllSales, getSalesPages } from '@/app/lib/data';
 import { Metadata } from 'next';
+import PaginationProduct from '@/app/ui/ventas/pagination';
+import { Flex } from '@mantine/core';
 
 export const metadata: Metadata = {
   title: 'Ventas | PettoCare',
@@ -19,15 +21,17 @@ export default async function Page({
     page?: string;
   };
 }) {
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   // const totalPages = await fetchInvoicesPages(query);
-  const [customers, sells, products] = await Promise.all([
-    fetchCustomers(query, currentPage),
-    fetchAllSells(query, currentPage),
-    fetchAllProducts(query, currentPage, '410544b2-4001-4271-9855-fec4b6a6442a')
+  const [sales, totalPages] = await Promise.all([
+    getAllSales(query, currentPage, userId),
+    getSalesPages(query, userId),
   ]);
-
+  
+  console.log('sales::: ', sales.length);
+  console.log('totalPages::: ', totalPages);
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
@@ -37,11 +41,11 @@ export default async function Page({
         <Search placeholder="Buscar por nombre" />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table sells={sells} customers={customers} query={query} currentPage={currentPage} products={products}/>
+        <Table sales={sales} query={query} currentPage={currentPage}/>
       </Suspense>
-      {/* <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={totalPages} />
-      </div> */}
+      <Flex justify="center" mt="md">
+        <PaginationProduct totalPages={totalPages} currentPage={currentPage} />
+      </Flex>
     </div>
   );
 }

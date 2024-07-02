@@ -615,7 +615,6 @@ const salesProducts = [
     product_id: products[0].id,
     sale_id: sales[0].id,
     quantity: 2,
-    product_price: products[0].sell_price,
     total_price: 40, 
   },
   {
@@ -624,7 +623,6 @@ const salesProducts = [
     product_id: products[1].id,
     sale_id: sales[0].id,
     quantity: 1,
-    product_price: products[1].sell_price,
     total_price: 40, 
   },
   {
@@ -633,7 +631,6 @@ const salesProducts = [
     product_id: products[2].id,
     sale_id: sales[0].id,
     quantity: 3,
-    product_price: products[0].sell_price,
     total_price: 40, 
   },
   {
@@ -642,7 +639,6 @@ const salesProducts = [
     product_id: products[0].id,
     sale_id: sales[1].id,
     quantity: 1,
-    product_price: products[0].sell_price,
     total_price: 40, 
   },
 ];
