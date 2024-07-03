@@ -1,0 +1,7 @@
+.breadcrumbs {
+    color: var(--mantine-color-primary-3);
+}
+
+.breadcrumbs:hover {
+    opacity: 0.7;
+}

@@ -1,10 +1,10 @@
 const { db } = require('@vercel/postgres');
 const {
-  customers,
   sales,
   users,
   usuarios,
   salesProducts,
+  customers,
   mascotas,
   eventos,
   products
@@ -512,8 +512,8 @@ async function main() {
   // await seedMascotas(client);
   // await seedUsers(client);
   await seedCustomers(client);
-  await seedProducts(client);
-  await seedSales(client);
+  // await seedProducts(client);
+  // await seedSales(client);
 
   await client.end();
 }

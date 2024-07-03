@@ -4,8 +4,10 @@ import { CreateCustomer } from '@/app/ui/customers/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchFilteredCustomers } from '@/app/lib/data';
+import { getCustomersPages, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
+import { Flex, Title } from '@mantine/core';
+import PaginationCustomers from '@/app/ui/customers/Pagination';
 
 export const metadata: Metadata = {
   title: 'Usuarios',
@@ -19,25 +21,27 @@ export default async function Page({
     page?: string;
   };
 }) {
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const users = await fetchFilteredCustomers(query, currentPage);
+  const totalPages = await getCustomersPages(query, userId);
+  const customers = await getFilteredCustomers(query, currentPage, userId);
 
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Clientes</h1>
+        <Title c="primary.3" order={1}>Clientes</Title>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search invoices..." />
         <CreateCustomer />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table users={users} query={query} currentPage={currentPage} />
+        <Table customers={customers} query={query} currentPage={currentPage} />
       </Suspense>
-      {/* <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={totalPages} />
-      </div> */}
+      <Flex justify="center" mt="md">
+        <PaginationCustomers totalPages={totalPages} currentPage={currentPage} />
+      </Flex>
     </div>
   );
 }

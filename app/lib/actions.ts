@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
+import { Customers, PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
 import bcrypt from 'bcryptjs';
 import { ProductToSell } from '../ui/products/table';
 
@@ -39,8 +39,36 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 
   return newUser.rows[0];
 }
+export async function createCustomer(customerData: Customers) {
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date; 
+  const {
+    user_id,
+    name,
+    dni,
+    birthday,
+    email,
+    cellphone,
+    department,
+    province,
+    district,
+    address,
+    tags,
+    image_url,
+  } = customerData;
+  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
 
-export async function createCustomer(customerData: UsersTable) {
+  await sql`
+      INSERT INTO customers1 (
+        user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url, created_date, updated_date
+      )
+      VALUES (
+        ${user_id}, ${name}, ${dni}, ${formattedBirthday}, ${email}, ${cellphone}, ${department}, ${province}, ${district}, ${address}, ${tags}, ${image_url}, ${created_date}, ${updated_date})
+  `;
+  revalidatePath('/dashboard/customers');
+
+}
+export async function createCustomer1(customerData: UsersTable) {
     const fecha_creacion = new Date().toISOString().split('T')[0];
     const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
     await sql`
@@ -69,7 +97,7 @@ export async function editCustomer(customerId: string, customerData: UsersTable)
 
 export async function deleteCustomer(id: string) {
   try{
-      await sql`DELETE FROM customers WHERE id = ${id}`;
+      await sql`DELETE FROM customers1 WHERE id = ${id}`;
       revalidatePath('/dashboard/customers');
   }catch{
       return {

@@ -146,10 +146,21 @@ const FAQS = [
     answer: 'We work with various payment systems including PayPal, Stripe, and major credit cards to ensure a smooth and secure payment experience.',
   },
 ];
+
+const CREATE_CUSTOMER_BREADCRUMB = [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  {
+    label: 'Crear cliente',
+    href: '/dashboard/customers/create',
+    active: true,
+  },
+]
+
 export {
     FEATURES,
     COMMENTS,
     PRICING,
     ASSETS,
-    FAQS
+    FAQS,
+    CREATE_CUSTOMER_BREADCRUMB
 }

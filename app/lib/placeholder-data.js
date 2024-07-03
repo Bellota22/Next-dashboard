@@ -1,6 +1,40 @@
 // This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
 // https://nextjs.org/learn/dashboard-app/fetching-data
+
 const { v4: uuidv4 } = require('uuid');
+const { faker } = require('@faker-js/faker');
+
+function generateRandomCustomer(userId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    name: faker.person.firstName() + ' ' + faker.person.lastName(),
+    dni: faker.number.int({ min: 10000000, max: 99999999 }),
+    birthday: faker.date.anytime(),
+    email: faker.internet.email(),
+    cellphone: faker.number.int({ min: 10000000, max: 99999999 }),
+    department: faker.location.state(),
+    province: faker.location.city(),
+    district: faker.location.county(),
+    address: faker.location.streetAddress(),
+    tags: faker.helpers.arrayElement(['nuevo', 'frecuente', 'vip']),
+    image_url: faker.image.avatar(),
+
+  };
+}
+
+function generateRandomCustomers(userIds, count) {
+  const customers = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    customers.push(generateRandomCustomer(userId));
+    console.log(`Generated ${i + 1}/${count} customers`);
+
+  }
+  return customers;
+}
+const usersIds = ['410544b2-4001-4271-9855-fec4b6a6442a'];
+const customers = generateRandomCustomers(usersIds, 30); // Genera 10 clientes aleatorios
 
 const users = [
   {
@@ -34,83 +68,7 @@ const users = [
    
 ];
 
-const customers = [
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    name: 'Juan',
-    dni: 12345678,
-    birthday: new Date('1990-01-01'),
-    email: 'juan.perez@example.com',
-    cellphone: '123456789',
-    department: 'Lima',
-    province: 'Lima',
-    district: 'Miraflores',
-    address: 'Calle Falsa 123',
-    tags: 'cliente,vip',
-    image_url: '/customers/juan-perez.png',
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    name: 'Maria',
-    dni: 87654321,
-    birthday: new Date('1985-05-15'),
-    email: 'maria.gomez@example.com',
-    cellphone: '987654321',
-    department: 'Cusco',
-    province: 'Cusco',
-    district: 'Wanchaq',
-    address: 'Avenida Siempre Viva 456',
-    tags: 'cliente,nuevo',
-    image_url: '/customers/maria-gomez.png',
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    name: 'Pedro',
-    dni: 56781234,
-    birthday: new Date('1978-09-23'),
-    email: 'pedro.ramirez@example.com',
-    cellphone: '123123123',
-    department: 'Arequipa',
-    province: 'Arequipa',
-    district: 'Cayma',
-    address: 'Jiron Real 789',
-    tags: 'cliente,frecuente',
-    image_url: '/customers/maria-gomez.png',
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    name: 'Lucia',
-    dni: 43218765,
-    birthday: new Date('1995-03-10'),
-    email: 'lucia.fernandez@example.com',
-    cellphone: '321321321',
-    department: 'Piura',
-    province: 'Piura',
-    district: 'Catacaos',
-    address: 'Calle Sol 456',
-    tags: 'cliente,especial',
-    image_url: '/customers/maria-gomez.png',
-  },
-  {
-    id: uuidv4(),
-    user_id: users[1].id,
-    name: 'Luciaqq',
-    dni: 432182,
-    birthday: new Date('1995-03-10'),
-    email: 'lucia.ferna2ez@example.com',
-    cellphone: '3213221',
-    department: 'Piura',
-    province: 'Piura',
-    district: 'Catacaos',
-    address: 'Calle Sol 456',
-    tags: 'cliente,especial',
-    image_url: '/customers/maria-gomez.png',
-  },
-];
+
 
 const mascotas = [
   {

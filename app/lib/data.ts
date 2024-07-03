@@ -6,18 +6,86 @@ import {
   UsersShowTable,
   PetsShowTable,
   ProductsShowTable,
-  SaleWithProductsType,
   Products,
   Customers,
   SaleWithProducts,
-  SalesProductsTable,
-  Sales,
+
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
+export async function getFilteredCustomers(
+  query: string,
+  currentPage: number,
+  userId: string,
+): Promise<Customers[]> {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const users = await sql<Customers>`
+    SELECT
+      id,
+      user_id,
+      name,
+      dni,
+      birthday,
+      email,
+      cellphone,
+      department,
+      province,
+      district,
+      address,
+      tags,
+      image_url,
+      created_date,
+      updated_date
+    FROM customers1
+    WHERE
+      user_id = ${userId} AND (
+      name ILIKE ${`%${query}%`} OR
+      dni::text ILIKE ${`%${query}%`} OR
+      email ILIKE ${`%${query}%`} OR
+      cellphone ILIKE ${`%${query}%`} OR
+      department ILIKE ${`%${query}%`} OR
+      province ILIKE ${`%${query}%`} OR
+      district ILIKE ${`%${query}%`} OR
+      address ILIKE ${`%${query}%`} OR
+      tags ILIKE ${`%${query}%`}
+    )
+    ORDER BY name ASC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return users.rows;
+}
+
+export async function getCustomersPages(query: string, userId: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM customers1
+      WHERE
+        user_id = ${userId} AND (
+          name ILIKE ${`%${query}%`} OR
+          dni::text ILIKE ${`%${query}%`} OR
+          email ILIKE ${`%${query}%`} OR
+          cellphone ILIKE ${`%${query}%`} OR
+          department ILIKE ${`%${query}%`} OR
+          province ILIKE ${`%${query}%`} OR
+          district ILIKE ${`%${query}%`} OR
+          address ILIKE ${`%${query}%`} OR
+          tags ILIKE ${`%${query}%`}
+        )
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of customers.');
+  }
+}
 
 export async function fetchFilteredCustomers(
   query: string,
@@ -494,7 +562,6 @@ export async function getAllSales(query: string, currentPage: number, userId: st
       sp.quantity
     FROM sales_products sp
     JOIN products1 p ON sp.product_id = p.id
-    WHERE sp.sale_id = ANY(${saleIds})
   `;
 
   const salesMap: Record<string, SaleWithProducts> = {};
