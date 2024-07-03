@@ -26,6 +26,29 @@ export type Customers = {
   updated_date: Date;
 };
 
+export type Pets = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  name: string;
+  birthday?: Date;
+  specie: string;
+  race: string;
+  gender: boolean;
+  sterelized: boolean;
+  insured: boolean;
+  tags?: string;
+  grooming?: boolean;
+  grooming_freq?: string;
+  grooming_day?: string;
+  image_url?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
+export type PetWithCustomer = Pets & {
+  customer: Omit<Customers, 'id'>; 
+};
 
 export type Products ={
   id: string;

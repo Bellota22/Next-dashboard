@@ -19,7 +19,7 @@ export default function CustomerTable({
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const rows = customers.map((customer: any) => {
+  const rows = customers.map((customer: Customers) => {
 
     const linkStyle = { cursor: "pointer" };
     const linkProps = {
@@ -59,7 +59,7 @@ export default function CustomerTable({
         <Text {...linkProps}>{customer.address}</Text>
       </Table.Td>
       <Table.Td>
-        <Text {...linkProps}>{formatDateToLocal(customer.created_date)}</Text>
+      <Text {...linkProps}>{customer.created_date ? customer.created_date.toLocaleDateString() : ''}</Text>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">

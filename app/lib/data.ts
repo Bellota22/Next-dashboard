@@ -9,6 +9,8 @@ import {
   Products,
   Customers,
   SaleWithProducts,
+  Pets,
+  PetWithCustomer,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -344,6 +346,121 @@ export async function fetchPetById(id: string) {
     throw new Error('Failed to fetch pet.');
   }
 }
+
+
+export async function getPetsPages(query: string, userId: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM pets p
+      JOIN customers1 c ON p.customer_id = c.id
+      WHERE
+        p.user_id = ${userId} AND (
+          p.name ILIKE ${`%${query}%`} OR
+          p.specie ILIKE ${`%${query}%`} OR
+          p.race ILIKE ${`%${query}%`} OR
+          p.tags ILIKE ${`%${query}%`} OR
+          c.name ILIKE ${`%${query}%`} 
+        )
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of customers.');
+  }
+}
+
+export async function getAllFilteredPets(query: string, currentPage: number, userId: string): Promise<PetWithCustomer[]> {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const pets = await sql`
+    SELECT
+      p.id,
+      p.user_id,
+      p.customer_id,
+      p.name AS pet_name,
+      p.birthday AS pet_birthday,
+      p.specie,
+      p.race,
+      p.gender,
+      p.sterelized,
+      p.insured,
+      p.tags AS pet_tags,
+      p.grooming,
+      p.grooming_freq,
+      p.grooming_day,
+      p.image_url AS pet_image_url,
+      p.created_date AS pet_created_date,
+      p.updated_date AS pet_updated_date,
+      c.id AS customer_id,
+      c.name AS customer_name,
+      c.dni AS customer_dni,
+      c.birthday AS customer_birthday,
+      c.email AS customer_email,
+      c.cellphone AS customer_cellphone,
+      c.department AS customer_department,
+      c.province AS customer_province,
+      c.district AS customer_district,
+      c.address AS customer_address,
+      c.tags AS customer_tags,
+      c.image_url AS customer_image_url,
+      c.created_date AS customer_created_date,
+      c.updated_date AS customer_updated_date
+    FROM pets p
+    JOIN customers1 c ON p.customer_id = c.id
+    WHERE
+      p.user_id = ${userId} AND (
+      p.name ILIKE ${`%${query}%`} OR
+      p.specie ILIKE ${`%${query}%`} OR
+      p.race ILIKE ${`%${query}%`} OR
+      p.name ILIKE ${`%${query}%`} OR
+      p.tags ILIKE ${`%${query}%`} OR
+      c.name ILIKE ${`%${query}%`} 
+    )
+    ORDER BY p.created_date DESC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return pets.rows.map(row => ({
+    id: row.id,
+    user_id: userId,
+    customer_id: row.customer_id,
+    name: row.pet_name,
+    birthday: row.pet_birthday,
+    specie: row.specie,
+    race: row.race,
+    gender: row.gender,
+    sterelized: row.sterelized,
+    insured: row.insured,
+    tags: row.pet_tags,
+    grooming: row.grooming,
+    grooming_freq: row.grooming_freq,
+    grooming_day: row.grooming_day,
+    image_url: row.pet_image_url,
+    created_date: row.pet_created_date,
+    updated_date: row.pet_updated_date, // Assuming updated_date is the same as created_date in this context
+    customer: {
+      id: row.customer_id,
+      user_id: userId,
+      name: row.customer_name,
+      dni: row.customer_dni,
+      birthday: row.customer_birthday,
+      email: row.customer_email,
+      cellphone: row.customer_cellphone,
+      department: row.customer_department,
+      province: row.customer_province,
+      district: row.customer_district,
+      address: row.customer_address,
+      tags: row.customer_tags,
+      image_url: row.customer_image_url,
+      created_date: row.customer_created_date,
+      updated_date: row.customer_updated_date, // Assuming updated_date is the same as created_date in this context
+    },
+  }));
+}
+
 
 export async function fetchAllPets(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;

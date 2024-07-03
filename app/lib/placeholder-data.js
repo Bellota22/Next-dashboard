@@ -81,7 +81,7 @@ function generateRandomPet(userId, customerId) {
     race: faker.animal.dog(), // Puedes cambiar esto para diferentes especies
     gender: faker.helpers.arrayElement([true, false]), // true para macho, false para hembra
     sterelized: faker.helpers.arrayElement([true, false]),
-    secured: faker.helpers.arrayElement([true, false]),
+    insured: faker.helpers.arrayElement([true, false]),
     tags: faker.helpers.arrayElement(['nuevo', 'frecuente', 'vip']),
     image_url: faker.image.urlLoremFlickr({ category: 'animals' }),
     grooming: faker.helpers.arrayElement([true, false]),

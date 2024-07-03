@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
+import { Customers, Pets, PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
 import bcrypt from 'bcryptjs';
 import { ProductToSell } from '../ui/products/table';
 
@@ -101,21 +101,6 @@ export async function editCustomer(customerData: Customers) {
       throw new Error('Error updating customer');
     }
 }
-export async function editCustomer1(customerId: string, customerData: UsersTable) {
-    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
-    try {
-      await sql`
-        UPDATE customers
-        SET nombre = ${nombre}, apellido = ${apellido}, dni = ${dni}, fecha_nacimiento = ${fecha_nacimiento}, email = ${email}, celular = ${celular}, departamento = ${departamento}, provincia = ${provincia}, distrito = ${distrito}, direccion = ${direccion}, etiquetas = ${etiquetas}, imagen_url = ${imagen_url}
-        WHERE id = ${customerId}
-      `;
-  
-      revalidatePath('/dashboard/customers');
-    } catch (error) {
-      console.error('Error updating customer:', error);
-      throw new Error('Error updating customer');
-    }
-}
 
 export async function deleteCustomer(id: string) {
   try{
@@ -128,7 +113,46 @@ export async function deleteCustomer(id: string) {
   }
 }
 
-export async function createMascotas(mascotasData: PetsShowTable) {
+export async function createPet(pets: Pets) {
+  console.log('pets::: ', pets);
+  
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
+
+  const { 
+    user_id,
+    customer_id,
+    name,
+    birthday,
+    specie,
+    race,
+    gender,
+    sterelized,
+    insured,
+    tags,
+    grooming,
+    grooming_freq,
+    grooming_day,
+    image_url
+   } = pets
+   const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+
+   await sql`
+        INSERT INTO pets (
+          user_id, customer_id, name, birthday, specie, race, gender, sterelized, insured, tags, grooming, grooming_freq, grooming_day, image_url, created_date, updated_date
+        )
+        VALUES (
+         ${user_id}, ${customer_id}, ${name}, ${formattedBirthday}, ${specie}, ${race}, ${gender}, ${sterelized}, ${insured}, ${tags}, ${grooming}, ${grooming_freq}, ${grooming_day}, ${image_url}, ${created_date}, ${updated_date}
+
+        )
+    `;
+
+   
+    revalidatePath('/dashboard/mascotas');
+    redirect('/dashboard/mascotas');
+
+}
+export async function createMascotas1(mascotasData: PetsShowTable) {
   
   const fecha_creacion = new Date().toISOString().split('T')[0];
 
@@ -181,7 +205,7 @@ export async function editMascota(petId: string, petData: PetsShowTable) {
 
 export async function deletePet(id: string) {
   try{
-      await sql`DELETE FROM mascotas WHERE id = ${id}`;
+      await sql`DELETE FROM pets WHERE id = ${id}`;
       revalidatePath('/dashboard/mascotas');
   }catch{
       return {

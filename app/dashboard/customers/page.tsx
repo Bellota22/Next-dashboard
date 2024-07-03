@@ -11,7 +11,7 @@ import PaginationCustomers from '@/app/ui/customers/Pagination';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Usuarios',
+  title: 'Usuarios || PettoCare',
 };
 
 export default async function Page({
