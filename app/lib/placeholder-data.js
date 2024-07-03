@@ -3,38 +3,7 @@
 
 const { v4: uuidv4 } = require('uuid');
 const { faker } = require('@faker-js/faker');
-
-function generateRandomCustomer(userId) {
-  return {
-    id: uuidv4(),
-    user_id: userId,
-    name: faker.person.firstName() + ' ' + faker.person.lastName(),
-    dni: faker.number.int({ min: 10000000, max: 99999999 }),
-    birthday: faker.date.anytime(),
-    email: faker.internet.email(),
-    cellphone: faker.number.int({ min: 10000000, max: 99999999 }),
-    department: faker.location.state(),
-    province: faker.location.city(),
-    district: faker.location.county(),
-    address: faker.location.streetAddress(),
-    tags: faker.helpers.arrayElement(['nuevo', 'frecuente', 'vip']),
-    image_url: faker.image.avatar(),
-
-  };
-}
-
-function generateRandomCustomers(userIds, count) {
-  const customers = [];
-  for (let i = 0; i < count; i++) {
-    const userId = faker.helpers.arrayElement(userIds);
-    customers.push(generateRandomCustomer(userId));
-    console.log(`Generated ${i + 1}/${count} customers`);
-
-  }
-  return customers;
-}
 const usersIds = ['410544b2-4001-4271-9855-fec4b6a6442a'];
-const customers = generateRandomCustomers(usersIds, 30); // Genera 10 clientes aleatorios
 
 const users = [
   {
@@ -68,154 +37,127 @@ const users = [
    
 ];
 
+function generateRandomCustomer(userId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    name: faker.person.firstName() + ' ' + faker.person.lastName(),
+    dni: faker.number.int({ min: 10000000, max: 99999999 }),
+    birthday: faker.date.anytime(),
+    email: faker.internet.email(),
+    cellphone: faker.number.int({ min: 10000000, max: 99999999 }),
+    department: faker.location.state(),
+    province: faker.location.city(),
+    district: faker.location.county(),
+    address: faker.location.streetAddress(),
+    tags: faker.helpers.arrayElement(['nuevo', 'frecuente', 'vip']),
+    image_url: faker.image.avatar(),
+
+  };
+}
+
+function generateRandomCustomers(userIds, count) {
+  const customers = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    customers.push(generateRandomCustomer(userId));
+    console.log(`Generated ${i + 1}/${count} customers`);
+
+  }
+  return customers;
+}
+const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
 
 
-const mascotas = [
-  {
-    id: uuidv4(),
-    customer_id: customers[0].id, 
-    name: 'Firulais',
-    birthday: new Date('2015-06-20'),
-    especie: 'Perro',
-    raza: 'Labrador',
-    sexo: true,
-    esterilizado: true,
-    asegurado: false,
-    grooming: true,
-    grooming_freq: 'mensual',
-    grooming_dia: 'sábado',
-    etiquetas: 'amigable,juguetón',
-    imagen_url: '/customers/firulais.png',
-  },
-  {
-    id: uuidv4(),
-    customer_id: customers[0].id, 
-    name: 'Misu',
-    birthday: new Date('2018-08-15'),
-    especie: 'Gato',
-    raza: 'Siames',
-    sexo: false,
-    esterilizado: true,
-    asegurado: true,
-    grooming: false,
-    etiquetas: 'tranquilo,cariñoso',
-  },
-  {
-    id: uuidv4(),
-    customer_id: customers[1].id,
-    name: 'Bobby',
-    birthday: new Date('2017-11-11'),
-    especie: 'Perro',
-    raza: 'Beagle',
-    sexo: true,
-    esterilizado: true,
-    asegurado: false,
-    grooming: true,
-    grooming_freq: 'semanal',
-    grooming_dia: 'viernes',
-    etiquetas: 'energético,leal',
-  },
-  {
-    id: uuidv4(),
-    customer_id: customers[2].id,
-    name: 'Lunaa',
-    birthday: new Date('2020-02-20'),
-    especie: 'Gato',
-    raza: 'Persa',
-    sexo: false,
-    esterilizado: false,
-    asegurado: true,
-    grooming: true,
-    grooming_freq: 'quincenal',
-    grooming_dia: 'miércoles',
-    etiquetas: 'elegante,silenciosa',
-  },
-  {
-    id: uuidv4(),
-    customer_id: customers[2].id,
-    name: 'Lunaaa',
-    birthday: new Date('2020-02-20'),
-    especie: 'Gato',
-    raza: 'Persa',
-    sexo: false,
-    esterilizado: false,
-    asegurado: true,
-    grooming: true,
-    grooming_freq: 'quincenal',
-    grooming_dia: 'miércoles',
-    etiquetas: 'elegante,silenciosa',
-  },
-  {
-    id: uuidv4(),
-    customer_id: customers[2].id,
-    name: 'Luna',
-    birthday: new Date('2020-02-20'),
-    especie: 'Gato',
-    raza: 'Persa',
-    sexo: false,
-    esterilizado: false,
-    asegurado: true,
-    grooming: true,
-    grooming_freq: 'quincenal',
-    grooming_dia: 'miércoles',
-    etiquetas: 'elegante,silenciosa',
-  },
-];
 
-const eventos = [
-  {
-    customer_id: customers[0].id,
-    mascota_id: mascotas[0].id,
-    titulo: 'Consulta veterinaria',
-    tipo: 'Salud',
-    status: 'Pendiente',
-    observaciones: 'Firulais necesita vacuna contra la rabia',
-    notificar_correo: true,
-    notificar_fecha: '2024-07-01T10:00:00Z',
-    fecha_inicio: new Date('2024-07-01T10:00:00Z'),
-    fecha_fin: new Date('2024-07-01T11:00:00Z'),
-    color: 'azul',
-  },
-  {
-    customer_id: customers[0].id,
-    mascota_id: mascotas[1].id,
-    titulo: 'Vacunación',
-    tipo: 'Salud',
-    status: 'Completado',
-    observaciones: 'Firulais necesita vacuna contra la rabia',
-    notificar_correo: false,
-    notificar_fecha: '2024-07-15T15:00:00Z',
-    fecha_inicio: new Date('2024-07-15T15:00:00Z'),
-    fecha_fin: new Date('2024-07-15T16:00:00Z'),
-    color: 'verde',
-  },
-  {
-    customer_id: customers[1].id,
-    mascota_id: mascotas[2].id,
-    titulo: 'Chequeo general',
-    tipo: 'Salud',
-    status: 'Pendiente',
-    observaciones: 'Firulais necesita vacuna contra la rabia',
-    notificar_correo: true,
-    notificar_fecha: '2024-06-30T09:00:00Z',
-    fecha_inicio: new Date('2024-06-30T09:00:00Z'),
-    fecha_fin: new Date('2024-06-30T10:00:00Z'),
-    color: 'amarillo',
-  },
-  {
-    customer_id: customers[1].id,
-    mascota_id: mascotas[2].id,
-    titulo: 'Desparasitación',
-    tipo: 'Salud',
-    status: 'Pendiente',
-    observaciones: 'Firulais necesita vacuna contra la rabia',
-    notificar_correo: false,
-    notificar_fecha: '2024-08-10T14:00:00Z',
-    fecha_inicio: new Date('2024-08-10T14:00:00Z'),
-    fecha_fin: new Date('2024-08-10T15:00:00Z'),
-    color: 'rojo',
-  },
-];
+function generateRandomPet(userId, customerId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    customer_id: customerId,
+    name: faker.person.firstName(),
+    birthday: faker.date.anytime(),
+    specie: faker.helpers.arrayElement(['Perro', 'Gato', 'Ave', 'Reptil']),
+    race: faker.animal.dog(), // Puedes cambiar esto para diferentes especies
+    gender: faker.helpers.arrayElement([true, false]), // true para macho, false para hembra
+    sterelized: faker.helpers.arrayElement([true, false]),
+    secured: faker.helpers.arrayElement([true, false]),
+    tags: faker.helpers.arrayElement(['nuevo', 'frecuente', 'vip']),
+    image_url: faker.image.urlLoremFlickr({ category: 'animals' }),
+    grooming: faker.helpers.arrayElement([true, false]),
+    grooming_freq: faker.helpers.arrayElement(['Semanal', 'Quincenal', 'Mensual']),
+    grooming_day: faker.helpers.arrayElement(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
+  };
+}
+
+function generateRandomPets(userIds, customerIds, count) {
+  const pets = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const customerId = faker.helpers.arrayElement(customerIds);
+    pets.push(generateRandomPet(userId, customerId));
+    console.log(`Generated ${i + 1}/${count} pets`);
+  }
+  return pets;
+}
+
+const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
+const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
+
+// const eventos = [
+//   {
+//     customer_id: customers[0].id,
+//     mascota_id: mascotas[0].id,
+//     titulo: 'Consulta veterinaria',
+//     tipo: 'Salud',
+//     status: 'Pendiente',
+//     observaciones: 'Firulais necesita vacuna contra la rabia',
+//     notificar_correo: true,
+//     notificar_fecha: '2024-07-01T10:00:00Z',
+//     fecha_inicio: new Date('2024-07-01T10:00:00Z'),
+//     fecha_fin: new Date('2024-07-01T11:00:00Z'),
+//     color: 'azul',
+//   },
+//   {
+//     customer_id: customers[0].id,
+//     mascota_id: mascotas[1].id,
+//     titulo: 'Vacunación',
+//     tipo: 'Salud',
+//     status: 'Completado',
+//     observaciones: 'Firulais necesita vacuna contra la rabia',
+//     notificar_correo: false,
+//     notificar_fecha: '2024-07-15T15:00:00Z',
+//     fecha_inicio: new Date('2024-07-15T15:00:00Z'),
+//     fecha_fin: new Date('2024-07-15T16:00:00Z'),
+//     color: 'verde',
+//   },
+//   {
+//     customer_id: customers[1].id,
+//     mascota_id: mascotas[2].id,
+//     titulo: 'Chequeo general',
+//     tipo: 'Salud',
+//     status: 'Pendiente',
+//     observaciones: 'Firulais necesita vacuna contra la rabia',
+//     notificar_correo: true,
+//     notificar_fecha: '2024-06-30T09:00:00Z',
+//     fecha_inicio: new Date('2024-06-30T09:00:00Z'),
+//     fecha_fin: new Date('2024-06-30T10:00:00Z'),
+//     color: 'amarillo',
+//   },
+//   {
+//     customer_id: customers[1].id,
+//     mascota_id: mascotas[2].id,
+//     titulo: 'Desparasitación',
+//     tipo: 'Salud',
+//     status: 'Pendiente',
+//     observaciones: 'Firulais necesita vacuna contra la rabia',
+//     notificar_correo: false,
+//     notificar_fecha: '2024-08-10T14:00:00Z',
+//     fecha_inicio: new Date('2024-08-10T14:00:00Z'),
+//     fecha_fin: new Date('2024-08-10T15:00:00Z'),
+//     color: 'rojo',
+//   },
+// ];
 
 const products = [
   {
@@ -607,9 +549,8 @@ module.exports = {
   users,
   customers,
   sales,
-  mascotas,
-  eventos,
   products,
   salesProducts,
+  pets,
   
 };
