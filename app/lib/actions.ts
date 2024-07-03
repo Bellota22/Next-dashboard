@@ -68,18 +68,40 @@ export async function createCustomer(customerData: Customers) {
   revalidatePath('/dashboard/customers');
 
 }
-export async function createCustomer1(customerData: UsersTable) {
-    const fecha_creacion = new Date().toISOString().split('T')[0];
-    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
-    await sql`
-        INSERT INTO customers (nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url, fecha_creacion)
-        VALUES (${nombre}, ${apellido}, ${dni}, ${fecha_nacimiento}, ${email}, ${celular}, ${departamento}, ${provincia}, ${distrito}, ${direccion}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
-    `;
-    revalidatePath('/dashboard/customers');
 
+
+export async function editCustomer(customerData: Customers) {
+    const { 
+      id,
+      user_id,
+      name,
+      dni,
+      birthday,
+      email,
+      cellphone,
+      department,
+      province,
+      district,
+      address,
+      tags,
+      image_url,
+     } = customerData;
+    try {
+      const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+
+      await sql`
+        UPDATE customers1
+        SET user_id = ${user_id}, name = ${name}, dni = ${dni}, birthday = ${formattedBirthday}, email = ${email}, cellphone = ${cellphone}, department = ${department}, province = ${province}, district = ${district}, address = ${address}, tags = ${tags}, image_url = ${image_url}
+        WHERE id = ${id}
+      `;
+  
+      revalidatePath('/dashboard/customers');
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw new Error('Error updating customer');
+    }
 }
-
-export async function editCustomer(customerId: string, customerData: UsersTable) {
+export async function editCustomer1(customerId: string, customerData: UsersTable) {
     const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
     try {
       await sql`

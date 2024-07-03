@@ -156,11 +156,18 @@ const CREATE_CUSTOMER_BREADCRUMB = [
   },
 ]
 
+const EDIT_CUSTOMER_BREADCRUMB = (id: string) => [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`, active: true },
+  { label: 'Mascotas', href: `/dashboard/customers/${id}/pets` },
+];
+
 export {
     FEATURES,
     COMMENTS,
     PRICING,
     ASSETS,
     FAQS,
-    CREATE_CUSTOMER_BREADCRUMB
+    CREATE_CUSTOMER_BREADCRUMB,
+    EDIT_CUSTOMER_BREADCRUMB
 }

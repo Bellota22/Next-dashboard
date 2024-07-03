@@ -130,7 +130,36 @@ export async function fetchFilteredCustomers(
     throw new Error('Failed to fetch users.');
   }
 }
+export async function getCustomberById(id: string) {
+  try {
+    const data = await sql<Customers>`
+      SELECT
+        id,
+        user_id,
+        name,
+        dni,
+        birthday,
+        email,
+        cellphone,
+        department,
+        province,
+        district,
+        address,
+        tags,
+        image_url,
+        created_date,
+        updated_date
+      FROM customers1
+      WHERE id = ${id};
+    `;
 
+    const customer = data.rows[0];
+    return customer;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch customer.');
+  }
+}
 export async function fetchCustomerById(id: string) {
   try {
     const data = await sql<UsersTable>`

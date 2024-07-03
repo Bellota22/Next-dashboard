@@ -8,6 +8,7 @@ import { getCustomersPages, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { Flex, Title } from '@mantine/core';
 import PaginationCustomers from '@/app/ui/customers/Pagination';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Usuarios',
@@ -30,7 +31,7 @@ export default async function Page({
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <Title c="primary.3" order={1}>Clientes</Title>
+        <Title className={styles.breadcrumbs} order={1}>Clientes</Title>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search invoices..." />

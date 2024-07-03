@@ -24,7 +24,7 @@ export default function CustomerTable({
     const linkStyle = { cursor: "pointer" };
     const linkProps = {
       component: Link,
-      href: `/dashboard/customer/${customer.id}/edit`,
+      href: `/dashboard/customers/${customer.id}/edit`,
       style: linkStyle,
     };
     return (
