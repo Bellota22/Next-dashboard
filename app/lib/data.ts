@@ -302,51 +302,91 @@ export async function fetchCustomerPets(customerId: string) {
   }
 }
 
-export async function fetchPetById(id: string) {
+export async function getPetById(id: string): Promise<PetWithCustomer>{
   try {
-    const data = await sql<PetsShowTable & UsersShowTable>`
+    const data = await sql`
       SELECT
-        m.id,
-        m.customer_id,
-        m.nombre AS pet_nombre,
-        m.especie,
-        m.fecha_nacimiento AS pet_fecha_nacimiento,
-        m.raza,
-        m.sexo,
-        m.esterilizado,
-        m.asegurado,
-        m.grooming,
-        m.grooming_freq,
-        m.grooming_dia,
-        m.etiquetas AS pet_etiquetas,
-        m.imagen_url AS pet_imagen_url,
-        m.fecha_creacion AS pet_fecha_creacion,
-        c.nombre AS customer_nombre,
-        c.apellido AS customer_apellido,
+        p.id,
+        p.user_id,
+        p.customer_id,
+        p.name AS pet_name,
+        p.birthday AS pet_birthday,
+        p.specie,
+        p.race,
+        p.gender,
+        p.sterelized,
+        p.insured,
+        p.grooming,
+        p.grooming_freq,
+        p.grooming_day,
+        p.tags AS pet_tags,
+        p.image_url AS pet_image_url,
+        p.created_date AS pet_created_date,
+        p.updated_date AS pet_updated_date,
+        c.name AS customer_name,
+        c.user_id AS customer_user_id,
         c.dni AS customer_dni,
-        c.fecha_nacimiento AS customer_fecha_nacimiento,
+        c.birthday AS customer_birthday,
         c.email AS customer_email,
-        c.celular AS customer_celular,
-        c.departamento AS customer_departamento,
-        c.provincia AS customer_provincia,
-        c.distrito AS customer_distrito,
-        c.direccion AS customer_direccion,
-        c.etiquetas AS customer_etiquetas,
-        c.imagen_url AS customer_imagen_url,
-        c.fecha_creacion AS customer_fecha_creacion
-      FROM mascotas m
-      JOIN customers c ON m.customer_id = c.id
-      WHERE m.id = ${id};
+        c.cellphone AS customer_cellphone,
+        c.department AS customer_department,
+        c.province AS customer_province,
+        c.district AS customer_district,
+        c.address AS customer_address,
+        c.tags AS customer_tags,
+        c.image_url AS customer_image_url,
+        c.created_date AS customer_created_date,
+        c.updated_date AS customer_updated_date
+      FROM pets p
+      JOIN customers1 c ON p.customer_id = c.id
+      WHERE p.id = ${id};
     `;
 
-    const pet = data.rows[0];
-    return pet;
+    const row  = data.rows[0];
+    if (!row) throw new Error("Pet not found");
+
+    const petWithCustomer: PetWithCustomer = {
+      id: row.id,
+      user_id: row.user_id,
+      customer_id: row.customer_id,
+      name: row.pet_name,
+      birthday: row.pet_birthday ? new Date(row.pet_birthday) : undefined,
+      specie: row.specie,
+      race: row.race,
+      gender: row.gender,
+      sterelized: row.sterelized,
+      insured: row.insured,
+      tags: row.pet_tags,
+      grooming: row.grooming,
+      grooming_freq: row.grooming_freq,
+      grooming_day: row.grooming_day,
+      image_url: row.pet_image_url,
+      created_date: new Date(row.pet_created_date),
+      updated_date: new Date(row.pet_updated_date),
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        user_id: row.customer_user_id,
+        dni: row.customer_dni,
+        birthday: row.customer_birthday ? new Date(row.customer_birthday) : undefined,
+        email: row.customer_email,
+        cellphone: row.customer_cellphone,
+        department: row.customer_department,
+        province: row.customer_province,
+        district: row.customer_district,
+        address: row.customer_address,
+        tags: row.customer_tags,
+        image_url: row.customer_image_url,
+        created_date: new Date(row.customer_created_date),
+        updated_date: new Date(row.customer_updated_date)
+      }
+    };
+    return petWithCustomer;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch pet.');
   }
 }
-
 
 export async function getPetsPages(query: string, userId: string) {
   try {

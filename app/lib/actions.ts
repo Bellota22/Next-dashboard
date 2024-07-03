@@ -113,6 +113,7 @@ export async function deleteCustomer(id: string) {
   }
 }
 
+
 export async function createPet(pets: Pets) {
   console.log('pets::: ', pets);
   
@@ -152,26 +153,60 @@ export async function createPet(pets: Pets) {
     redirect('/dashboard/mascotas');
 
 }
-export async function createMascotas1(mascotasData: PetsShowTable) {
-  
-  const fecha_creacion = new Date().toISOString().split('T')[0];
 
-  const { customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url } = mascotasData
-  console.log('mascotasData::: ', mascotasData);
+
+export async function editPet(pet: Pets) {
+  
+  const {
+    id,
+    user_id,
+    customer_id,
+    name,
+    birthday,
+    specie,
+    race,
+    gender,
+    sterelized,
+    insured,
+    tags,
+    grooming,
+    grooming_freq,
+    grooming_day,
+    image_url
+  } = pet;
+  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+  const formattedDate = new Date().toISOString().split('T')[0];
+  
+  try {
     await sql`
-        INSERT INTO mascotas (
-          customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url, fecha_creacion
-        )
-        VALUES ( ${customer_id}, ${nombre}, ${especie}, ${raza}, ${fecha_nacimiento}, ${sexo}, ${esterilizado}, ${asegurado}, ${grooming}, ${grooming_freq}, ${grooming_dia}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
+      UPDATE pets
+      SET 
+        user_id = ${user_id}, 
+        customer_id = ${customer_id}, 
+        name = ${name}, 
+        birthday = ${formattedBirthday}, 
+        specie = ${specie},
+        race = ${race},
+        gender = ${gender},
+        sterelized = ${sterelized},
+        insured = ${insured},
+        tags = ${tags},
+        grooming = ${grooming},
+        grooming_freq = ${grooming_freq},
+        grooming_day = ${grooming_day},
+        image_url = ${image_url},
+        updated_date = ${formattedDate}
+      WHERE id = ${id}
     `;
 
-   
     revalidatePath('/dashboard/mascotas');
-    redirect('/dashboard/mascotas');
-
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw new Error('Error updating customer');
+  }
 }
 
-export async function editMascota(petId: string, petData: PetsShowTable) {
+export async function editMascota1(petId: string, petData: PetsShowTable) {
   
   const {
     nombre,

@@ -172,6 +172,12 @@ const CREATE_PET_BREADCRUMB = [
 
 ]
 
+const EDIT_PET_BREADCRUMB = (id: string) => [
+  { label: 'Mascotas', href: '/dashboard/mascotas' },
+  { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`, active: true },
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/mascotas` },
+];
+
 export {
     FEATURES,
     COMMENTS,
@@ -181,4 +187,5 @@ export {
     CREATE_CUSTOMER_BREADCRUMB,
     EDIT_CUSTOMER_BREADCRUMB,
     CREATE_PET_BREADCRUMB,
+    EDIT_PET_BREADCRUMB
 }

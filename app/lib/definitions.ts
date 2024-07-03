@@ -47,7 +47,7 @@ export type Pets = {
 }
 
 export type PetWithCustomer = Pets & {
-  customer: Omit<Customers, 'id'>; 
+  customer: Customers;
 };
 
 export type Products ={
