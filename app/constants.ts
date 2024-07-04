@@ -146,10 +146,66 @@ const FAQS = [
     answer: 'We work with various payment systems including PayPal, Stripe, and major credit cards to ensure a smooth and secure payment experience.',
   },
 ];
+
+const CREATE_CUSTOMER_BREADCRUMB = [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  {
+    label: 'Crear cliente',
+    href: '/dashboard/customers/create',
+    active: true,
+  },
+]
+
+const EDIT_CUSTOMER_BREADCRUMB = (id: string) => [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`, active: true },
+  { label: 'Mascotas', href: `/dashboard/customers/${id}/mascotas` },
+];
+
+const CREATE_PET_BREADCRUMB = [
+  { label: 'Mascotas', href: '/dashboard/mascotas' },
+  {
+    label: 'Crear mascota',
+    href: '/dashboard/mascotas/create',
+    active: true,
+  },
+
+]
+
+const EDIT_PET_BREADCRUMB = (id: string) => [
+  { label: 'Mascotas', href: '/dashboard/mascotas' },
+  { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`, active: true },
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/mascotas` },
+];
+
+const CREATE_PRODUCTS_BREADCRUMB = [
+  { label: 'Productos', href: '/dashboard/products' },
+  {
+    label: 'Crear Producto',
+    href: '/dashboard/products/create',
+    active: true,
+  },
+]
+
+const EDIT_PRODUCTS_BREADCRUMB = (id: string) => [
+  { label: 'Products', href: '/dashboard/products' },
+  {
+    label: 'Editar Producto',
+    href: `/dashboard/products/${id}/edit`,
+    active: true,
+  },
+]
+
 export {
     FEATURES,
     COMMENTS,
     PRICING,
     ASSETS,
-    FAQS
+    FAQS,
+    CREATE_CUSTOMER_BREADCRUMB,
+    EDIT_CUSTOMER_BREADCRUMB,
+    CREATE_PET_BREADCRUMB,
+    EDIT_PET_BREADCRUMB,
+    CREATE_PRODUCTS_BREADCRUMB,
+    EDIT_PRODUCTS_BREADCRUMB
 }

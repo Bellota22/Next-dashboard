@@ -4,13 +4,12 @@ import { Pagination } from '@mantine/core'
 import { useSearchParams,useRouter } from 'next/navigation';
 import React from 'react'
 
-interface PaginationProductProps {
+interface PaginationPetsProps {
   totalPages: number;
   currentPage: number;
   }
 
-function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
-    console.log('totalPages::: ', totalPages);
+export default function PaginationPets({totalPages, currentPage}: PaginationPetsProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
   
@@ -18,7 +17,7 @@ function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', page.toString());
-        router.push(`/dashboard/products?${params.toString()}`);
+        router.push(`/dashboard/mascotas?${params.toString()}`);
       };
     
   return (
@@ -26,4 +25,3 @@ function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
   )
 }
 
-export default PaginationProduct

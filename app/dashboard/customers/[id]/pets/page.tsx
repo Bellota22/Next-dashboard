@@ -1,7 +1,6 @@
 
 import Form from '@/app/ui/customers/edit-form';
 import { Breadcrumbs, Anchor } from '@mantine/core';
-import { fetchCustomerPets } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import Table from '@/app/ui/customers/pet-table';
@@ -16,7 +15,6 @@ export default async function Page({ params }: { params: { id: string; query?: s
   const id = params.id;
   const query = params?.query || '';
   const currentPage = Number(params?.page) || 1;
-  const pets = await fetchCustomerPets(id); 
   const items = [
     { label: 'Clientes', href: '/dashboard/customers' },
     { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`},
@@ -32,13 +30,13 @@ export default async function Page({ params }: { params: { id: string; query?: s
       <Breadcrumbs style={{ color: 'black' }}> 
       {items}
       </Breadcrumbs>
-      <Suspense fallback={<InvoicesTableSkeleton />}>
+      {/* <Suspense fallback={<InvoicesTableSkeleton />}>
         {pets.length > 0 ? (
           <Table pets={pets} query={query} currentPage={currentPage} />
         ) : (
           <NotFound />
           )}
-      </Suspense>
+      </Suspense> */}
     </main>
   );
 }

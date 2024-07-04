@@ -1,45 +1,54 @@
 import Form from '@/app/ui/mascotas/edit-form';
-import { fetchCustomers, fetchPetById } from '@/app/lib/data';
+import {  getFilteredCustomers, getPetById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { Breadcrumbs, Anchor } from '@mantine/core';
+import { Breadcrumbs, Anchor, Title } from '@mantine/core';
 import { lusitana } from '@/app/ui/fonts';
+import Link from 'next/link';
+import { EDIT_PET_BREADCRUMB } from '@/app/constants';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Edit invoice',
+  title: 'Edit Mascota',
 };
 export default async function Page({ params }: { 
   params: { 
     id: string;
     query?: string;
     page?: string;
+    edit?: string;
    }
  }) {
+    const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+
     const query = params?.query || '';
     const currentPage = Number(params?.page) || 1;
     const id = params.id;
-    const customers = await fetchCustomers(query, currentPage)
-    const pet = await fetchPetById(id);
+
+    const [
+      pet,
+      customers
+    ] = await Promise.all([
+      getPetById(id),
+      getFilteredCustomers(query, currentPage, userId)
+    ]);
+    const items = EDIT_PET_BREADCRUMB(id)
     
-    const items = [
-      { label: 'Mascotas', href: '/dashboard/mascotas' },
-      {
-        label: 'Editar cliente',
-        href: `/dashboard/mascotas/${id}/edit`,
-        active: true,
-      },
-    ].map((item, index) => (
-      <Anchor className={`${lusitana.className}`}  href={item.href} key={index}>
-        {item.label}
-      </Anchor>
-    ));
 
     return (
     <main>
       <Breadcrumbs style={{ color: 'black' }}> 
-      {items}
+      {items.map((item, index) => (
+          <Title
+            className={`${styles.breadcrumbs} ${item.active ? styles['breadcrumbs-active'] : ''}`}
+            key={index}>
+            <Link href={item.href}>
+              {item.label}
+            </Link>
+          </Title>
+        ))}
       </Breadcrumbs>
-      <Form customers={customers} petId={id} pet={pet} />
+      <Form customers={customers} pet={pet} query={query} currentPage={currentPage}/>
     </main>
   );
 }

@@ -1,8 +1,11 @@
 import Form from '@/app/ui/mascotas/create-form';
-import { Breadcrumbs, Anchor } from '@mantine/core';
-import { fetchCustomers } from '@/app/lib/data';
+import { Breadcrumbs, Anchor, Title } from '@mantine/core';
+import {  getFilteredCustomers } from '@/app/lib/data';
 import { lusitana } from '@/app/ui/fonts';
- 
+import Link from 'next/link';
+import { CREATE_PET_BREADCRUMB } from '@/app/constants';
+import styles from './page.module.css';
+
 export default async function Page({
   searchParams,
 }: {
@@ -11,28 +14,26 @@ export default async function Page({
     page?: string;
   };
 })  {
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const customers = await fetchCustomers(query, currentPage);
-  const items = [
-    { label: 'Mascotas', href: '/dashboard/mascotas' },
-    {
-      label: 'Crear Mascotas',
-      href: '/dashboard/mascotas/create',
-      active: true,
-    },
-  ].map((item, index) => (
-    <Anchor className={`${lusitana.className}`}  href={item.href} key={index}>
-      {item.label}
-    </Anchor>
-  ));
+  const customers = await getFilteredCustomers(query, currentPage, userId);
   
   return (
     <main>
-      <Breadcrumbs style={{ color: 'black' }}> 
-      {items}
+      <Breadcrumbs> 
+      {CREATE_PET_BREADCRUMB.map((item, index) => (
+          <Title
+            className={`${styles.breadcrumbs} ${item.active ? styles['breadcrumbs-active'] : ''}`}
+            key={index}
+          >
+          <Link href={item.href}>
+              {item.label}
+            </Link>
+          </Title>
+        ))}
       </Breadcrumbs>
-      <Form customers={customers} /> 
+      <Form query={query} currentPage={currentPage} customers={customers} /> 
     </main>
   );
 }

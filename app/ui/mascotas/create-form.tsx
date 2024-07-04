@@ -2,123 +2,175 @@
 
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
-import { createMascotas } from '@/app/lib/actions';
+import { createPet } from '@/app/lib/actions';
 import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { CustomerField } from '@/app/lib/definitions';
+import { Customers, Pets } from '@/app/lib/definitions';
+import Search from '../search';
+import { useDebouncedCallback } from 'use-debounce';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { getFilteredCustomers } from '@/app/lib/data';
 
 
 interface FormProps {
-  customers: CustomerField[];
+  customers: Customers[];
+  query: string;
+  currentPage: number;
 }
 
 
-export default function Form({ customers }: FormProps) {
+export default function Form({ customers, query, currentPage }: FormProps) {
   
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [gender, setGender] = useState<string | null>(null);
+  const [sterelized, setSterelized] = useState<boolean>(false);
+  const [insured, setInsured] = useState<boolean>(false);
+  const [saludValues, setSaludValues] = useState<string[]>([]);
 
   const [salud, setSalud] = useState<string[]>([]);
-  const [grooming, setGrooming] = useState<boolean | null>(false);
+  const [grooming, setGrooming] = useState<boolean>(false);
   const [groomingFreq, setGroomingFreq] = useState<string>('');
   const [groomingDay, setGroomingDay] = useState<string>('');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [selectedCustomerName, setSelectedCustomerName] = useState<string>('');
   const [inputValue, setInputValue] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenderChange = (value: string) => {
     setGender(prevGender => (prevGender === value ? null : value));
   };
+  const handleSterelizedChange = (checked: boolean) => {
+    setSterelized(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'sterelized'] : prev.filter((value) => value !== 'sterelized')));
+  };
+  
+  const handleInsuredChange = (checked: boolean) => {
+    setInsured(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'insured'] : prev.filter((value) => value !== 'insured')));
+  };
 
- 
 
-  const form = useForm({
+  const form = useForm<Pets>({
     mode: 'uncontrolled',
     initialValues: {
+      id: '',
+      user_id: userId,
       customer_id: '',
-      nombre: '',
-      especie: '',
-      raza: '',
-      fecha_nacimiento: '',
-      sexo: false,
-      esterilizado:false,
-      asegurado: false,
+      name: '',
+      birthday: new Date(),
+      specie: '',
+      race: '',
+      gender: true,
+      sterelized: false,
+      insured:false,
+      tags: '',
       grooming: false,
       grooming_freq: '',
-      grooming_dia: '',
-      etiquetas: '',
-      imagen_url: '' ,
+      grooming_day: '',
+      image_url: '' ,
+      created_date: new Date(),
+      updated_date: new Date(),
     },
     
   });
 
-  form.setFieldValue('sexo', gender === "MACHO" ? true : false )
-  form.setFieldValue('esterilizado', salud.includes('esterilizado') ? true : false )
-  form.setFieldValue('asegurado', salud.includes('asegurado') ? true : false )
-  form.setFieldValue('grooming', grooming ? grooming : false)
-  form.setFieldValue('grooming_freq', groomingFreq ? groomingFreq : '')
-  form.setFieldValue('grooming_dia', groomingDay ? groomingDay : '')
-  form.setFieldValue('imagen_url', files.length > 0 ? files[0].path || '' : '')
-  
-  const handleCustomerChange = (value: string) => {
-    setInputValue(value);
+  form.setFieldValue('gender', gender === "MACHO" ? true : false);
+  form.setFieldValue('sterelized', sterelized);
+  form.setFieldValue('insured', insured);
+  form.setFieldValue('grooming', grooming);
+  form.setFieldValue('grooming_freq', groomingFreq);
+  form.setFieldValue('grooming_day', groomingDay);
+  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
 
-    const customer = customers.find((customer) => `${customer.nombre} ${customer.apellido}` === value);
-    if (customer) {
-      setSelectedCustomerName(value);
-      setSelectedCustomerId(customer.id);
-      form.setFieldValue('customer_id', customer.id);
+  const handleSubmit = async (values: Pets) => {
+    console.log('values::: ', values);
+
+    if (!selectedCustomerId) {
+      setError('Debe seleccionar un propietario válido.');
+      return;
     }
+    values.customer_id = selectedCustomerId;  // Set customer_id before submitting
+    await createPet(values);
   };
 
+  
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleSearch = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', '1');
+
+    if (term) {
+      params.set('query', term);
+    } else {
+      params.delete('query');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
   return (
-    <form onSubmit={form.onSubmit((values) => (createMascotas(values)))}>
+    <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
               <Autocomplete
-                required
+                withAsterisk
                 label="Propietario"
-                placeholder="Elmer Pacheco"
-                data={customers.map((customer) => ({ value: `${customer.nombre} ${customer.apellido}`, label: `${customer.nombre} ${customer.apellido}` }))}
-                limit={5}
-                comboboxProps={{ transitionProps: { transition: 'pop', duration: 200 } }}
+                placeholder="Buscar propietario"
+                required
+                defaultValue={searchParams.get('query')?.toString()}
+                data={customers.map((customer) => ({ value: customer.id, label: customer.name }))}
                 key={form.key('customer_id')}
-                value={inputValue}
-                onChange={handleCustomerChange}
+                {...form.getInputProps('customer_id')}
+                onChange={(value) => {
+                  const selectedCustomer = customers.find(customer => customer.name === value);
+                  if (selectedCustomer) {
+                    setSelectedCustomerId(selectedCustomer.id);
+                    setSelectedCustomerName(selectedCustomer.name);
+                  } else {
+                    setSelectedCustomerId('');
+                    setSelectedCustomerName('');
+                  }
+                  handleSearch(value);
+                  setInputValue(value);
+                }}
               />
+
               <TextInput
                 withAsterisk
                 label="Nombre"
                 placeholder="Firulais"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
                 label="Especie"
                 placeholder="CANINO"
                 required
-                key={form.key('especie')}
-                {...form.getInputProps('especie')}
+                key={form.key('specie')}
+                {...form.getInputProps('specie')}
               />
               <TextInput
                 withAsterisk
                 label="Raza" 
                 placeholder="Golden Retriever" 
                 required
-                key={form.key('raza')}
-                {...form.getInputProps('raza')}
+                key={form.key('race')}
+                {...form.getInputProps('race')}
               />
               <DateInput
                 required
@@ -126,8 +178,8 @@ export default function Form({ customers }: FormProps) {
                 placeholder="19/03/1999"   
                 valueFormat="DD MMM YYYY"
                 clearable            
-                key={form.key('fecha_nacimiento')}
-                {...form.getInputProps('fecha_nacimiento')}
+                key={form.key('birthday')}
+                {...form.getInputProps('birthday')}
               />
           </Flex>
           <Flex mb={4} gap={8} justify={"space-around"} >
@@ -152,27 +204,32 @@ export default function Form({ customers }: FormProps) {
               <Checkbox.Group
                 withAsterisk
                 label="Salud"
-                value={salud}
-                onChange={setSalud}>
+                value={saludValues} 
+                onChange={() => {}}>
                   <Group mt="xs">
-                    <Checkbox
-                      value="esterilizado" 
-                      label="¿Ha sido esterilizado?" 
+                      <Checkbox
+                      value="sterelized"
+                      label="¿Ha sido esterilizado?"
+                      checked={sterelized}
+                      onChange={(event) => handleSterelizedChange(event.currentTarget.checked)}
                     />
                     <Checkbox
-                      value="asegurado" 
-                      label="¿Ha sido asegurado?" 
+                      value="insured"
+                      label="¿Ha sido asegurado?"
+                      checked={insured}
+                      onChange={(event) => handleInsuredChange(event.currentTarget.checked)}
                     />
                   </Group>
               </Checkbox.Group>
               
-              <TextInput
+              <Autocomplete
                 withAsterisk
                 label="Etiquetas"
                 placeholder="No"
                 required
-                key={form.key('etiquetas')}
-                {...form.getInputProps('etiquetas')}
+                data={['Nuevo', 'Frecuente', 'Vip']}
+                key={form.key('tags')}
+                {...form.getInputProps('tags')}
               />
               
           </Flex>

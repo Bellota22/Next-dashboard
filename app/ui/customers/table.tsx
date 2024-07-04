@@ -3,131 +3,90 @@ import Image from 'next/image';
 import { UpdateCustomer, DeleteCustomer } from '@/app/ui/customers/buttons';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { useState } from 'react';
-import { Table, Checkbox } from '@mantine/core';
+import { Table, Checkbox, Text, Title } from '@mantine/core';
 import Link from 'next/link';
+import { Customers } from '@/app/lib/definitions';
 
 export default function CustomerTable({
   query,
   currentPage,
-  users,
+  customers,
 }: {
   query: string;
   currentPage: number;
-  users: any;
+  customers: Customers[];
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const rows = users.map((user: any) => (
+  const rows = customers.map((customer: Customers) => {
+
+    const linkStyle = { cursor: "pointer" };
+    const linkProps = {
+      component: Link,
+      href: `/dashboard/customers/${customer.id}/edit`,
+      style: linkStyle,
+    };
+    return (
     <Table.Tr
-      key={user.id}
-      bg={selectedRows.includes(user.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
+      ta="right"
+      key={customer.id}
+      bg={selectedRows.includes(customer.id) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(user.nombre)}
+          checked={selectedRows.includes(customer.id)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, user.nombre]
-                : selectedRows.filter((nombre) => nombre !== user.nombre)
+                ? [...selectedRows, customer.id]
+                : selectedRows.filter((id) => id !== customer.id)
             )
           }
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.nombre} {user.apellido}
-      </Link>
+        <Text {...linkProps}>{customer.name}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.celular}
-        </Link>
+        <Text {...linkProps}>{customer.cellphone}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.email}
-        </Link>
+        <Text {...linkProps}>{customer.email}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {user.direccion}
-        </Link>
+        <Text {...linkProps}>{customer.address}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/customers/${user.id}/edit`} style={{ cursor: "pointer" }}>
-        {formatDateToLocal(user.fecha_creacion)}
-        </Link>
+      <Text {...linkProps}>{customer.created_date ? customer.created_date.toLocaleDateString() : ''}</Text>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
-          <UpdateCustomer id={user.id} />
-          <DeleteCustomer id={user.id} />
+          <UpdateCustomer id={customer.id} />
+          <DeleteCustomer id={customer.id} />
         </div>
       </Table.Td>
     </Table.Tr>
-  ));
+  )});
 
 
   return (
     <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            {/* {invoices?.map((invoice) => (
-              <div
-                key={invoice.id}
-                className="mb-2 w-full rounded-md bg-white p-4"
-              >
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <div className="mb-2 flex items-center">
-                      <Image
-                        src={invoice.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${invoice.name}'s profile picture`}
-                      />
-                      <p>{invoice.name}</p>
-                    </div>
-                    <p className="text-sm text-gray-500">{invoice.email}</p>
-                  </div>
-                  <InvoiceStatus status={invoice.status} />
-                </div>
-                <div className="flex w-full items-center justify-between pt-4">
-                  <div>
-                    <p className="text-xl font-medium">
-                      {formatCurrency(invoice.amount)}
-                    </p>
-                    <p>{formatDateToLocal(invoice.date)}</p>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <UpdateInvoice id={invoice.id} />
-                    <DeleteInvoice id={invoice.id} />
-                  </div>
-                </div>
-              </div>
-            ))} */}
-          </div>
           <Table>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th />
-                <Table.Th>Nombre</Table.Th>
-                <Table.Th>Celular</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Dirección</Table.Th>
-                <Table.Th>Fecha de registro</Table.Th>
+                <Table.Th><Title ta="right" order={6}>Nombre</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Celular</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Email</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Dirección</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Fecha de registro</Title></Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
           </Table>
-        </div>
-      </div>
     </div>
   );
 }

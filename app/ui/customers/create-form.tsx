@@ -12,28 +12,34 @@ import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import data from '@/app/lib/cities_data';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { setCookie } from 'cookies-next';
+import { Customers } from '@/app/lib/definitions';
 
 export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
 
   const fromModal = searchParams.get('fromModal') === 'true';
 
   
-  const form = useForm({
+  const form = useForm<Customers>({
     mode: 'uncontrolled',
     initialValues: {
-      nombre: '',
-      apellido: '',
-      email: '',
+      id: '',
+      user_id: userId,
+      name: '',
       dni: '',
-      celular: '',
-      fecha_nacimiento: '',
-      departamento: '',
-      provincia: '',
-      distrito: '',
-      direccion: '',
-      imagen_url: '',
+      birthday: new Date || null,
+      email: '',
+      cellphone: '',
+      department: '',
+      province: '',
+      district: '',
+      address: '',
+      tags: '',
+      image_url: '',
+      created_date: new Date(),
+      updated_date: new Date(),
     },
 
     validate: {
@@ -61,33 +67,33 @@ export default function Form() {
     filtered.sort((a, b) => a.label.localeCompare(b.label));
     return filtered;
   };
-  const [provincias, setProvincias] = useState<string[]>([]);
+  const [province, setProvinces] = useState<string[]>([]);
   const [distritos, setDistritos] = useState<string[]>([]);
 
   useEffect(() => {
-    if (form.values.departamento) {
-      const departamentoKey = form.values.departamento.toLowerCase().replace(/ /g, '_');
-      setProvincias(data[departamentoKey]?.provincias || []);
+    if (form.values.department) {
+      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
+      setProvinces(data[departamentoKey]?.provinces || []);
       setDistritos([]);
       form.setFieldValue('provincia', '');
       form.setFieldValue('distrito', '');
     }
-  }, [form.values.departamento]);
+  }, [form.values.department]);
 
   useEffect(() => {
-    if (form.values.provincia && form.values.departamento) {
-      const departamentoKey = form.values.departamento.toLowerCase().replace(/ /g, '_');
-      const provinciaKey = form.values.provincia.toLowerCase().replace(/ /g, '_');
-      setDistritos(data[departamentoKey]?.distritos[provinciaKey] || []);
+    if (form.values.province && form.values.department) {
+      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
+      const provinciaKey = form.values.province.toLowerCase().replace(/ /g, '_');
+      setDistritos(data[departamentoKey]?.districts[provinciaKey] || []);
       form.setFieldValue('distrito', '');
     }
-  }, [form.values.provincia, form.values.departamento]);
+  }, [form.values.province, form.values.department]);
   
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Customers) => {
     await createCustomer(values);
     if (fromModal) {
       setCookie('fromModal', 'true');
-      setCookie('nombre', values.nombre);
+      setCookie('name', values.name);
       setCookie('customer', values);
       router.push("/dashboard/products?fromModal=true");
     } else {
@@ -103,18 +109,10 @@ export default function Form() {
               <TextInput
                 withAsterisk
                 label="Nombre"
-                placeholder="Caceres"
+                placeholder="Juan Perez Lopez"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
-              />
-              <TextInput
-                withAsterisk
-                label="Apellido"
-                placeholder="Caceres"
-                required
-                key={form.key('apellido')}
-                {...form.getInputProps('apellido')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
@@ -138,8 +136,16 @@ export default function Form() {
                 required
                 label="Fecha nacimiento"
                 placeholder="19/03/1999"
-                key={form.key('fecha_nacimiento')}
-                {...form.getInputProps('fecha_nacimiento')}
+                key={form.key('birthday')}
+                {...form.getInputProps('birthday')}
+              />
+              <Autocomplete
+                required
+                label="Tags"
+                placeholder="Tags"
+                data={['Nuevo', 'Frecuente', 'Vip']}
+                key={form.key('tags')}
+                {...form.getInputProps('tags')}
               />
           </Flex>
           <Flex mb={4} gap={8} >
@@ -148,8 +154,8 @@ export default function Form() {
                 label="Celular"
                 placeholder="941941320"
                 required
-                key={form.key('celular')}
-                {...form.getInputProps('celular')}
+                key={form.key('cellphone')}
+                {...form.getInputProps('cellphone')}
               />
               <Autocomplete
                 required
@@ -157,32 +163,32 @@ export default function Form() {
                 placeholder="Trujillo"
                 data={Object.keys(data).map((departamento) => ({ value: departamento.replace(/_/g, ' '), label: departamento.replace(/_/g, ' ') }))}
                 filter={optionsFilter}
-                key={form.key('departamento')}
-                {...form.getInputProps('departamento')}
+                key={form.key('department')}
+                {...form.getInputProps('department')}
               />
               <Autocomplete
                 required
                 label="Distrito"
                 placeholder="Distrito"
                 data={distritos.map(dist => dist.replace(/_/g, ' '))}
-                key={form.key('distrito')}
-                {...form.getInputProps('distrito')}
+                key={form.key('district')}
+                {...form.getInputProps('district')}
               />          
               <Autocomplete
                 withAsterisk
                 label="Provincia" 
                 placeholder="Provincia" 
                 required
-                key={form.key('provincia')} 
-                {...form.getInputProps('provincia')}
+                key={form.key('province')} 
+                {...form.getInputProps('province')}
               />
               <TextInput
                 withAsterisk
                 label="Dirección" 
                 placeholder="Mz 29 Lt 10 Urb. Los Jardines de California" 
                 required
-                key={form.key('direccion')}
-                {...form.getInputProps('direccion')}
+                key={form.key('address')}
+                {...form.getInputProps('address')}
               />
           </Flex>
         </Stack>

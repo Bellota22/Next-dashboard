@@ -5,8 +5,9 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { PetsShowTable, ProductsShowTable, User, UsersTable } from './definitions';
+import { Customers, Pets, PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
 import bcrypt from 'bcryptjs';
+import { ProductToSell } from '../ui/products/table';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -38,25 +39,60 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 
   return newUser.rows[0];
 }
+export async function createCustomer(customerData: Customers) {
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date; 
+  const {
+    user_id,
+    name,
+    dni,
+    birthday,
+    email,
+    cellphone,
+    department,
+    province,
+    district,
+    address,
+    tags,
+    image_url,
+  } = customerData;
+  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
 
-export async function createCustomer(customerData: UsersTable) {
-    const fecha_creacion = new Date().toISOString().split('T')[0];
-    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
-    await sql`
-        INSERT INTO customers (nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url, fecha_creacion)
-        VALUES (${nombre}, ${apellido}, ${dni}, ${fecha_nacimiento}, ${email}, ${celular}, ${departamento}, ${provincia}, ${distrito}, ${direccion}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
-    `;
-    revalidatePath('/dashboard/customers');
+  await sql`
+      INSERT INTO customers1 (
+        user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url, created_date, updated_date
+      )
+      VALUES (
+        ${user_id}, ${name}, ${dni}, ${formattedBirthday}, ${email}, ${cellphone}, ${department}, ${province}, ${district}, ${address}, ${tags}, ${image_url}, ${created_date}, ${updated_date})
+  `;
+  revalidatePath('/dashboard/customers');
 
 }
 
-export async function editCustomer(customerId: string, customerData: UsersTable) {
-    const { nombre, apellido, dni, fecha_nacimiento, email, celular, departamento, provincia, distrito, direccion, etiquetas, imagen_url } = customerData;
+
+export async function editCustomer(customerData: Customers) {
+    const { 
+      id,
+      user_id,
+      name,
+      dni,
+      birthday,
+      email,
+      cellphone,
+      department,
+      province,
+      district,
+      address,
+      tags,
+      image_url,
+     } = customerData;
     try {
+      const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+
       await sql`
-        UPDATE customers
-        SET nombre = ${nombre}, apellido = ${apellido}, dni = ${dni}, fecha_nacimiento = ${fecha_nacimiento}, email = ${email}, celular = ${celular}, departamento = ${departamento}, provincia = ${provincia}, distrito = ${distrito}, direccion = ${direccion}, etiquetas = ${etiquetas}, imagen_url = ${imagen_url}
-        WHERE id = ${customerId}
+        UPDATE customers1
+        SET user_id = ${user_id}, name = ${name}, dni = ${dni}, birthday = ${formattedBirthday}, email = ${email}, cellphone = ${cellphone}, department = ${department}, province = ${province}, district = ${district}, address = ${address}, tags = ${tags}, image_url = ${image_url}
+        WHERE id = ${id}
       `;
   
       revalidatePath('/dashboard/customers');
@@ -68,7 +104,7 @@ export async function editCustomer(customerId: string, customerData: UsersTable)
 
 export async function deleteCustomer(id: string) {
   try{
-      await sql`DELETE FROM customers WHERE id = ${id}`;
+      await sql`DELETE FROM customers1 WHERE id = ${id}`;
       revalidatePath('/dashboard/customers');
   }catch{
       return {
@@ -77,17 +113,39 @@ export async function deleteCustomer(id: string) {
   }
 }
 
-export async function createMascotas(mascotasData: PetsShowTable) {
-  
-  const fecha_creacion = new Date().toISOString().split('T')[0];
 
-  const { customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url } = mascotasData
-  console.log('mascotasData::: ', mascotasData);
-    await sql`
-        INSERT INTO mascotas (
-          customer_id, nombre, especie, raza, fecha_nacimiento, sexo, esterilizado, asegurado, grooming, grooming_freq, grooming_dia, etiquetas, imagen_url, fecha_creacion
+export async function createPet(pets: Pets) {
+  console.log('pets::: ', pets);
+  
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
+
+  const { 
+    user_id,
+    customer_id,
+    name,
+    birthday,
+    specie,
+    race,
+    gender,
+    sterelized,
+    insured,
+    tags,
+    grooming,
+    grooming_freq,
+    grooming_day,
+    image_url
+   } = pets
+   const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+
+   await sql`
+        INSERT INTO pets (
+          user_id, customer_id, name, birthday, specie, race, gender, sterelized, insured, tags, grooming, grooming_freq, grooming_day, image_url, created_date, updated_date
         )
-        VALUES ( ${customer_id}, ${nombre}, ${especie}, ${raza}, ${fecha_nacimiento}, ${sexo}, ${esterilizado}, ${asegurado}, ${grooming}, ${grooming_freq}, ${grooming_dia}, ${etiquetas}, ${imagen_url}, ${fecha_creacion})
+        VALUES (
+         ${user_id}, ${customer_id}, ${name}, ${formattedBirthday}, ${specie}, ${race}, ${gender}, ${sterelized}, ${insured}, ${tags}, ${grooming}, ${grooming_freq}, ${grooming_day}, ${image_url}, ${created_date}, ${updated_date}
+
+        )
     `;
 
    
@@ -96,7 +154,59 @@ export async function createMascotas(mascotasData: PetsShowTable) {
 
 }
 
-export async function editMascota(petId: string, petData: PetsShowTable) {
+
+export async function editPet(pet: Pets) {
+  
+  const {
+    id,
+    user_id,
+    customer_id,
+    name,
+    birthday,
+    specie,
+    race,
+    gender,
+    sterelized,
+    insured,
+    tags,
+    grooming,
+    grooming_freq,
+    grooming_day,
+    image_url
+  } = pet;
+  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+  const formattedDate = new Date().toISOString().split('T')[0];
+  
+  try {
+    await sql`
+      UPDATE pets
+      SET 
+        user_id = ${user_id}, 
+        customer_id = ${customer_id}, 
+        name = ${name}, 
+        birthday = ${formattedBirthday}, 
+        specie = ${specie},
+        race = ${race},
+        gender = ${gender},
+        sterelized = ${sterelized},
+        insured = ${insured},
+        tags = ${tags},
+        grooming = ${grooming},
+        grooming_freq = ${grooming_freq},
+        grooming_day = ${grooming_day},
+        image_url = ${image_url},
+        updated_date = ${formattedDate}
+      WHERE id = ${id}
+    `;
+
+    revalidatePath('/dashboard/mascotas');
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    throw new Error('Error updating customer');
+  }
+}
+
+export async function editMascota1(petId: string, petData: PetsShowTable) {
   
   const {
     nombre,
@@ -130,7 +240,7 @@ export async function editMascota(petId: string, petData: PetsShowTable) {
 
 export async function deletePet(id: string) {
   try{
-      await sql`DELETE FROM mascotas WHERE id = ${id}`;
+      await sql`DELETE FROM pets WHERE id = ${id}`;
       revalidatePath('/dashboard/mascotas');
   }catch{
       return {
@@ -138,35 +248,83 @@ export async function deletePet(id: string) {
       }
   }
 }
-
-export async function createProducts(productsData: ProductsShowTable) {
+export async function createProduct(productsData: Products) {
   
-  const fecha_creacion = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
 
   const {
     user_id,
-    codigo_barras,
-    nombre,
-    marca,
-    unidad_medida,
-    proveedor,
-    categoria,
-    subcategoria,
-    presentacion,
-    contenido,
-    precio_compra,
-    precio_venta,
+    name,
+    brand,
+    measure_unit,
+    presentation,
+    content,
+    supplier,
+    bar_code,
+    category,
     stock,
-    imagen_url,
-    estado,
+    buy_price,
+    sell_price,
+    status,
+    image_url,    
   } = productsData;
   await sql`
-  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, stock, imagen_url, estado, fecha_creacion)
-  VALUES (${user_id}, ${codigo_barras}, ${nombre}, ${marca}, ${unidad_medida}, ${proveedor}, ${categoria}, ${subcategoria}, ${presentacion}, ${contenido}, ${precio_compra}, ${precio_venta}, ${stock}, ${imagen_url}, ${estado}, ${fecha_creacion})
+  INSERT INTO products1 (
+    user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, buy_price, sell_price, status, image_url, created_date, updated_date)
+  VALUES (
+    ${user_id}, ${name}, ${brand}, ${measure_unit}, ${presentation}, ${content}, ${supplier}, ${bar_code}, ${category}, ${stock}, ${buy_price}, ${sell_price}, ${status}, ${image_url}, ${created_date}, ${updated_date})
 `;
 revalidatePath('/dashboard/products');
 redirect('/dashboard/products');
 
+}
+
+export async function editProduct(productsData: Products) {
+  const updated_date = new Date().toISOString().split('T')[0];
+
+  const {
+    id,
+    user_id,
+    name,
+    brand,
+    measure_unit,
+    presentation,
+    content,
+    supplier,
+    bar_code,
+    category,
+    stock,
+    buy_price,
+    sell_price,
+    status,
+    image_url,
+  } = productsData;
+    
+
+  await sql`
+    UPDATE products1
+    SET 
+      user_id = ${user_id}, 
+      name = ${name}, 
+      brand = ${brand}, 
+      measure_unit = ${measure_unit}, 
+      presentation = ${presentation}, 
+      content = ${content}, 
+      supplier = ${supplier}, 
+      bar_code = ${bar_code}, 
+      category = ${category}, 
+      stock = ${stock}, 
+      buy_price = ${buy_price}, 
+      sell_price = ${sell_price}, 
+      status = ${status}, 
+      image_url = ${image_url},
+      updated_date = ${updated_date}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath('/dashboard/products');
+  redirect('/dashboard/products');
 }
 
 export async function updateProduct(id: string, productData: ProductsShowTable) {
@@ -229,7 +387,7 @@ export async function updateProductState(id: string, estado: boolean) {
 
 export async function deleteProduct(id: string) {
     try{
-        await sql`DELETE FROM products WHERE id = ${id}`;
+        await sql`DELETE FROM products1 WHERE id = ${id}`;
         revalidatePath('/dashboard/products');
     }catch{
         return {
@@ -238,27 +396,27 @@ export async function deleteProduct(id: string) {
     }
 }
 
-export async function createSale(userId: string, customerId: string, products: any[]) {
-  const fecha = new Date().toISOString();
-  const estado = true;
-  const total = products.reduce((sum, product) => sum + product.precio_venta * product.cantidad, 0);
+export async function createSale(userId: string, customerId: string, products: ProductToSell[] ) {
 
-  const venta = await sql`
-    INSERT INTO ventas (user_id, customer_id, total, fecha, estado, fecha_creacion)
-    VALUES (${userId}, ${customerId}, ${total}, ${fecha}, ${estado}, ${fecha})
+  const status = true;
+  const total_price = products.reduce((sum, product) => sum + product.sell_price * product.quantity, 0);
+
+  const sale = await sql<Sales>`
+    INSERT INTO sales (user_id, customer_id, status, total_price)
+    VALUES (${userId}, ${customerId}, ${status}, ${total_price})
     RETURNING id
   `;
 
-  const ventaId = venta.rows[0].id;
+  const sale_id = sale.rows[0].id;
 
   for (const product of products) {
     await sql`
-      INSERT INTO ventas_productos (venta_id, producto_id, cantidad, precio)
-      VALUES (${ventaId}, ${product.id}, ${product.cantidad}, ${product.precio_venta})
+      INSERT INTO sales_products (user_id, product_id, sale_id, quantity,  total_price)
+      VALUES (${userId}, ${product.id}, ${sale_id} , ${product.quantity},  ${product.sell_price * product.quantity})
     `;
   }
 
-  return ventaId;
+  return sale_id;
 }
 
 export async function deleteSell(id: string) {

@@ -3,36 +3,48 @@
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
 import { editCustomer } from '@/app/lib/actions';
-import { Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput } from '@mantine/core';
+import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { UsersTable } from '@/app/lib/definitions';
+import data from '@/app/lib/cities_data';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { setCookie } from 'cookies-next';
+import { Customers } from '@/app/lib/definitions';
 
+interface EditFormProps {
+  customer: Customers;
+}
 
-type FormProps = {
-  customerId: string;
-  customer: UsersTable;
-};
-export default function Form({ customerId, customer }: FormProps) {
-  console.log('customer::: ', customer);
-  const form = useForm({
+export default function Form({ customer }: EditFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+
+  const fromModal = searchParams.get('fromModal') === 'true';
+
+  
+  const form = useForm<Customers>({
     mode: 'uncontrolled',
     initialValues: {
-      nombre: customer?.nombre || '',
-      apellido: customer?.apellido || '',
-      email: customer?.email || '',
-      dni: customer?.dni || '',
-      fecha_nacimiento: customer?.fecha_nacimiento || '',
-      celular: customer?.celular || '',
-      departamento: customer?.departamento || '',
-      provincia: customer?.provincia || '',
-      distrito: customer?.distrito || '',
-      direccion: customer?.direccion || '',
-      imagen_url: customer?.imagen_url || '',
-      etiquetas: customer?.etiquetas || '',
+      id: customer.id,
+      user_id: customer.user_id,
+      name: customer.name,
+      dni: customer.dni,
+      birthday: customer.birthday || undefined,
+      email: customer.email,
+      cellphone: customer.cellphone,
+      department: customer.department,
+      province: customer.province,
+      district: customer.district,
+      address: customer.address,
+      tags: customer.tags,
+      image_url: customer.image_url,
+      created_date: customer.created_date,
+      updated_date: customer.updated_date,
+            
     },
 
     validate: {
@@ -44,43 +56,68 @@ export default function Form({ customerId, customer }: FormProps) {
       
     },
   });
-  const [error, setError] = useState<string | null>(null);
-  const [value, setValue] = useState<Date | null>(null);
+
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
-  const handleSubmit = async (values: any) => {
-    try {
-      await editCustomer(customerId, values);
-      window.location.href = '/dashboard/customers'; // Maneja la redirección aquí
-    } catch (err) {
-      setError('Error al actualizar el cliente');
+
+  const optionsFilter: OptionsFilter = ({ options, search }) => {
+    const filtered = (options as ComboboxItem[]).filter((option) =>
+      option.label.toLowerCase().trim().includes(search.toLowerCase().trim())
+    );
+  
+    filtered.sort((a, b) => a.label.localeCompare(b.label));
+    return filtered;
+  };
+  const [province, setProvinces] = useState<string[]>([]);
+  const [distritos, setDistritos] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (form.values.department) {
+      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
+      setProvinces(data[departamentoKey]?.provinces || []);
+      setDistritos([]);
+      form.setFieldValue('provincia', '');
+      form.setFieldValue('distrito', '');
+    }
+  }, [form.values.department]);
+
+  useEffect(() => {
+    if (form.values.province && form.values.department) {
+      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
+      const provinciaKey = form.values.province.toLowerCase().replace(/ /g, '_');
+      setDistritos(data[departamentoKey]?.districts[provinciaKey] || []);
+      form.setFieldValue('distrito', '');
+    }
+  }, [form.values.province, form.values.department]);
+  
+  const handleSubmit = async (values: Customers) => {
+    await editCustomer(values);
+    if (fromModal) {
+      setCookie('fromModal', 'true');
+      setCookie('name', values.name);
+      setCookie('customer', values);
+      router.push("/dashboard/products?fromModal=true");
+    } else {
+      router.push('/dashboard/customers');
     }
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
               <TextInput
                 withAsterisk
                 label="Nombre"
-                placeholder="Caceres"
+                placeholder="Juan Perez Lopez"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
-              />
-              <TextInput
-                withAsterisk
-                label="Apellido"
-                placeholder="Caceres"
-                required
-                key={form.key('apellido')}
-                {...form.getInputProps('apellido')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
@@ -93,8 +130,9 @@ export default function Form({ customerId, customer }: FormProps) {
               <NumberInput
                 hideControls
                 withAsterisk
+                maxLength={8}
                 label="DNI" 
-                placeholder="72224455" 
+                placeholder="72224455"
                 required
                 key={form.key('dni')}
                 {...form.getInputProps('dni')}
@@ -103,8 +141,16 @@ export default function Form({ customerId, customer }: FormProps) {
                 required
                 label="Fecha nacimiento"
                 placeholder="19/03/1999"
-                key={form.key('fecha_nacimiento')}
-                {...form.getInputProps('fecha_nacimiento')}
+                key={form.key('birthday')}
+                {...form.getInputProps('birthday')}
+              />
+              <Autocomplete
+                required
+                label="Tags"
+                placeholder="Tags"
+                data={['Nuevo', 'Frecuente', 'Vip']}
+                key={form.key('tags')}
+                {...form.getInputProps('tags')}
               />
           </Flex>
           <Flex mb={4} gap={8} >
@@ -113,40 +159,41 @@ export default function Form({ customerId, customer }: FormProps) {
                 label="Celular"
                 placeholder="941941320"
                 required
-                key={form.key('celular')}
-                {...form.getInputProps('celular')}
+                key={form.key('cellphone')}
+                {...form.getInputProps('cellphone')}
               />
-              <TextInput
-                withAsterisk
+              <Autocomplete
+                required
                 label="Departamento"
                 placeholder="Trujillo"
-                required
-                key={form.key('departamento')}
-                {...form.getInputProps('departamento')}
+                data={Object.keys(data).map((departamento) => ({ value: departamento.replace(/_/g, ' '), label: departamento.replace(/_/g, ' ') }))}
+                filter={optionsFilter}
+                key={form.key('department')}
+                {...form.getInputProps('department')}
               />
-              <TextInput
-                withAsterisk
+              <Autocomplete
+                required
                 label="Distrito"
-                placeholder="your@Distrito.com"
-                required
-                key={form.key('distrito')}
-                {...form.getInputProps('distrito')}
-              />
-              <TextInput
+                placeholder="Distrito"
+                data={distritos.map(dist => dist.replace(/_/g, ' '))}
+                key={form.key('district')}
+                {...form.getInputProps('district')}
+              />          
+              <Autocomplete
                 withAsterisk
                 label="Provincia" 
-                placeholder="72224455" 
+                placeholder="Provincia" 
                 required
-                key={form.key('provincia')}
-                {...form.getInputProps('provincia')}
+                key={form.key('province')} 
+                {...form.getInputProps('province')}
               />
               <TextInput
                 withAsterisk
                 label="Dirección" 
-                placeholder="72224455" 
+                placeholder="Mz 29 Lt 10 Urb. Los Jardines de California" 
                 required
-                key={form.key('direccion')}
-                {...form.getInputProps('direccion')}
+                key={form.key('address')}
+                {...form.getInputProps('address')}
               />
           </Flex>
         </Stack>
@@ -204,7 +251,7 @@ export default function Form({ customerId, customer }: FormProps) {
         >
           Cancel
         </Link>
-        <Button type="submit">Actualizar Cliente</Button>
+        <Button type="submit">Actualizar cliente</Button>
       </Flex>
     </form>
   );

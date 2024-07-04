@@ -1,30 +1,28 @@
 import Form from '@/app/ui/customers/create-form';
 import { lusitana } from '@/app/ui/fonts';
-import { Breadcrumbs, Anchor } from '@mantine/core';
+import { Breadcrumbs, Anchor, Title } from '@mantine/core';
+import Link from 'next/link';
 import { Suspense } from 'react';
- 
+import styles from './page.module.css';
+import { CREATE_CUSTOMER_BREADCRUMB } from '@/app/constants';
 export default async function Page() {
- 
-  const items = [
-    { label: 'Clientes', href: '/dashboard/customers' },
-    {
-      label: 'Crear cliente',
-      href: '/dashboard/customers/create',
-      active: true,
-    },
-  ].map((item, index) => (
-    <Anchor className={`${lusitana.className}`}  href={item.href} key={index}>
-      {item.label}
-    </Anchor>
-  ));
 
   return (
     <main>
-      <Breadcrumbs style={{ color: 'black' }}> 
-        {items}
+      <Breadcrumbs> 
+        {CREATE_CUSTOMER_BREADCRUMB.map((item, index) => (
+          <Title
+            className={`${styles.breadcrumbs} ${item.active ? styles['breadcrumbs-active'] : ''}`}
+            key={index}
+          >
+            <Link href={item.href}>
+              {item.label}
+            </Link>
+          </Title>
+        ))}
       </Breadcrumbs>
       <Suspense fallback="Loading...">
-      <Form />
+        <Form />
       </Suspense>
     </main>
   );

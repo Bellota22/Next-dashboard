@@ -1,20 +1,113 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// For simplicity of teaching, we're manually defining these types.
-// However, these types are generated automatically if you're using an ORM such as Prisma.
+
 export type User = {
   id: string;
   name: string;
   email: string;
   password: string;
+  created_date: Date;
+  updated_date: Date;
 };
 
-export type Customer = {
+export type Customers = {
   id: string;
+  user_id: string;
   name: string;
+  dni: string;
+  birthday?: Date;
   email: string;
-  image_url: string;
+  cellphone: string;
+  department?: string;
+  province?: string;
+  district?: string;
+  address?: string;
+  tags?: string;
+  image_url?: string;
+  created_date: Date;
+  updated_date: Date;
 };
+
+export type Pets = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  name: string;
+  birthday?: Date;
+  specie: string;
+  race: string;
+  gender: boolean;
+  sterelized: boolean;
+  insured: boolean;
+  tags?: string;
+  grooming?: boolean;
+  grooming_freq?: string;
+  grooming_day?: string;
+  image_url?: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
+export type PetWithCustomer = Pets & {
+  customer: Customers;
+};
+
+export type Products ={
+  id: string;
+  user_id: string;
+  name: string;
+  brand?: string;
+  measure_unit?: string;
+  presentation?: string;
+  content?: string;
+  supplier?: string;
+  bar_code: string;
+  category: string;
+  stock: number;
+  sell_price: number;
+  buy_price: number;
+  status: boolean;
+  image_url?: string;
+  created_date: Date;
+  updated_date: Date;
+};
+
+export type Sales = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  status: string;
+  total_price: number;
+  created_date: Date;
+  updated_date: Date;
+};
+
+export type ProductSold = {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+};
+
+export type SaleWithProducts = {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  customer_name: string;
+  status: string;
+  total_price: number;
+  created_date: string;
+  updated_date: string;
+  products: ProductSold[];
+};
+
+export type SalesProductsTable = {
+  id: string;
+  user_id: string;
+  product_id: string;
+  sale_id: number;
+  quantity: number;
+  total_price: number;
+
+};
+
 
 export type UsersTable = {
   nombre: string;
@@ -83,24 +176,6 @@ export type PetsShowTable = {
   
 };
 
-export type ProductsShowTable = {
-  user_id: string;
-  nombre: string;
-  marca: string;
-  unidad_medida: string;
-  presentacion: string;
-  contenido: string;
-  proveedor: string;
-  codigo_barras: string;
-  categoria: string;
-  subcategoria: string;
-  stock: number;
-  precio_compra: number;
-  precio_venta: number;
-  estado: boolean;
-  imagen_url?: string;
-};
-
 export type CustomersTableType = {
   id: string;
   name: string;
@@ -121,6 +196,26 @@ export type SalesTableType = {
   fecha_creacion: Date;
 };
 
+// products
+
+
+export type ProductsShowTable = {
+  user_id: string;
+  nombre: string;
+  marca: string;
+  unidad_medida: string;
+  presentacion: string;
+  contenido: string;
+  proveedor: string;
+  codigo_barras: string;
+  categoria: string;
+  subcategoria: string;
+  stock: number;
+  precio_compra: number;
+  precio_venta: number;
+  estado: boolean;
+  imagen_url?: string;
+};
 export type SalesProductsTableType = {
   venta_id: string;
   producto_id: string;
@@ -129,21 +224,12 @@ export type SalesProductsTableType = {
   producto_nombre: string;
   producto_marca: string;
 };
-
 export type SaleWithProductsType = {
   venta: SalesTableType;
   productos: SalesProductsTableType[];
-};
+}; 
 
-export type FormattedCustomersTable = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: string;
-  total_paid: string;
-};
+
 
 export type CustomerField = {
   id: string;

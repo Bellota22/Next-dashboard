@@ -3,8 +3,9 @@ import Image from 'next/image';
 import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
 import { formatDateToLocal,  } from '@/app/lib/utils';
 import { useState } from 'react';
-import { Table, Checkbox } from '@mantine/core';
+import { Table, Checkbox, Text, Title } from '@mantine/core';
 import Link from 'next/link';
+import { PetWithCustomer } from '@/app/lib/definitions';
 
 export default function PetsTable({
   query,
@@ -13,68 +14,61 @@ export default function PetsTable({
 }: {
   query: string;
   currentPage: number;
-  pets: any;
+  pets: PetWithCustomer[];
 }) {
   // const invoices = await fetchFilteredInvoices(query, currentPage);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const rows = pets.map((pet: any) => (
+  const rows = pets.map((pet: PetWithCustomer) => {
+    const linkStyle = { cursor: "pointer" };
+    const linkProps = {
+      component: Link,
+      href: `/dashboard/mascotas/${pet.id}/edit`,
+      style: linkStyle,
+    };
+    
+    return(
     <Table.Tr
+      ta="right"
       key={pet.id}
-      bg={selectedRows.includes(pet.nombre) ? 'var(--mantine-color-blue-light)' : undefined}
+      bg={selectedRows.includes(pet.id) ? 'var(--mantine-color-blue-light)' : undefined}
     >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(pet.nombre)}
+          checked={selectedRows.includes(pet.id)}
           onChange={(event) =>
             setSelectedRows(
               event.currentTarget.checked
-                ? [...selectedRows, pet.nombre]
-                : selectedRows.filter((nombre) => nombre !== pet.nombre)
+                ? [...selectedRows, pet.id]
+                : selectedRows.filter((id) => id !== pet.id)
             )
           }
         />
       </Table.Td>
       <Table.Td>
-      <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.pet_nombre}
-      </Link>
+        <Text {...linkProps}>{pet.name}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.especie}
-        </Link>
+        <Text {...linkProps}>{pet.specie}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.raza}
-        </Link>
+        <Text {...linkProps}>{pet.race}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.sexo ? "Macho" : "Hembra"}
-        </Link>
+      <Text {...linkProps}>{pet.gender ? `Macho` : 'Hembra'}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {formatDateToLocal(pet.pet_fecha_nacimiento)}
-        </Link>
+        <Text {...linkProps}>{pet.birthday ? pet.birthday.toLocaleDateString() : ''}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-        {pet.customer_nombre}  {pet.customer_apellido}
-        </Link>
+        <Text {...linkProps}>{pet.customer.name}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-          Activo
-        </Link>
+        <Text {...linkProps}>{pet.tags}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/mascotas/${pet.id}/edit`} style={{ cursor: "pointer" }}>
-          {pet.pet_etiquetas}
-        </Link>
+        <Text {...linkProps}>{pet.name}</Text>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
@@ -83,62 +77,25 @@ export default function PetsTable({
         </div>
       </Table.Td>
     </Table.Tr>
-  ));
+  )});
 
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="md:hidden">
-            {/* {invoices?.map((invoice) => (
-              <div
-                key={invoice.id}
-                className="mb-2 w-full rounded-md bg-white p-4"
-              >
-                <div className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <div className="mb-2 flex items-center">
-                      <Image
-                        src={invoice.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${invoice.name}'s profile picture`}
-                      />
-                      <p>{invoice.name}</p>
-                    </div>
-                    <p className="text-sm text-gray-500">{invoice.email}</p>
-                  </div>
-                  <InvoiceStatus status={invoice.status} />
-                </div>
-                <div className="flex w-full items-center justify-between pt-4">
-                  <div>
-                    <p className="text-xl font-medium">
-                      {formatCurrency(invoice.amount)}
-                    </p>
-                    <p>{formatDateToLocal(invoice.date)}</p>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <UpdateInvoice id={invoice.id} />
-                    <DeleteInvoice id={invoice.id} />
-                  </div>
-                </div>
-              </div>
-            ))} */}
-          </div>
           <Table>
             <Table.Thead>
               <Table.Tr>
                 <Table.Th />
-                <Table.Th>Nombre</Table.Th>
-                <Table.Th>Especie</Table.Th>
-                <Table.Th>Raza</Table.Th>
-                <Table.Th>Género</Table.Th>
-                <Table.Th>Fecha de nacimiento</Table.Th>
-                <Table.Th>Cliente</Table.Th>
-                <Table.Th>Estado</Table.Th>
-                <Table.Th>Etiquetas</Table.Th>
+                <Table.Th><Title ta="right" order={6}>Nombre</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Especie</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Raza</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Género</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Fecha de nacimiento</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Cliente</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Etiquetas</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Estado</Title></Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>

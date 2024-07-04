@@ -10,7 +10,6 @@ interface PaginationProductProps {
   }
 
 function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
-    console.log('totalPages::: ', totalPages);
     const router = useRouter();
     const searchParams = useSearchParams();
   
@@ -18,7 +17,7 @@ function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', page.toString());
-        router.push(`/dashboard/products?${params.toString()}`);
+        router.push(`/dashboard/ventas?${params.toString()}`);
       };
     
   return (

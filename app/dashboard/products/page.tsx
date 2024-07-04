@@ -4,11 +4,12 @@ import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllProducts, fetchCustomers, fetchProductsPages } from '@/app/lib/data';
+import { getProductsPage, getAllCostumers, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { Flex } from '@mantine/core';
+import { Flex, Title } from '@mantine/core';
 import PaginationProduct from '@/app/ui/products/pagination';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Productos | PettoCare',
@@ -21,32 +22,34 @@ export default async function Page({
   searchParams?: {
     query?: string;
     page?: string;
+    queryCustomer?: string;
   };
 }) {
+  const cookieStore = cookies();
+
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
+  const autocompleteCustomer = searchParams?.queryCustomer || '';
+
   const currentPage = Number(searchParams?.page) || 1;
   const [
     products,
     customers,
     totalPages,
   ] = await Promise.all([
-    fetchAllProducts(query, currentPage, userId),
-    fetchCustomers(query, currentPage),
-    fetchProductsPages(query, userId),
+    getAllProducts(query, currentPage, userId),
+    getFilteredCustomers(autocompleteCustomer, currentPage, userId),
+    getProductsPage(query, userId),
   ]);
-  console.log('products::: ', products.length);
-  
-  const cookieStore = cookies();
+
 
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
-  
   const savedQuantities = JSON.parse(cookieStore.get('quantities')?.value || '{}');
 
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Products</h1>
+        <Title className={styles.breadcrumbs} order={1}>Products</Title>
         
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">

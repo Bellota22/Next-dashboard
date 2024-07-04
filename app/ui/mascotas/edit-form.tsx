@@ -2,135 +2,184 @@
 
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
-import { createMascotas, editMascota } from '@/app/lib/actions';
+import { editPet } from '@/app/lib/actions';
 import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { CustomerField, PetsShowTable } from '@/app/lib/definitions';
-import { custom } from 'zod';
-
+import { Customers, Pets, PetWithCustomer } from '@/app/lib/definitions';
+import Search from '../search';
+import { useDebouncedCallback } from 'use-debounce';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { getFilteredCustomers } from '@/app/lib/data';
+import { set } from 'zod';
 
 interface FormProps {
-  customers: CustomerField[];
-  petId: string;
-  pet: any;
+  pet: PetWithCustomer;
+  customers: Customers[];
+  query: string;
+  currentPage: number;
 }
 
 
-export default function Form({ customers, petId, pet }: FormProps) {
+export default function Form({ customers, pet,  query, currentPage }: FormProps) {
   console.log('pet::: ', pet);
   
-  const [files, setFiles] = useState<FileWithPath[]>([]);
-  const [gender, setGender] = useState<string | null>(pet.sexo ? "MACHO" : "HEMBRA");
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
 
-  const [salud, setSalud] = useState<string[]>(() => {
-    const initialSalud = [];
-    if (pet.esterilizado) initialSalud.push('esterilizado');
-    if (pet.asegurado) initialSalud.push('asegurado');
-    return initialSalud;
-  });  
-  const [grooming, setGrooming] = useState<boolean | null>(pet.grooming || false);
-  const [groomingFreq, setGroomingFreq] = useState<string>(pet.grooming_freq || '');
-  const [groomingDay, setGroomingDay] = useState<string>(pet.grooming_dia || '');
-  const [selectedCustomerName, setSelectedCustomerName] = useState<string>(`${pet.customer_nombre} ${pet.customer_apellido}`);
+  const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [gender, setGender] = useState<string | null>(pet.gender ? 'MACHO' : 'HEMBRA');
+  const [sterelized, setSterelized] = useState<boolean>(pet.sterelized);
+  const [insured, setInsured] = useState<boolean>(pet.insured);
+
+  const [selectedCustomer, setSelectedCustomer] = useState<Customers | null>(pet.customer);
+  const [inputValue, setInputValue] = useState<string>(pet.customer.name);
+  const [saludValues, setSaludValues] = useState<string[]>(
+    pet.sterelized && pet.insured ? ['sterelized', 'insured'] : pet.sterelized ? ['sterelized'] : pet.insured ? ['insured'] : []
+  );
+
+  
+  const [grooming, setGrooming] = useState<boolean | undefined>(pet.grooming);
+  const [groomingFreq, setGroomingFreq] = useState<string | undefined>(pet.grooming_freq);
+  const [groomingDay, setGroomingDay] = useState<string | undefined>(pet.grooming_day);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenderChange = (value: string) => {
     setGender(prevGender => (prevGender === value ? null : value));
   };
+  const handleSterelizedChange = (checked: boolean) => {
+    setSterelized(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'sterelized'] : prev.filter((value) => value !== 'sterelized')));
+  };
+  const handleInsuredChange = (checked: boolean) => {
+    setInsured(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'insured'] : prev.filter((value) => value !== 'insured')));
+  };
 
- 
-
-  const form = useForm({
+  const form = useForm<Pets>({
     mode: 'uncontrolled',
     initialValues: {
-      customer_id: pet.customer_id || '',
-      nombre: pet.pet_nombre || '',
-      especie: pet.especie || '',
-      raza: pet.raza || '',
-      fecha_nacimiento: pet.pet_fecha_nacimiento ? new Date(pet.pet_fecha_nacimiento): null,
-      sexo: pet.sexo || false,
-      esterilizado: pet.esterilizado || false,
-      asegurado: pet.asegurado || false,
-      grooming: pet.grooming || false,
-      grooming_freq: pet.grooming_freq || '',
-      grooming_dia: pet.grooming_dia || '',
-      etiquetas: pet.pet_etiquetas || '',
-      imagen_url: pet.pet_imagen_url || '',
+      id: pet.id,
+      user_id: userId,
+      customer_id: pet.customer_id,
+      name: pet.name,
+      birthday: pet.birthday || new Date(),
+      specie: pet.specie,
+      race: pet.race,
+      gender: pet.gender,
+      sterelized: pet.sterelized,
+      insured: pet.insured,
+      tags: pet.tags,
+      grooming: pet.grooming,
+      grooming_freq: pet.grooming_freq,
+      grooming_day: pet.grooming_day,
+      image_url: pet.image_url,
+      created_date: pet.created_date,
+      updated_date: pet.updated_date,
     },
     
   });
 
-  form.setFieldValue('sexo', gender === "MACHO" ? true : false )
-  form.setFieldValue('esterilizado', salud.includes('esterilizado') ? true : false )
-  form.setFieldValue('asegurado', salud.includes('asegurado') ? true : false )
-  form.setFieldValue('grooming', grooming ? grooming : false)
-  form.setFieldValue('grooming_freq', groomingFreq ? groomingFreq : '')
-  form.setFieldValue('grooming_dia', groomingDay ? groomingDay : '')
-  form.setFieldValue('imagen_url', files.length > 0 ? files[0].path || '' : '')
+  form.setFieldValue('gender', gender === "MACHO" ? true : false);
+  form.setFieldValue('sterelized', sterelized);
+  form.setFieldValue('insured', insured);
+  form.setFieldValue('grooming', grooming);
+  form.setFieldValue('grooming_freq', groomingFreq);
+  form.setFieldValue('grooming_day', groomingDay);
+  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
+
   
-  const handleCustomerChange = (value: string) => {
-    setSelectedCustomerName(value);
-    const customer = customers.find((customer) => customer.nombre + customer.apellido === value);
-    if (customer) {
-      form.setFieldValue('customer_id', customer.id);
-    }
-  };
+  
   
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
-  const handleSubmit = async (values: any) => {
-    try {
-      await editMascota(petId, values);
-      window.location.href = '/dashboard/mascotas'; // Maneja la redirección aquí
-    } catch (err) {
-      console.error('Error creating pet:', err);
-      throw new Error('Error creating pet');
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+  const router = useRouter();
+
+  const handleSearch = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', '1');
+
+    if (term) {
+      params.set('query', term);
+
+    } else {
+      params.delete('query');
     }
-  }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
+  const handleChange = (value: string) => {
+    setInputValue(value);
+    handleSearch(value);
+
+    const foundCustomer = customers.find((customer) => customer.name === value) || null;
+    setSelectedCustomer(foundCustomer);
+
+
+    form.setFieldValue('customer_id', foundCustomer ? foundCustomer.id : '');
+};
+
+  const handleSubmit = async (values: Pets) => {
+    if (!selectedCustomer) {
+      setError('Debe seleccionar un propietario válido.');
+      return;
+    }
+    setInputValue(selectedCustomer.name);
+    values.customer_id =  selectedCustomer.id ;
+    await editPet(values);
+    router.push("/dashboard/mascotas");
+
+};
+
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
-              <Autocomplete
-                label="Propietario"
-                placeholder="Elmer Pacheco"
-                data={customers.map((customer) => ({ value: customer.nombre + customer.apellido, label: customer.nombre + ' '+customer.apellido}))}
-                limit={5}
-                comboboxProps={{ transitionProps: { transition: 'pop', duration: 200 } }}
-                key={form.key('customer_id')}
-                value={selectedCustomerName}
-                onChange={handleCustomerChange}
-              />
+            <Autocomplete
+              withAsterisk
+              label="Propietario"
+              placeholder="Buscar propietario"
+              required
+              value={inputValue}
+              defaultValue={searchParams.get('query')?.toString()}
+              key={form.key('customer_id')}
+              {...form.getInputProps('customer_id')}
+              data={customers.map((customer) => ({ value: customer.id, label: customer.name }))}
+              onChange={handleChange}
+            />
+
               <TextInput
                 withAsterisk
                 label="Nombre"
                 placeholder="Firulais"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
                 label="Especie"
                 placeholder="CANINO"
                 required
-                key={form.key('especie')}
-                {...form.getInputProps('especie')}
+                key={form.key('specie')}
+                {...form.getInputProps('specie')}
               />
               <TextInput
                 withAsterisk
                 label="Raza" 
                 placeholder="Golden Retriever" 
                 required
-                key={form.key('raza')}
-                {...form.getInputProps('raza')}
+                key={form.key('race')}
+                {...form.getInputProps('race')}
               />
               <DateInput
                 required
@@ -138,8 +187,8 @@ export default function Form({ customers, petId, pet }: FormProps) {
                 placeholder="19/03/1999"   
                 valueFormat="DD MMM YYYY"
                 clearable            
-                key={form.key('fecha_nacimiento')}
-                {...form.getInputProps('fecha_nacimiento')}
+                key={form.key('birthday')}
+                {...form.getInputProps('birthday')}
               />
           </Flex>
           <Flex mb={4} gap={8} justify={"space-around"} >
@@ -164,27 +213,32 @@ export default function Form({ customers, petId, pet }: FormProps) {
               <Checkbox.Group
                 withAsterisk
                 label="Salud"
-                value={salud}
-                onChange={setSalud}>
+                value={saludValues} 
+                onChange={() => {}}>
                   <Group mt="xs">
                     <Checkbox
-                      value="esterilizado" 
+                      value="sterelized" 
                       label="¿Ha sido esterilizado?" 
-                    />
+                      checked={sterelized}
+                      onChange={(event) => handleSterelizedChange(event.currentTarget.checked)}
+                      />
                     <Checkbox
-                      value="asegurado" 
+                      value="insured" 
                       label="¿Ha sido asegurado?" 
-                    />
+                      checked={insured}
+                      onChange={(event) => handleInsuredChange(event.currentTarget.checked)}
+                      />
                   </Group>
               </Checkbox.Group>
               
-              <TextInput
+              <Autocomplete
                 withAsterisk
                 label="Etiquetas"
                 placeholder="No"
                 required
-                key={form.key('etiquetas')}
-                {...form.getInputProps('etiquetas')}
+                data={['Nuevo', 'Frecuente', 'Vip']}
+                key={form.key('tags')}
+                {...form.getInputProps('tags')}
               />
               
           </Flex>
@@ -193,6 +247,7 @@ export default function Form({ customers, petId, pet }: FormProps) {
               <Stack w={350}>
                 <Checkbox
                   onChange={(event) => setGrooming(event.currentTarget.checked)}
+                  defaultChecked={pet.grooming}
                   label="Crear evento de grooming" 
                 />
                 <NativeSelect
@@ -264,7 +319,7 @@ export default function Form({ customers, petId, pet }: FormProps) {
         >
           Cancel
         </Link>
-        <Button type="submit">Actualizar mascota</Button>
+        <Button type="submit">Editar mascota</Button>
       </Flex>
     </form>
   );
