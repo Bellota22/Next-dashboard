@@ -1,6 +1,6 @@
 import Form from '@/app/ui/customers/edit-form';
 import { Breadcrumbs, Anchor, Title } from '@mantine/core';
-import { fetchCustomerById, getCustomberById } from '@/app/lib/data';
+import { getCustomberById } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { lusitana } from '@/app/ui/fonts';
 import { EDIT_CUSTOMER_BREADCRUMB } from '@/app/constants';

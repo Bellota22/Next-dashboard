@@ -1,6 +1,6 @@
 import Form from '@/app/ui/products/edit-form';
 import { Breadcrumbs, Anchor, Title } from '@mantine/core';
-import { fetchCustomers, getProductById } from '@/app/lib/data';
+import {  getProductById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { lusitana } from '@/app/ui/fonts';
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 };
 export default async function Page({ params }: { params: { id: string } }) {
     const id = params.id;
-    // const customers = await fetchCustomers()
     // const pet = await fetchPetById(id);
     const product = await getProductById(id);
     const items = EDIT_PRODUCTS_BREADCRUMB(id)

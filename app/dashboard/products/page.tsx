@@ -4,7 +4,7 @@ import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchProductsPages, getAllCostumers, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
+import { getProductsPage, getAllCostumers, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Flex, Title } from '@mantine/core';
@@ -39,7 +39,7 @@ export default async function Page({
   ] = await Promise.all([
     getAllProducts(query, currentPage, userId),
     getFilteredCustomers(autocompleteCustomer, currentPage, userId),
-    fetchProductsPages(query, userId),
+    getProductsPage(query, userId),
   ]);
 
 

@@ -4,7 +4,7 @@ import { CreatePet } from '@/app/ui/mascotas/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchAllPets, getAllFilteredPets, getPetsPages } from '@/app/lib/data';
+import { getAllFilteredPets, getPetsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { Flex, Title } from '@mantine/core';
 import styles from './page.module.css';
