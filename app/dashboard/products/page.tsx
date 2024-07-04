@@ -1,10 +1,9 @@
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/products/table';
 import { CreateProduct } from '@/app/ui/products/buttons';
-import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { getProductsPage, getAllCostumers, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
+import { getProductsPage, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Flex, Title } from '@mantine/core';

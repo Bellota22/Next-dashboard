@@ -159,7 +159,13 @@ const CREATE_CUSTOMER_BREADCRUMB = [
 const EDIT_CUSTOMER_BREADCRUMB = (id: string) => [
   { label: 'Clientes', href: '/dashboard/customers' },
   { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`, active: true },
-  { label: 'Mascotas', href: `/dashboard/customers/${id}/mascotas` },
+  { label: 'Mis Mascotas', href: `/dashboard/customers/${id}/pets` },
+];
+
+const PETS_CUSTOMER_BREADCRUMB = (id: string) => [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`},
+  { label: 'Mis Mascotas', href: `/dashboard/customers/${id}/pets`, active: true  },
 ];
 
 const CREATE_PET_BREADCRUMB = [
@@ -207,5 +213,6 @@ export {
     CREATE_PET_BREADCRUMB,
     EDIT_PET_BREADCRUMB,
     CREATE_PRODUCTS_BREADCRUMB,
-    EDIT_PRODUCTS_BREADCRUMB
+    EDIT_PRODUCTS_BREADCRUMB,
+    PETS_CUSTOMER_BREADCRUMB
 }

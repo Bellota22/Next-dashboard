@@ -6,6 +6,7 @@ import {
   SaleWithProducts,
   PetWithCustomer,
   ProductToSell,
+  Pets,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -84,7 +85,7 @@ export async function getCustomersPages(query: string, userId: string) {
   }
 }
 
-export async function getCustomberById(id: string) {
+export async function getCustomerById(id: string) {
   try {
     const data = await sql<Customers>`
       SELECT
@@ -115,44 +116,18 @@ export async function getCustomberById(id: string) {
   }
 }
 
-export async function getAllCostumers(query: string, currentPage: number, userId: string) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-    const data = await sql<Customers>`
-      SELECT
-        c.id,
-        c.user_id,
-        c.name,
-        c.dni,
-        c.birthday,
-        c.email,
-        c.cellphone,
-        c.department,
-        c.province,
-        c.district,
-        c.address,
-        c.tags,
-        c.image_url
-      FROM customers1 c
-      JOIN users u ON c.user_id = u.id
-      WHERE 
-      c.user_id = ${userId} AND (
-        c.name ILIKE ${`%${query}%`} OR 
-        c.dni::text ILIKE ${`%${query}%`} OR
-        c.email ILIKE ${`%${query}%`} OR
-        c.cellphone ILIKE ${`%${query}%`} OR
-        c.department ILIKE ${`%${query}%`} OR
-        c.province ILIKE ${`%${query}%`} OR
-        c.district ILIKE ${`%${query}%`} OR
-        c.address ILIKE ${`%${query}%`} OR
-        c.tags ILIKE ${`%${query}%`}
-      )
-      ORDER BY c.name ASC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+export async function getPetsByCustomerId(id: string): Promise<Pets[]>{
+  try {
+    const data = await sql<Pets>`
+      SELECT *
+      FROM pets
+      WHERE customer_id = ${id}
     `;
-
-    const customers = data.rows;
-    return customers;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch pets.');
+  }
 
 }
 
@@ -487,7 +462,7 @@ export async function getSalesPages(query: string, userId: string) {
 
 export async function getAllSales(query: string, currentPage: number, userId: string): Promise<SaleWithProducts[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
+  
   const sales = await sql`
     SELECT
       s.id as sale_id,

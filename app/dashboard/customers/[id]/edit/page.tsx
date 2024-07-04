@@ -1,6 +1,6 @@
 import Form from '@/app/ui/customers/edit-form';
 import { Breadcrumbs, Anchor, Title } from '@mantine/core';
-import { getCustomberById } from '@/app/lib/data';
+import { getCustomerById } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { lusitana } from '@/app/ui/fonts';
 import { EDIT_CUSTOMER_BREADCRUMB } from '@/app/constants';
@@ -8,11 +8,11 @@ import styles from './page.module.css';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Edit invoice',
+  title: 'Edit Customer',
 };
 export default async function Page({ params }: { params: { id: string } }) {
     const id = params.id;
-    const customer = await getCustomberById(id);
+    const customer = await getCustomerById(id);
     const items = EDIT_CUSTOMER_BREADCRUMB(id)
     return (
     <main>

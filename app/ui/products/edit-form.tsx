@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconCheck, IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { Products } from '@/app/lib/definitions';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -16,7 +17,7 @@ export default function Form({ product }: { product: Products }) {
   const [checked, setChecked] = useState(product.status);
   const theme = useMantineTheme();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-
+  const router = useRouter();
   const [files, setFiles] = useState<FileWithPath[]>(product.image_url ? [{ path: product.image_url } as FileWithPath] : []);
    const form = useForm<Products>({
     mode: 'uncontrolled',
@@ -65,7 +66,7 @@ export default function Form({ product }: { product: Products }) {
 
   return (
     <form onSubmit={form.onSubmit((values) => (handleSubmit(values)))}>
-      <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
+      <Flex justify={'space-between'} className="p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
               <TextInput
@@ -237,13 +238,19 @@ export default function Form({ product }: { product: Products }) {
         }
         </Box>
       </Flex>
-      <Flex className="mt-6 justify-end gap-4">
+      <Flex className="mt-6 justify-end gap-4 p-8">
         <Button
-          component={Link} href="/dashboard/products"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200">
-          Cancel
+          color="gray.4"
+          onClick={() => router.back()}
+        >
+          <Title order={6}>Cancelar</Title>{' '}
         </Button>
-        <Button type="submit">Editar producto</Button>
+        <Button
+          type="submit"
+          color="primary.3"
+        >
+          <Title order={6}>Editar</Title>{' '}
+        </Button>
       </Flex>
     </form>
   );

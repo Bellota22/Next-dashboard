@@ -41,9 +41,7 @@ export default function ProductsTable({
     Object.fromEntries(products.map((product: Products) => [product.id, product.status]))
   );
 
-  const [slowTransitionOpened, setSlowTransitionOpened] = useState(
-    getCookie('isModalOpened') === 'true' || false
-  );
+  const [slowTransitionOpened, setSlowTransitionOpened] = useState(false);
   const [inputValue, setInputValue] = useState<string>(getCookie('customer') || '');
 
   useEffect(() => {
