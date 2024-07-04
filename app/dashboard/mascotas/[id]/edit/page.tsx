@@ -1,5 +1,5 @@
 import Form from '@/app/ui/mascotas/edit-form';
-import { fetchCustomers, getFilteredCustomers, getPetById } from '@/app/lib/data';
+import {  getFilteredCustomers, getPetById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Breadcrumbs, Anchor, Title } from '@mantine/core';
@@ -24,7 +24,6 @@ export default async function Page({ params }: {
     const query = params?.query || '';
     const currentPage = Number(params?.page) || 1;
     const id = params.id;
-    // const customers = await fetchCustomers(query, currentPage)
 
     const [
       pet,

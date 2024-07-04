@@ -37,6 +37,7 @@ const users = [
    
 ];
 
+//customers
 function generateRandomCustomer(userId) {
   return {
     id: uuidv4(),
@@ -68,7 +69,7 @@ function generateRandomCustomers(userIds, count) {
 }
 const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
 
-
+//pets
 
 function generateRandomPet(userId, customerId) {
   return {
@@ -104,6 +105,8 @@ function generateRandomPets(userIds, customerIds, count) {
 const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
 const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
 
+//products
+
 function generateRandomProduct(userId) {
   return {
     id: uuidv4(),
@@ -117,8 +120,8 @@ function generateRandomProduct(userId) {
     bar_code: faker.string.uuid(),
     category: faker.commerce.department(),
     stock: faker.number.int({ min: 0, max: 1000 }),
-    sell_price: faker.number.float({ min: 1, max: 1000, precision: 0.01 }),
-    buy_price: faker.number.float({ min: 1, max: 500, precision: 0.01 }),
+    sell_price: faker.number.float({ min: 1, max: 1000, multipleOf: 0.01 }),
+    buy_price: faker.number.float({ min: 1, max: 500, multipleOf: 0.01 }),
     status: faker.helpers.arrayElement([true, false]),
     image_url: faker.image.urlLoremFlickr({ category: 'products' }),
   };
@@ -135,6 +138,61 @@ function generateRandomProducts(userIds, count) {
 }
 
 const products = generateRandomProducts(usersIds, 50); // Generates 50 random products
+
+//sales
+
+function generateRandomSale(userId, customerId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    customer_id: customerId,
+    status: faker.helpers.arrayElement(['completed', 'pending', 'cancelled']),
+    total_price: faker.number.float({ min: 1, max: 1000, multipleOf: 0.01 }),
+  };
+}
+
+function generateRandomSales(userIds, customerIds, count) {
+  const sales = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const customerId = faker.helpers.arrayElement(customerIds);
+    sales.push(generateRandomSale(userId, customerId));
+    console.log(`Generated ${i + 1}/${count} sales`);
+  }
+  return sales;
+}
+
+const saleCustomerIds = customers.map(customer => customer.id); // Get the IDs of the generated customers
+const sales = generateRandomSales(usersIds, saleCustomerIds, 50); // Generates 50 random sales
+
+
+function generateRandomSalesProduct(userId, productId, saleId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    product_id: productId,
+    sale_id: saleId,
+    quantity: faker.number.int({ min: 1, max: 10 }),
+    total_price: faker.number.float({ min: 1, max: 1000, multipleOf: 0.01 }),
+  };
+}
+
+function generateRandomSalesProducts(userIds, productIds, saleIds, count) {
+  const salesProducts = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const productId = faker.helpers.arrayElement(productIds);
+    const saleId = faker.helpers.arrayElement(saleIds);
+    salesProducts.push(generateRandomSalesProduct(userId, productId, saleId));
+    console.log(`Generated ${i + 1}/${count} sales products`);
+  }
+  return salesProducts;
+}
+
+const productIds = products.map(product => product.id); // Get the IDs of the generated products
+const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sales
+const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
+
 
 
 // const eventos = [
@@ -192,57 +250,7 @@ const products = generateRandomProducts(usersIds, 50); // Generates 50 random pr
 //   },
 // ];
 
-const sales = [
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    customer_id: customers[0].id,
-    status: 'completed',
-    total_price: 60
-  },
-  {
-    id: uuidv4(),
-    user_id: users[1].id,
-    customer_id: customers[1].id,
-    status: 'pending',
-    total_price: 60
-  },
-];
 
-const salesProducts = [
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    product_id: products[0].id,
-    sale_id: sales[0].id,
-    quantity: 2,
-    total_price: 40, 
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    product_id: products[1].id,
-    sale_id: sales[0].id,
-    quantity: 1,
-    total_price: 40, 
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    product_id: products[2].id,
-    sale_id: sales[0].id,
-    quantity: 3,
-    total_price: 40, 
-  },
-  {
-    id: uuidv4(),
-    user_id: users[0].id,
-    product_id: products[0].id,
-    sale_id: sales[1].id,
-    quantity: 1,
-    total_price: 40, 
-  },
-];
 
 
 

@@ -1,6 +1,6 @@
 import Form from '@/app/ui/mascotas/create-form';
 import { Breadcrumbs, Anchor, Title } from '@mantine/core';
-import { fetchCustomers, getAllCostumers, getFilteredCustomers } from '@/app/lib/data';
+import {  getFilteredCustomers } from '@/app/lib/data';
 import { lusitana } from '@/app/ui/fonts';
 import Link from 'next/link';
 import { CREATE_PET_BREADCRUMB } from '@/app/constants';
@@ -16,7 +16,6 @@ export default async function Page({
 })  {
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
-  
   const currentPage = Number(searchParams?.page) || 1;
   const customers = await getFilteredCustomers(query, currentPage, userId);
   

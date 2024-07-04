@@ -232,30 +232,6 @@ export async function getAllCostumers(query: string, currentPage: number, userId
 
 }
 
-export async function fetchCustomers(query: string, currentPage: number) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-  try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        nombre,
-        apellido
-      FROM customers
-      WHERE nombre ILIKE ${`%${query}%`} OR apellido ILIKE ${`%${query}%`}
-      ORDER BY nombre ASC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-
-    `;
-
-    const customers = data.rows;
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
-}
-
 export async function fetchCustomerPets(customerId: string) {
   try {
     const data = await sql<PetsShowTable & UsersShowTable>`

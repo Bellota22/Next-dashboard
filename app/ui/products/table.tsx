@@ -7,9 +7,12 @@ import { IconCheck, IconCreditCard, IconImageInPicture, IconMinus, IconPaywall, 
 import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Customers, Products } from '@/app/lib/definitions';
 import { products } from '@/app/lib/placeholder-data';
+import { useDebouncedCallback } from 'use-debounce';
+import { getFilteredCustomers } from '@/app/lib/data';
+import { get } from 'http';
 
 export interface ProductToSell extends Products {
   quantity: number; 
@@ -31,26 +34,25 @@ export default function ProductsTable({
   savedSelectedProducts: Products[];
   savedQuantities: Record<string, number>;
 }) {
-  // const invoices = await fetchFilteredInvoices(query, currentPage);
+  const userId = "410544b2-4001-4271-9855-fec4b6a6442a"; // Supón que tienes el userId almacenado en una cookie
   const theme = useMantineTheme();
   const [selectedProducts, setSelectedProducts] = useState<Products[]>(savedSelectedProducts);
-  console.log('selectedProducts::: ', selectedProducts);
   const [quantities, setQuantities] = useState<Record<string, number>>(savedQuantities);
   
   const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
     Object.fromEntries(products.map((product: Products) => [product.id, product.status]))
   );
 
-  const [slowTransitionOpened, setSlowTransitionOpened] = useState(false);
-  const [inputValue, setInputValue] = useState<string>('');
+  const [slowTransitionOpened, setSlowTransitionOpened] = useState(
+    getCookie('isModalOpened') === 'true' || false
+  );
+  const [inputValue, setInputValue] = useState<string>(getCookie('customer') || '');
 
   useEffect(() => {
     const fromModal = getCookie('fromModal') === 'true';
-    const newCustomer = getCookie('customer') || '';
 
     if (fromModal) {
       setSlowTransitionOpened(true);
-      setInputValue(JSON.parse(newCustomer).nombre);
     }
 
     setCookie('fromModal', 'false'); 
@@ -147,15 +149,30 @@ export default function ProductsTable({
   ));
 
   const total = selectedProducts.reduce((acc, product) => acc + product.sell_price * (quantities[product.id] || 0), 0);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleSearch = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set('queryCustomer', term);
+    } else {
+      params.delete('queryCustomer');
+    }
+    replace(`${pathname}?${params.toString()}`);
+
+  }, 300);
+
 
   const handleCustomerChange = (value: string) => {
+    handleSearch(value);
     setInputValue(value);
+
   };
 
   const handleRegisterSale = async () => {
     const customer = customers.find((c: Customers) => `${c.name}` === inputValue);
-    console.log('11customer::: ', customer);
-    const userId = "410544b2-4001-4271-9855-fec4b6a6442a"; // Supón que tienes el userId almacenado en una cookie
 
     if (!customer) {
       alert('Please select a valid customer');
@@ -277,13 +294,22 @@ export default function ProductsTable({
     );
   });
   
+  const handlingShoopingCart = () => {
+    setSlowTransitionOpened(true);
+    setCookie('isModalOpened', 'true')
+  }
+
+  const handleCloseModal = () => {
+    setSlowTransitionOpened(false);
+    setCookie('isModalOpened', 'false')
+  }
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <Modal
             opened={slowTransitionOpened}
-            onClose={() => setSlowTransitionOpened(false)}
+            onClose={handleCloseModal}
             title="Carrito"
             size="lg"
             transitionProps={{ transition: 'rotate-left' }}
@@ -291,10 +317,11 @@ export default function ProductsTable({
             <Stack>
               <Flex justify={'space-between'} align={'flex-end'}>
                 <Autocomplete
+                  withAsterisk
                   required
                   label="Cliente"
                   placeholder="Buscar cliente..."
-                  data={customers.map((customer: any) => ({ value: `${customer.name}`, label: `${customer.name}` }))}
+                  data={customers.map((customer) => ({ value: `${customer.id}`, label: `${customer.name}` }))}
                   limit={5}
                   comboboxProps={{ transitionProps: { transition: 'pop', duration: 200 } }}
                   value={inputValue}
@@ -323,7 +350,7 @@ export default function ProductsTable({
                       size={12}
                       label={selectedProducts.length.toString()}
                       inline
-                      onClick={() => setSlowTransitionOpened(true)}
+                      onClick={handlingShoopingCart}
                       color="red"
                       className="cursor-pointer transition ease-in-out delay-120 hover:-translate-y-1 hover:scale-110 hover:bg-gray-100 duration-150"
                     >

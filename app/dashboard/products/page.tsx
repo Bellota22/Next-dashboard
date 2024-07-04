@@ -4,7 +4,7 @@ import { CreateProduct } from '@/app/ui/products/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchProductsPages, getAllCostumers, getAllProducts } from '@/app/lib/data';
+import { fetchProductsPages, getAllCostumers, getAllProducts, getFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { Flex, Title } from '@mantine/core';
@@ -22,10 +22,15 @@ export default async function Page({
   searchParams?: {
     query?: string;
     page?: string;
+    queryCustomer?: string;
   };
 }) {
+  const cookieStore = cookies();
+
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
+  const autocompleteCustomer = searchParams?.queryCustomer || '';
+
   const currentPage = Number(searchParams?.page) || 1;
   const [
     products,
@@ -33,12 +38,11 @@ export default async function Page({
     totalPages,
   ] = await Promise.all([
     getAllProducts(query, currentPage, userId),
-    getAllCostumers(query, currentPage, userId),
+    getFilteredCustomers(autocompleteCustomer, currentPage, userId),
     fetchProductsPages(query, userId),
   ]);
 
 
-  const cookieStore = cookies();
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
   const savedQuantities = JSON.parse(cookieStore.get('quantities')?.value || '{}');
 
