@@ -5,9 +5,8 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, Pets, PetsShowTable, Products, ProductsShowTable, Sales, User, UsersTable } from './definitions';
+import { Customers, Pets, Products, ProductToSell, Sales, User } from './definitions';
 import bcrypt from 'bcryptjs';
-import { ProductToSell } from '../ui/products/table';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -206,38 +205,6 @@ export async function editPet(pet: Pets) {
   }
 }
 
-export async function editMascota1(petId: string, petData: PetsShowTable) {
-  
-  const {
-    nombre,
-    especie,
-    raza,
-    fecha_nacimiento,
-    sexo,
-    esterilizado,
-    asegurado,
-    grooming,
-    grooming_freq,
-    grooming_dia,
-    etiquetas,
-    imagen_url,
-  } = petData;
-  
-  
-  try {
-    await sql`
-      UPDATE mascotas
-      SET nombre = ${nombre}, especie = ${especie}, raza = ${raza}, fecha_nacimiento = ${fecha_nacimiento}, sexo = ${sexo}, esterilizado = ${esterilizado}, asegurado = ${asegurado}, grooming = ${grooming}, grooming_freq = ${grooming_freq}, grooming_dia = ${grooming_dia}, etiquetas = ${etiquetas}, imagen_url = ${imagen_url}
-      WHERE id = ${petId}
-    `;
-
-    revalidatePath('/dashboard/mascotas');
-  } catch (error) {
-    console.error('Error updating customer:', error);
-    throw new Error('Error updating customer');
-  }
-}
-
 export async function deletePet(id: string) {
   try{
       await sql`DELETE FROM pets WHERE id = ${id}`;
@@ -327,49 +294,6 @@ export async function editProduct(productsData: Products) {
   redirect('/dashboard/products');
 }
 
-export async function updateProduct(id: string, productData: ProductsShowTable) {
-  const {
-    user_id,
-    codigo_barras,
-    nombre,
-    marca,
-    unidad_medida,
-    proveedor,
-    categoria,
-    subcategoria,
-    presentacion,
-    contenido,
-    precio_compra,
-    precio_venta,
-    stock,
-    imagen_url,
-    estado,
-  } = productData;
-
-  await sql`
-    UPDATE products 
-    SET 
-      user_id = ${user_id}, 
-      codigo_barras = ${codigo_barras}, 
-      nombre = ${nombre}, 
-      marca = ${marca}, 
-      unidad_medida = ${unidad_medida}, 
-      proveedor = ${proveedor}, 
-      categoria = ${categoria}, 
-      subcategoria = ${subcategoria}, 
-      presentacion = ${presentacion}, 
-      contenido = ${contenido}, 
-      precio_compra = ${precio_compra}, 
-      precio_venta = ${precio_venta}, 
-      stock = ${stock}, 
-      imagen_url = ${imagen_url}, 
-      estado = ${estado}
-    WHERE id = ${id}
-  `;
-
-  revalidatePath('/dashboard/products');
-  redirect('/dashboard/products');
-}
 
 export async function updateProductState(id: string, estado: boolean) {
   try {

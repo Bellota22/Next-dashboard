@@ -2,9 +2,9 @@
 import Image from 'next/image';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { useState } from 'react';
-import { Table, Checkbox, Text } from '@mantine/core';
+import { Table, Checkbox, Text, Title, useMantineTheme } from '@mantine/core';
 import Link from 'next/link';
-import { Customers, ProductSold, SaleWithProducts } from '@/app/lib/definitions';
+import {  ProductToSell, SaleWithProducts } from '@/app/lib/definitions';
 
 export default function SalesTable({
   query,
@@ -16,59 +16,57 @@ export default function SalesTable({
   sales: SaleWithProducts[];
   
 }) {
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<SaleWithProducts[]>([]);
+  const theme = useMantineTheme();
+  console.log('sales::: ', sales);
 
 
-  const rows = sales.map((sale) => (
+  const rows = sales.map((sale) => {
+    const isSelected = selectedRows.some((p) => p.id === sale.id);
+
+    const linkStyle = { cursor: "pointer" };
+    const linkProps = {
+      style: linkStyle,
+    };
+    return(
     <Table.Tr
+      ta="right"
       key={sale.id}
-      bg={selectedRows.includes(sale.id) ? 'var(--mantine-color-blue-light)' : undefined}
-    >
+      style={{ backgroundColor: isSelected ? theme.colors.primary[1] : 'transparent' }}
+      >
       <Table.Td>
-        <Checkbox
-          aria-label="Select row"
-          checked={selectedRows.includes(sale.id)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, sale.id]
-                : selectedRows.filter((id) => id !== sale.id)
-            )
-          }
-        />
+      <Checkbox
+            aria-label="Select row"
+            checked={isSelected}
+            onChange={(event) =>
+              setSelectedRows(
+                event.currentTarget.checked
+                  ? [...selectedRows, sale]
+                  : selectedRows.filter((row) => row.id !== sale.id)
+              )
+            }
+          />
       </Table.Td>
       
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
-          {sale.customer_name}
-        </Link>
+        <Text {...linkProps}>{sale.customer_name}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
-          {formatCurrency(sale.total_price)}
-        </Link>
+        <Text {...linkProps}>{sale.total_price}</Text>
       </Table.Td>
       <Table.Td>
-        {sale.products.map((product: ProductSold) => (
-          <div key={product.product_id}>
-            {product.product_name}: {product.quantity}
-          </div>
+        {sale.products.map((product: ProductToSell) => (
+          <Text key={product.id} {...linkProps}>{product.name}: {product.quantity}</Text>
         ))}
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
-          {sale.status ? "Completed" : "Pending"}
-        </Link>
+        <Text {...linkProps}>{sale.status ? "Completed" : "Pending"}</Text>
       </Table.Td>
       <Table.Td>
-        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
-          {formatDateToLocal(sale.created_date)}
-        </Link>
+        <Text {...linkProps}>{formatDateToLocal(sale.created_date)}</Text>
       </Table.Td>
       <Table.Td w={200}>
-        <Link href={`/dashboard/sales/${sale.id}/edit`} style={{ cursor: "pointer" }}>
-          {sale.id.substring(0, 8)}
-        </Link>
+        <Text {...linkProps}>{sale.id.substring(0, 8)}</Text>
       </Table.Td>
       <Table.Td>
         <div className="flex justify-end gap-2">
@@ -76,7 +74,7 @@ export default function SalesTable({
         </div>
       </Table.Td>
     </Table.Tr>
-  ));
+  )});
 
   return (
     <div className="mt-6 flow-root">
@@ -88,12 +86,12 @@ export default function SalesTable({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th />
-                <Table.Th>Customer</Table.Th>
-                <Table.Th>Total</Table.Th>
-                <Table.Th>Products Sold</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Creation Date</Table.Th>
-                <Table.Th>Sale ID</Table.Th>
+                <Table.Th><Title ta="right" order={6}>Customer</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Total</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Products Sold</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Status</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Creation Date</Title></Table.Th>
+                <Table.Th><Title ta="right" order={6}>Sale ID</Title></Table.Th>
                 <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>

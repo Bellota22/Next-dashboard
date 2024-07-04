@@ -5,6 +5,7 @@ import {
   Customers,
   SaleWithProducts,
   PetWithCustomer,
+  ProductToSell,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -486,7 +487,6 @@ export async function getSalesPages(query: string, userId: string) {
 
 export async function getAllSales(query: string, currentPage: number, userId: string): Promise<SaleWithProducts[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  console.log('offset::: ', offset);
 
   const sales = await sql`
     SELECT
@@ -500,7 +500,11 @@ export async function getAllSales(query: string, currentPage: number, userId: st
       s.updated_date
     FROM sales s
     JOIN customers1 c ON s.customer_id = c.id
-    WHERE s.user_id = ${userId}
+    WHERE s.user_id = ${userId} AND (
+      s.status ILIKE ${`%${query}%`} OR
+      s.total_price::text ILIKE ${`%${query}%`} OR
+      c.name ILIKE ${`%${query}%`}
+      )
     ORDER BY s.created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
@@ -520,9 +524,11 @@ export async function getAllSales(query: string, currentPage: number, userId: st
       sp.quantity
     FROM sales_products sp
     JOIN products1 p ON sp.product_id = p.id
+    WHERE sp.sale_id = ANY(${saleIds})
   `;
+  console.log('products::: ', products);
 
-  const salesMap: Record<string, SaleWithProducts> = {};
+  const salesMap: Record<string, any> = {};
 
   sales.rows.forEach((sale) => {
     salesMap[sale.sale_id] = {
@@ -541,12 +547,13 @@ export async function getAllSales(query: string, currentPage: number, userId: st
   products.rows.forEach((product) => {
     if (salesMap[product.sale_id]) {
       salesMap[product.sale_id].products.push({
-        product_id: product.product_id,
-        product_name: product.product_name,
+        id: product.product_id,
+        name: product.product_name,
         quantity: product.quantity,
       });
     }
   });
+  console.log('salesMap::: ', salesMap);
 
   return Object.values(salesMap);
 }

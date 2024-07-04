@@ -30,8 +30,6 @@ export default async function Page({
   ]);
 
   
-  console.log('sales::: ', sales.length);
-  console.log('totalPages::: ', totalPages);
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
@@ -43,9 +41,9 @@ export default async function Page({
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
         <Table sales={sales} query={query} currentPage={currentPage}/>
       </Suspense>
-      {/* <Flex justify="center" mt="md">
+      <Flex justify="center" mt="md">
         <PaginationProduct totalPages={totalPages} currentPage={currentPage} />
-      </Flex> */}
+      </Flex>
     </div>
   );
 }

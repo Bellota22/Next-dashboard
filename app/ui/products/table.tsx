@@ -8,15 +8,13 @@ import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Customers, Products } from '@/app/lib/definitions';
+import { Customers, Products, ProductToSell } from '@/app/lib/definitions';
 import { products } from '@/app/lib/placeholder-data';
 import { useDebouncedCallback } from 'use-debounce';
 import { getFilteredCustomers } from '@/app/lib/data';
 import { get } from 'http';
 
-export interface ProductToSell extends Products {
-  quantity: number; 
-}
+
 
 
 export default function ProductsTable({
