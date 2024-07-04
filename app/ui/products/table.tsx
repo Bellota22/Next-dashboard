@@ -1,10 +1,9 @@
 'use client'
-import Image from 'next/image';
 import { UpdateProduct, DeleteProduct } from '@/app/ui/products/buttons';
 import { formatCurrency } from '@/app/lib/utils';
 import { useEffect, useState } from 'react';
-import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete, Text, Title } from '@mantine/core';
-import { IconCheck, IconCreditCard, IconMinus, IconPaywall, IconPlus, IconShoppingBag, IconUser, IconUsersGroup, IconX } from '@tabler/icons-react';
+import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete, Text, Title, Image } from '@mantine/core';
+import { IconCheck, IconCreditCard, IconImageInPicture, IconMinus, IconPaywall, IconPhotoOff, IconPlus, IconShoppingBag, IconUser, IconUsersGroup, IconX } from '@tabler/icons-react';
 import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
@@ -118,7 +117,6 @@ export default function ProductsTable({
   const cartItems = selectedProducts.map((product) => (
     <Box key={product.id} className="flex items-center justify-between p-2 border-b gap-4">
       <IconX size={14} onClick={() => handleRemoveProduct(product.id)} style={{ cursor: "pointer" }} />     
-      {/* <Image src={product.image_url!} alt={product.name} width={50} height={50} /> */}
       <Box className="flex-1 flex flex-col justify-start mx-2">
         <Box className="truncate text-gray-600">{product.name}</Box>
         <Box className="text-sm font-semibold">S/{product.sell_price}</Box>
@@ -209,9 +207,23 @@ export default function ProductsTable({
             checked={isSelected}
             onChange={(event) => handleCheckboxChange(product, event.currentTarget.checked)}
           />
-        </Table.Td>
+        </Table.Td> 
         <Table.Td>
-          <Text {...linkProps}>{product.image_url}</Text>
+          <Text {...linkProps}>
+            {
+              product.image_url ? (
+                <Image
+                  src={product.image_url}
+                  alt={product.name}
+                  w={50}
+                  h={50}
+                  radius="md"
+                />
+              ) : (
+                <IconPhotoOff size={50} />
+              )
+            }
+          </Text>
         </Table.Td>
         <Table.Td>
           <Text {...linkProps}>{product.name}</Text>

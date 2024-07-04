@@ -2,74 +2,69 @@
 
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
-import { updateProduct } from '@/app/lib/actions';
-import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Switch, useMantineTheme, Center, NumberInput } from '@mantine/core';
+import { createProduct, editProduct } from '@/app/lib/actions';
+import { Box, Button, Flex, Group, Image, rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Switch, useMantineTheme, Center, NumberInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { DateInput } from '@mantine/dates';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconCheck, IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { ProductsShowTable } from '@/app/lib/definitions';
+import { Products } from '@/app/lib/definitions';
 
-interface FormProps {
-  id: string;
-  product: ProductsShowTable;
-}
 
-export default function Form({ id, product }: FormProps) {
-  const [checked, setChecked] = useState(product.estado);
+
+export default function Form({ product }: { product: Products }) {
+  const [checked, setChecked] = useState(product.status);
   const theme = useMantineTheme();
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
 
-  const [files, setFiles] = useState<FileWithPath[]>([]);
-   const form = useForm({
+  const [files, setFiles] = useState<FileWithPath[]>(product.image_url ? [{ path: product.image_url } as FileWithPath] : []);
+   const form = useForm<Products>({
     mode: 'uncontrolled',
     initialValues: {
+      id: product.id,
       user_id: product.user_id,
-      codigo_barras: product.codigo_barras,
-      nombre: product.nombre,
-      marca: product.marca,
-      unidad_medida: product.unidad_medida,
-      proveedor: product.proveedor,
-      categoria: product.categoria,
-      subcategoria: product.subcategoria,
-      presentacion: product.presentacion,
-      contenido: product.contenido,
-      precio_compra: product.precio_compra,
-      precio_venta: product.precio_venta,
+      name: product.name,
+      brand: product.brand,
+      measure_unit: product.measure_unit,
+      presentation: product.presentation,
+      content: product.content,
+      supplier: product.supplier,
+      bar_code: product.bar_code,
+      category: product.category,
       stock: product.stock,
-      imagen_url: product.imagen_url || '',
-      estado: true,
+      buy_price: product.buy_price,
+      sell_price: product.sell_price,
+      status: product.status,
+      image_url: product.image_url,
+      created_date: product.created_date,
+      updated_date: product.updated_date,     
+      
     },
     validate: {
-      precio_compra: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
-      precio_venta: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
+      buy_price: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
+      sell_price: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
       stock: (value) => (value > 0 ? null : 'Stock debe ser mayor a 0'),
-      
     },
     
   });
-  form.setFieldValue('user_id', '410544b2-4001-4271-9855-fec4b6a6442a');
-  form.setFieldValue('estado', checked);
-  form.setFieldValue('imagen_url', files.length > 0 ? files[0].path || '' : '');
+  form.setFieldValue('user_id', userId);
+  form.setFieldValue('status', checked);
+  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
 
   const previews = files.map((file, index) => {
-    const imageUrl = URL.createObjectURL(file);
+    const imageUrl = product.image_url || URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
 
-  const handleSubmit = async (values: any) => {
-    try {
-      await updateProduct(id, values);
-      window.location.href = '/dashboard/products'; // Maneja la redirección aquí
-    } catch (err) {
-      console.error('Error creating product:', err);
-      throw new Error('Error creating product');
-    }
-  }
+  const handleSubmit = async (values: Products) => {
+    console.log('values::: ', values);
+
+    await editProduct(values);
+  };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={form.onSubmit((values) => (handleSubmit(values)))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
@@ -78,38 +73,38 @@ export default function Form({ id, product }: FormProps) {
                 label="Nombre"
                 placeholder="Producto 2"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
                 label="Marca"
                 placeholder="Lab 2"
                 required
-                key={form.key('marca')}
-                {...form.getInputProps('marca')}
+                key={form.key('brand')}
+                {...form.getInputProps('brand')}
               />
               <TextInput
                 withAsterisk
                 label="Unidad de medida" 
                 placeholder="Kg" 
                 required
-                key={form.key('unidad_medida')}
-                {...form.getInputProps('unidad_medida')}
+                key={form.key('measure_unit')}
+                {...form.getInputProps('measure_unit')}
               />
               <TextInput
                 required
                 label="Proveedor"
                 placeholder="Saa"               
-                key={form.key('proveedor')}
-                {...form.getInputProps('proveedor')}
+                key={form.key('supplier')}
+                {...form.getInputProps('supplier')}
               />
               <TextInput
                 required
                 label="Presentación"
                 placeholder="Blister"               
-                key={form.key('presentacion')}
-                {...form.getInputProps('presentacion')}
+                key={form.key('presentation')}
+                {...form.getInputProps('presentation')}
               />
           </Flex>
           <Flex mb={4} gap={8}>
@@ -118,31 +113,21 @@ export default function Form({ id, product }: FormProps) {
                 label="Contenido"
                 placeholder="Pastillas de 500mg"
                 required
-                key={form.key('contenido')}
-                {...form.getInputProps('contenido')}
+                key={form.key('content')}
+                {...form.getInputProps('content')}
               />
               <TextInput
                 withAsterisk
                 label="Código de barras"
                 placeholder="123"
                 required
-                key={form.key('codigo_barras')}
-                {...form.getInputProps('codigo_barras')}
+                key={form.key('bar_code')}
+                {...form.getInputProps('bar_code')}
               />
             
-              
-              {/* <NativeSelect
-                required
-                label="Sub categoria"
-                placeholder="Saa"               
-                data={['Semanal', 'Quincenal', 'Cada 3 semanas', 'Mensual']}
-                key={form.key('subCategoria')}
-                {...form.getInputProps('subCategoria')}
-              /> */}
-              
               <NumberInput
                 withAsterisk
-                label="Máximo de stock"
+                label="Stock"
                 placeholder="155"
                 required
                 hideControls 
@@ -155,8 +140,8 @@ export default function Form({ id, product }: FormProps) {
                 placeholder="M"
                 required
                 data={['Accesorios', 'Alimentos', 'Bocaditos', 'Camas', 'Colchonetas', 'Maletines', 'Perfumeria', 'Ropa', 'Transportadores']}
-                key={form.key('categoria')}
-                {...form.getInputProps('categoria')}
+                key={form.key('category')}
+                {...form.getInputProps('category')}
               />
           </Flex>
           <Flex mb={4} gap={8} align="end">
@@ -166,8 +151,8 @@ export default function Form({ id, product }: FormProps) {
                 placeholder="16"
                 required
                 hideControls 
-                key={form.key('precio_compra')}
-                {...form.getInputProps('precio_compra')}
+                key={form.key('buy_price')}
+                {...form.getInputProps('buy_price')}
               />
               <NumberInput
                 withAsterisk
@@ -175,8 +160,8 @@ export default function Form({ id, product }: FormProps) {
                 placeholder="12"
                 required
                 hideControls 
-                key={form.key('precio_venta')}
-                {...form.getInputProps('precio_venta')}
+                key={form.key('sell_price')}
+                {...form.getInputProps('sell_price')}
               />
               <Switch
                 checked={checked}
@@ -212,8 +197,8 @@ export default function Form({ id, product }: FormProps) {
               maxSize={5 * 1024 ** 2}
               accept={IMAGE_MIME_TYPE}
               style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              key={form.key('imagen_url')}
-              {...form.getInputProps('imagen_url')}
+              key={form.key('image_url')}
+              {...form.getInputProps('image_url')}
             >
               <Group justify="center" gap="xl" style={{ pointerEvents: 'none' }}>
                 <Dropzone.Accept>
@@ -241,20 +226,23 @@ export default function Form({ id, product }: FormProps) {
                 </div>
               </Group>
             </Dropzone>
-          ):
-          <Box w={200} h={200}>
-            {previews}
-          </Box>
+          ):(
+            <Stack gap={0} align="flex-end" justify="center" className="cursor-pointer" onClick={() => setFiles([])}>
+              <IconX size={25} />
+              <Button p={0} radius="md" bg="white" w={200} h={200}>
+                {previews}
+              </Button>
+            </Stack>
+          )
         }
         </Box>
       </Flex>
       <Flex className="mt-6 justify-end gap-4">
-        <Link
-          href="/dashboard/products"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
-        >
+        <Button
+          component={Link} href="/dashboard/products"
+          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200">
           Cancel
-        </Link>
+        </Button>
         <Button type="submit">Editar producto</Button>
       </Flex>
     </form>

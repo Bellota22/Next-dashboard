@@ -16,7 +16,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getFilteredCustomers } from '@/app/lib/data';
 import { set } from 'zod';
 
-
 interface FormProps {
   pet: PetWithCustomer;
   customers: Customers[];
@@ -42,9 +41,9 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
   );
 
   
-  const [grooming, setGrooming] = useState<boolean>(false);
-  const [groomingFreq, setGroomingFreq] = useState<string>('');
-  const [groomingDay, setGroomingDay] = useState<string>('');
+  const [grooming, setGrooming] = useState<boolean | undefined>(pet.grooming);
+  const [groomingFreq, setGroomingFreq] = useState<string | undefined>(pet.grooming_freq);
+  const [groomingDay, setGroomingDay] = useState<string | undefined>(pet.grooming_day);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenderChange = (value: string) => {
@@ -110,6 +109,7 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
 
     if (term) {
       params.set('query', term);
+
     } else {
       params.delete('query');
     }
@@ -118,17 +118,16 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
 
   const handleChange = (value: string) => {
     setInputValue(value);
+    handleSearch(value);
 
     const foundCustomer = customers.find((customer) => customer.name === value) || null;
-
     setSelectedCustomer(foundCustomer);
 
+
     form.setFieldValue('customer_id', foundCustomer ? foundCustomer.id : '');
-    handleSearch(value);
 };
 
   const handleSubmit = async (values: Pets) => {
-    console.log('values::: ', values);
     if (!selectedCustomer) {
       setError('Debe seleccionar un propietario válido.');
       return;
@@ -139,7 +138,6 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
     router.push("/dashboard/mascotas");
 
 };
-
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
@@ -152,7 +150,10 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
               placeholder="Buscar propietario"
               required
               value={inputValue}
-              data={customers.map((customer) => ({ value: customer.name, label: customer.name }))}
+              defaultValue={searchParams.get('query')?.toString()}
+              key={form.key('customer_id')}
+              {...form.getInputProps('customer_id')}
+              data={customers.map((customer) => ({ value: customer.id, label: customer.name }))}
               onChange={handleChange}
             />
 
@@ -246,6 +247,7 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
               <Stack w={350}>
                 <Checkbox
                   onChange={(event) => setGrooming(event.currentTarget.checked)}
+                  defaultChecked={pet.grooming}
                   label="Crear evento de grooming" 
                 />
                 <NativeSelect

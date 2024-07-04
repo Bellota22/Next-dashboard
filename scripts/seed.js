@@ -548,9 +548,9 @@ async function main() {
 
   // await seedEventos(client);
   // await seedUsers(client);
-  await seedCustomers(client);
-  await seedPets(client);
-  // await seedProducts(client);
+  // await seedCustomers(client);
+  // await seedPets(client);
+  await seedProducts(client);
   // await seedSales(client);
 
   await client.end();

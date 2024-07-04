@@ -323,6 +323,7 @@ export async function getPetById(id: string): Promise<PetWithCustomer>{
         p.image_url AS pet_image_url,
         p.created_date AS pet_created_date,
         p.updated_date AS pet_updated_date,
+        c.id AS customer_id,
         c.name AS customer_name,
         c.user_id AS customer_user_id,
         c.dni AS customer_dni,
@@ -480,7 +481,7 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
     grooming_day: row.grooming_day,
     image_url: row.pet_image_url,
     created_date: row.pet_created_date,
-    updated_date: row.pet_updated_date, // Assuming updated_date is the same as created_date in this context
+    updated_date: row.pet_updated_date, 
     customer: {
       id: row.customer_id,
       user_id: userId,
@@ -615,51 +616,42 @@ export async function getAllProducts(query: string, currentPage: number, userId:
   return products.rows;
 }
 
-export async function fetchAllProducts(query: string, currentPage: number, userId: string) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+export async function getProductById(id: string) {
+  try {
+    const data = await sql<Products>`
+      SELECT 
+        p.id,
+        p.user_id,
+        p.name,
+        p.brand,
+        p.measure_unit,
+        p.presentation,
+        p.content,
+        p.supplier,
+        p.bar_code,
+        p.category,
+        p.stock,
+        p.sell_price,
+        p.buy_price,
+        p.status,
+        p.image_url,
+        p.created_date,
+        p.updated_date
+      FROM products1 p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.id = ${id};
+    `;
 
-  const products = await sql<ProductsShowTable>`
-    SELECT
-      p.id,
-      p.user_id,
-      p.nombre,
-      p.marca,
-      p.unidad_medida,
-      p.presentacion,
-      p.contenido,
-      p.proveedor,
-      p.codigo_barras,
-      p.categoria,
-      p.subcategoria,
-      p.stock,
-      p.precio_compra,
-      p.precio_venta,
-      p.estado,
-      p.fecha_creacion AS product_fecha_creacion
-    FROM products p
-    JOIN users u ON p.user_id = u.id
-    WHERE
-      p.user_id = ${userId} AND (
-        p.nombre ILIKE ${`%${query}%`} OR
-        p.marca ILIKE ${`%${query}%`} OR
-        p.categoria ILIKE ${`%${query}%`} OR
-        p.subcategoria ILIKE ${`%${query}%`} OR
-        p.proveedor ILIKE ${`%${query}%`} OR
-        p.codigo_barras ILIKE ${`%${query}%`} OR
-        p.presentacion ILIKE ${`%${query}%`} OR
-        p.contenido ILIKE ${`%${query}%`} OR
-        p.unidad_medida ILIKE ${`%${query}%`} OR
-        p.precio_compra::text ILIKE ${`%${query}%`} OR
-        p.precio_venta::text ILIKE ${`%${query}%`}
-      )
-    ORDER BY p.nombre ASC
-    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-  `;
+    const product = data.rows[0];
+    return product;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch product.');
+  }
 
-  return products.rows;
 }
 
-export async function fetchProductById(id: string) {
+export async function fetchProductById1(id: string) {
   try {
     const data = await sql<ProductsShowTable>`
       SELECT
@@ -689,6 +681,7 @@ export async function fetchProductById(id: string) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch product.');
   }
+
 }
 
 export async function getSalesPages(query: string, userId: string) {

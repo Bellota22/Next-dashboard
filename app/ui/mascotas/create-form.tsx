@@ -28,9 +28,12 @@ export default function Form({ customers, query, currentPage }: FormProps) {
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [gender, setGender] = useState<string | null>(null);
+  const [sterelized, setSterelized] = useState<boolean>(false);
+  const [insured, setInsured] = useState<boolean>(false);
+  const [saludValues, setSaludValues] = useState<string[]>([]);
 
   const [salud, setSalud] = useState<string[]>([]);
-  const [grooming, setGrooming] = useState<boolean | null>(false);
+  const [grooming, setGrooming] = useState<boolean>(false);
   const [groomingFreq, setGroomingFreq] = useState<string>('');
   const [groomingDay, setGroomingDay] = useState<string>('');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
@@ -41,6 +44,16 @@ export default function Form({ customers, query, currentPage }: FormProps) {
   const handleGenderChange = (value: string) => {
     setGender(prevGender => (prevGender === value ? null : value));
   };
+  const handleSterelizedChange = (checked: boolean) => {
+    setSterelized(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'sterelized'] : prev.filter((value) => value !== 'sterelized')));
+  };
+  
+  const handleInsuredChange = (checked: boolean) => {
+    setInsured(checked);
+    setSaludValues((prev) => (checked ? [...prev, 'insured'] : prev.filter((value) => value !== 'insured')));
+  };
+
 
   const form = useForm<Pets>({
     mode: 'uncontrolled',
@@ -66,15 +79,17 @@ export default function Form({ customers, query, currentPage }: FormProps) {
     
   });
 
-  form.setFieldValue('gender', gender === "MACHO" ? true : false )
-  form.setFieldValue('sterelized', salud.includes('sterelized') ? true : false);
-  form.setFieldValue('insured', salud.includes('insured') ? true : false);
-  form.setFieldValue('grooming', grooming ? grooming : false)
-  form.setFieldValue('grooming_freq', groomingFreq ? groomingFreq : '')
-  form.setFieldValue('grooming_day', groomingDay ? groomingDay : '');
-  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '')
-  
+  form.setFieldValue('gender', gender === "MACHO" ? true : false);
+  form.setFieldValue('sterelized', sterelized);
+  form.setFieldValue('insured', insured);
+  form.setFieldValue('grooming', grooming);
+  form.setFieldValue('grooming_freq', groomingFreq);
+  form.setFieldValue('grooming_day', groomingDay);
+  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
+
   const handleSubmit = async (values: Pets) => {
+    console.log('values::: ', values);
+
     if (!selectedCustomerId) {
       setError('Debe seleccionar un propietario válido.');
       return;
@@ -189,16 +204,20 @@ export default function Form({ customers, query, currentPage }: FormProps) {
               <Checkbox.Group
                 withAsterisk
                 label="Salud"
-                value={salud}
-                onChange={setSalud}>
+                value={saludValues} 
+                onChange={() => {}}>
                   <Group mt="xs">
-                    <Checkbox
-                      value="esterilizado" 
-                      label="¿Ha sido esterilizado?" 
+                      <Checkbox
+                      value="sterelized"
+                      label="¿Ha sido esterilizado?"
+                      checked={sterelized}
+                      onChange={(event) => handleSterelizedChange(event.currentTarget.checked)}
                     />
                     <Checkbox
-                      value="asegurado" 
-                      label="¿Ha sido asegurado?" 
+                      value="insured"
+                      label="¿Ha sido asegurado?"
+                      checked={insured}
+                      onChange={(event) => handleInsuredChange(event.currentTarget.checked)}
                     />
                   </Group>
               </Checkbox.Group>

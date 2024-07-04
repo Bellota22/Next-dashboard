@@ -7,8 +7,9 @@ import { Suspense } from 'react';
 import { fetchProductsPages, getAllCostumers, getAllProducts } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { Flex } from '@mantine/core';
+import { Flex, Title } from '@mantine/core';
 import PaginationProduct from '@/app/ui/products/pagination';
+import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Productos | PettoCare',
@@ -35,7 +36,7 @@ export default async function Page({
     getAllCostumers(query, currentPage, userId),
     fetchProductsPages(query, userId),
   ]);
-  
+
 
   const cookieStore = cookies();
   const savedSelectedProducts = JSON.parse(cookieStore.get('selectedProducts')?.value || '[]');
@@ -44,7 +45,7 @@ export default async function Page({
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Products</h1>
+        <Title className={styles.breadcrumbs} order={1}>Products</Title>
         
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">

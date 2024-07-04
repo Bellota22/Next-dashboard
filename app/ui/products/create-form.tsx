@@ -2,57 +2,66 @@
 
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
-import { createMascotas, createProducts } from '@/app/lib/actions';
-import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Switch, useMantineTheme, Center, NumberInput } from '@mantine/core';
+import { createProduct } from '@/app/lib/actions';
+import { Box, Button, Flex, Group, Image, rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Switch, useMantineTheme, Center, NumberInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { DateInput } from '@mantine/dates';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconCheck, IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
+import { Products } from '@/app/lib/definitions';
 
 export default function Form() {
   const [checked, setChecked] = useState(true);
   const theme = useMantineTheme();
+  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
 
   const [files, setFiles] = useState<FileWithPath[]>([]);
-   const form = useForm({
+   const form = useForm<Products>({
     mode: 'uncontrolled',
     initialValues: {
+      id: '',
       user_id: '',
-      codigo_barras: '',
-      nombre: '',
-      marca: '',
-      unidad_medida: '',
-      proveedor: '',
-      categoria: 'Accesorios',
-      subcategoria: '',
-      presentacion: '',
-      contenido: '',
-      precio_compra: 0,
-      precio_venta: 0,
-      min_stock: 0,
+      name: '',
+      brand: '',
+      measure_unit: '',
+      presentation: '',
+      content: '',
+      supplier: '',
+      bar_code: '',
+      category: '',
       stock: 0,
-      imagen_url: '',
-      estado: true,
+      buy_price: 0,
+      sell_price: 0,
+      status: true,
+      image_url: '',
+      created_date: new Date(),
+      updated_date: new Date(),
     },
     validate: {
-      precio_compra: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
-      precio_venta: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
+      buy_price: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
+      sell_price: (value) => (value > 0 ? null : 'Precio debe ser mayor a 0'),
       stock: (value) => (value > 0 ? null : 'Stock debe ser mayor a 0'),
+      category: (value) => (value.length > 0 ? null : 'Categoria es requerida'),
     },
     
   });
-  form.setFieldValue('user_id', '410544b2-4001-4271-9855-fec4b6a6442a');
-  form.setFieldValue('estado', checked);
-  form.setFieldValue('imagen_url', files.length > 0 ? files[0].path || '' : '');
+  form.setFieldValue('user_id', userId);
+  form.setFieldValue('status', checked);
+  form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
 
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
+  const handleSubmit = async (values: Products) => {
+    console.log('values::: ', values);
+    
+    await createProduct(values);
+  };
+
   return (
-    <form onSubmit={form.onSubmit((values) => (createProducts(values)))}>
+    <form onSubmit={form.onSubmit((values) => (handleSubmit(values)))}>
       <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
@@ -61,38 +70,38 @@ export default function Form() {
                 label="Nombre"
                 placeholder="Producto 2"
                 required
-                key={form.key('nombre')}
-                {...form.getInputProps('nombre')}
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
                 withAsterisk
                 label="Marca"
                 placeholder="Lab 2"
                 required
-                key={form.key('marca')}
-                {...form.getInputProps('marca')}
+                key={form.key('brand')}
+                {...form.getInputProps('brand')}
               />
               <TextInput
                 withAsterisk
                 label="Unidad de medida" 
                 placeholder="Kg" 
                 required
-                key={form.key('unidad_medida')}
-                {...form.getInputProps('unidad_medida')}
+                key={form.key('measure_unit')}
+                {...form.getInputProps('measure_unit')}
               />
               <TextInput
                 required
                 label="Proveedor"
                 placeholder="Saa"               
-                key={form.key('proveedor')}
-                {...form.getInputProps('proveedor')}
+                key={form.key('supplier')}
+                {...form.getInputProps('supplier')}
               />
               <TextInput
                 required
                 label="Presentación"
                 placeholder="Blister"               
-                key={form.key('presentacion')}
-                {...form.getInputProps('presentacion')}
+                key={form.key('presentation')}
+                {...form.getInputProps('presentation')}
               />
           </Flex>
           <Flex mb={4} gap={8}>
@@ -101,27 +110,18 @@ export default function Form() {
                 label="Contenido"
                 placeholder="Pastillas de 500mg"
                 required
-                key={form.key('contenido')}
-                {...form.getInputProps('contenido')}
+                key={form.key('content')}
+                {...form.getInputProps('content')}
               />
               <TextInput
                 withAsterisk
                 label="Código de barras"
                 placeholder="123"
                 required
-                key={form.key('codigo_barras')}
-                {...form.getInputProps('codigo_barras')}
+                key={form.key('bar_code')}
+                {...form.getInputProps('bar_code')}
               />
             
-              
-              {/* <NativeSelect
-                required
-                label="Sub categoria"
-                placeholder="Saa"               
-                data={['Semanal', 'Quincenal', 'Cada 3 semanas', 'Mensual']}
-                key={form.key('subCategoria')}
-                {...form.getInputProps('subCategoria')}
-              /> */}
               <NumberInput
                 withAsterisk
                 label="Stock"
@@ -132,13 +132,13 @@ export default function Form() {
                 {...form.getInputProps('stock')}
               />
               <NativeSelect
+                required
                 withAsterisk
                 label="Categoria" 
                 placeholder="M"
-                required
                 data={['Accesorios', 'Alimentos', 'Bocaditos', 'Camas', 'Colchonetas', 'Maletines', 'Perfumeria', 'Ropa', 'Transportadores']}
-                key={form.key('categoria')}
-                {...form.getInputProps('categoria')}
+                key={form.key('category')}
+                {...form.getInputProps('category')}
               />
           </Flex>
           <Flex mb={4} gap={8} align="end">
@@ -148,8 +148,8 @@ export default function Form() {
                 placeholder="16"
                 required
                 hideControls 
-                key={form.key('precio_compra')}
-                {...form.getInputProps('precio_compra')}
+                key={form.key('buy_price')}
+                {...form.getInputProps('buy_price')}
               />
               <NumberInput
                 withAsterisk
@@ -157,8 +157,8 @@ export default function Form() {
                 placeholder="12"
                 required
                 hideControls 
-                key={form.key('precio_venta')}
-                {...form.getInputProps('precio_venta')}
+                key={form.key('sell_price')}
+                {...form.getInputProps('sell_price')}
               />
               <Switch
                 checked={checked}

@@ -248,35 +248,83 @@ export async function deletePet(id: string) {
       }
   }
 }
-
-export async function createProducts(productsData: ProductsShowTable) {
+export async function createProduct(productsData: Products) {
   
-  const fecha_creacion = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
 
   const {
     user_id,
-    codigo_barras,
-    nombre,
-    marca,
-    unidad_medida,
-    proveedor,
-    categoria,
-    subcategoria,
-    presentacion,
-    contenido,
-    precio_compra,
-    precio_venta,
+    name,
+    brand,
+    measure_unit,
+    presentation,
+    content,
+    supplier,
+    bar_code,
+    category,
     stock,
-    imagen_url,
-    estado,
+    buy_price,
+    sell_price,
+    status,
+    image_url,    
   } = productsData;
   await sql`
-  INSERT INTO products (user_id, codigo_barras, nombre, marca, unidad_medida, proveedor, categoria, subcategoria, presentacion, contenido, precio_compra, precio_venta, stock, imagen_url, estado, fecha_creacion)
-  VALUES (${user_id}, ${codigo_barras}, ${nombre}, ${marca}, ${unidad_medida}, ${proveedor}, ${categoria}, ${subcategoria}, ${presentacion}, ${contenido}, ${precio_compra}, ${precio_venta}, ${stock}, ${imagen_url}, ${estado}, ${fecha_creacion})
+  INSERT INTO products1 (
+    user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, buy_price, sell_price, status, image_url, created_date, updated_date)
+  VALUES (
+    ${user_id}, ${name}, ${brand}, ${measure_unit}, ${presentation}, ${content}, ${supplier}, ${bar_code}, ${category}, ${stock}, ${buy_price}, ${sell_price}, ${status}, ${image_url}, ${created_date}, ${updated_date})
 `;
 revalidatePath('/dashboard/products');
 redirect('/dashboard/products');
 
+}
+
+export async function editProduct(productsData: Products) {
+  const updated_date = new Date().toISOString().split('T')[0];
+
+  const {
+    id,
+    user_id,
+    name,
+    brand,
+    measure_unit,
+    presentation,
+    content,
+    supplier,
+    bar_code,
+    category,
+    stock,
+    buy_price,
+    sell_price,
+    status,
+    image_url,
+  } = productsData;
+    
+
+  await sql`
+    UPDATE products1
+    SET 
+      user_id = ${user_id}, 
+      name = ${name}, 
+      brand = ${brand}, 
+      measure_unit = ${measure_unit}, 
+      presentation = ${presentation}, 
+      content = ${content}, 
+      supplier = ${supplier}, 
+      bar_code = ${bar_code}, 
+      category = ${category}, 
+      stock = ${stock}, 
+      buy_price = ${buy_price}, 
+      sell_price = ${sell_price}, 
+      status = ${status}, 
+      image_url = ${image_url},
+      updated_date = ${updated_date}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath('/dashboard/products');
+  redirect('/dashboard/products');
 }
 
 export async function updateProduct(id: string, productData: ProductsShowTable) {
@@ -339,7 +387,7 @@ export async function updateProductState(id: string, estado: boolean) {
 
 export async function deleteProduct(id: string) {
     try{
-        await sql`DELETE FROM products WHERE id = ${id}`;
+        await sql`DELETE FROM products1 WHERE id = ${id}`;
         revalidatePath('/dashboard/products');
     }catch{
         return {

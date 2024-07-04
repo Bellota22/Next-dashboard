@@ -11,7 +11,10 @@ export default async function Page() {
     <main>
       <Breadcrumbs> 
         {CREATE_CUSTOMER_BREADCRUMB.map((item, index) => (
-          <Title className={styles.breadcrumbs} key={index}>
+          <Title
+            className={`${styles.breadcrumbs} ${item.active ? styles['breadcrumbs-active'] : ''}`}
+            key={index}
+          >
             <Link href={item.href}>
               {item.label}
             </Link>

@@ -16,6 +16,7 @@ export default async function Page({ params }: {
     id: string;
     query?: string;
     page?: string;
+    edit?: string;
    }
  }) {
     const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
@@ -33,8 +34,7 @@ export default async function Page({ params }: {
       getFilteredCustomers(query, currentPage, userId)
     ]);
     const items = EDIT_PET_BREADCRUMB(id)
-
-
+    
 
     return (
     <main>
@@ -42,8 +42,7 @@ export default async function Page({ params }: {
       {items.map((item, index) => (
           <Title
             className={`${styles.breadcrumbs} ${item.active ? styles['breadcrumbs-active'] : ''}`}
-            key={index}
-          >
+            key={index}>
             <Link href={item.href}>
               {item.label}
             </Link>
