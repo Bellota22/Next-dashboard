@@ -1,13 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { editPet } from '@/app/lib/actions';
-import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Textarea } from '@mantine/core';
+import { createMedicalHistory } from '@/app/lib/actions';
+import { Box, Button, Flex, Group, Image, Checkbox, CheckboxProps , rem, Stack, Text, TextInput, Title, NativeSelect, Autocomplete, Textarea, NumberInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
-import { useEffect, useState } from 'react';
-import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
-import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
+import {  useState } from 'react';
 import { Customers, MedicalHistory, Pets, PetWithCustomer } from '@/app/lib/definitions';
 import { useDebouncedCallback } from 'use-debounce';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -17,42 +15,13 @@ interface FormProps {
   query: string;
   currentPage: number;
   pet: PetWithCustomer;
+  medicalHistories: MedicalHistory[];
 }
 
 
-export default function Form({ pet, query, currentPage }: FormProps) {
+export default function Form({ pet, medicalHistories, query, currentPage }: FormProps) {
   
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-
-  const [files, setFiles] = useState<FileWithPath[]>([]);
-  const [gender, setGender] = useState<string | null>(pet.gender ? 'MACHO' : 'HEMBRA');
-  const [sterelized, setSterelized] = useState<boolean>(pet.sterelized);
-  const [insured, setInsured] = useState<boolean>(pet.insured);
-
-  const [selectedCustomer, setSelectedCustomer] = useState<Customers | null>(pet.customer);
-  const [inputValue, setInputValue] = useState<string>(pet.customer.name);
-  const [saludValues, setSaludValues] = useState<string[]>(
-    pet.sterelized && pet.insured ? ['sterelized', 'insured'] : pet.sterelized ? ['sterelized'] : pet.insured ? ['insured'] : []
-  );
-
-  
-  const [grooming, setGrooming] = useState<boolean | undefined>(pet.grooming);
-  const [groomingFreq, setGroomingFreq] = useState<string | undefined>(pet.grooming_freq);
-  const [groomingDay, setGroomingDay] = useState<string | undefined>(pet.grooming_day);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleGenderChange = (value: string) => {
-    setGender(prevGender => (prevGender === value ? null : value));
-  };
-  const handleSterelizedChange = (checked: boolean) => {
-    setSterelized(checked);
-    setSaludValues((prev) => (checked ? [...prev, 'sterelized'] : prev.filter((value) => value !== 'sterelized')));
-  };
-  const handleInsuredChange = (checked: boolean) => {
-    setInsured(checked);
-    setSaludValues((prev) => (checked ? [...prev, 'insured'] : prev.filter((value) => value !== 'insured')));
-  };
-
   const form = useForm<MedicalHistory>({
     mode: 'uncontrolled',
     initialValues: {
@@ -74,7 +43,7 @@ export default function Form({ pet, query, currentPage }: FormProps) {
       diagnosis: '',
       auxiliary_test: '',
       treatment: '',
-      preescription: '',
+      prescription: '',
       observation: '',
       created_date: new Date(),
       updated_date: new Date(),      
@@ -84,9 +53,6 @@ export default function Form({ pet, query, currentPage }: FormProps) {
   
 
 
-
-  
-  
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -107,20 +73,17 @@ export default function Form({ pet, query, currentPage }: FormProps) {
 
 
   const handleSubmit = async (values: MedicalHistory) => {
-    console.log('values::: ', values);
-    if (!selectedCustomer) {
-      setError('Debe seleccionar un propietario válido.');
-      return;
-    }
-    setInputValue(selectedCustomer.name);
-    await editPet(values);
-    router.push("/dashboard/mascotas");
+
+    await createMedicalHistory(values);
+    router.push(`/dashboard/mascotas/${pet.id}/medical-history`);    
 
 };
 
-const [isMedicalHistory, setIsMedicalHistory] = useState<boolean>(false);
+console.log('medicalHistories::: ', medicalHistories);
+const [isMedicalHistory, setIsMedicalHistory] = useState<boolean>(medicalHistories ? true : false);
 const handleCreateMedicalHistory = () => {
-  setIsMedicalHistory(true);
+  
+  router.push(`/dashboard/mascotas/${pet.id}/medical-history/create`);
 
 }
 
@@ -167,7 +130,8 @@ const handleCreateMedicalHistory = () => {
             </Stack>
               
             <Flex mb={4} gap={8}>
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="Peso (Kg)" 
                   placeholder="45 " 
@@ -175,7 +139,8 @@ const handleCreateMedicalHistory = () => {
                   key={form.key('weight')}
                   {...form.getInputProps('weight')}
                 />
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="Frecuencia respiratoria (rpm)"
                   placeholder="124"
@@ -183,7 +148,8 @@ const handleCreateMedicalHistory = () => {
                   key={form.key('respiratory_rate')}
                   {...form.getInputProps('respiratory_rate')}
                 />
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="Motivo de atención (rpm)"
                   placeholder="145"
@@ -192,7 +158,8 @@ const handleCreateMedicalHistory = () => {
                   {...form.getInputProps('heart_rate')}
                 />
                 
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="Temperatura (C°)"
                   placeholder="30"
@@ -204,7 +171,8 @@ const handleCreateMedicalHistory = () => {
                 
             </Flex>
             <Flex mb={4} gap={8}>
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="DRE" 
                   placeholder="" 
@@ -212,7 +180,8 @@ const handleCreateMedicalHistory = () => {
                   key={form.key('rectal_test')}
                   {...form.getInputProps('rectal_test')}
                 />
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="presión arterial"
                   placeholder="124"
@@ -220,7 +189,8 @@ const handleCreateMedicalHistory = () => {
                   key={form.key('arterial_pressure')}
                   {...form.getInputProps('arterial_pressure')}
                 />
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="TLC"
                   placeholder="145"
@@ -229,7 +199,8 @@ const handleCreateMedicalHistory = () => {
                   {...form.getInputProps('filled_hair_time')}
                 />
                 
-                <TextInput
+                <NumberInput
+                  hideControls 
                   withAsterisk
                   label="DHT"
                   placeholder="30"
@@ -266,7 +237,6 @@ const handleCreateMedicalHistory = () => {
                 w="100%"
                 label="Examen auxiliar"
                 placeholder=""
-                required
                 key={form.key('auxiliary_test')}
                 {...form.getInputProps('auxiliary_test')}
               />
@@ -287,9 +257,8 @@ const handleCreateMedicalHistory = () => {
                 w="100%"
                 label="Preescripcion"
                 placeholder=""
-                required
-                key={form.key('preescription')}
-                {...form.getInputProps('preescription')}
+                key={form.key('prescription')}
+                {...form.getInputProps('prescription')}
               />
               <Textarea
                 withAsterisk
@@ -297,7 +266,7 @@ const handleCreateMedicalHistory = () => {
                 w="100%"
                 label="Observaciones"
                 placeholder=""
-                required
+                
                 key={form.key('observation')}
                 {...form.getInputProps('observation')}
               />

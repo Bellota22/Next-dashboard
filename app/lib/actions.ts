@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, Pets, Products, ProductsForShoppingCart, Sales, User } from './definitions';
+import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -112,6 +112,7 @@ export async function deleteCustomer(id: string) {
   }
 }
 
+//pets
 
 export async function createPet(pets: Pets) {
   console.log('pets::: ', pets);
@@ -152,7 +153,6 @@ export async function createPet(pets: Pets) {
     redirect('/dashboard/mascotas');
 
 }
-
 
 export async function editPet(pet: Pets) {
   
@@ -215,6 +215,47 @@ export async function deletePet(id: string) {
       }
   }
 }
+
+export async function createMedicalHistory(medicalHistory: MedicalHistory) {
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
+  const {
+    user_id,
+    pet_id,
+    date,
+    reason,
+    anamnesis,
+    weight,
+    respiratory_rate,
+    heart_rate,
+    temperature,
+    rectal_test,
+    arterial_pressure,
+    filled_hair_time,
+    dehydration,
+    clinical_test,
+    diagnosis,
+    auxiliary_test,
+    treatment,
+    prescription,
+    observation,
+  } = medicalHistory;
+  
+  const formattedDate = date ? date.toISOString().split('T')[0] : null;
+
+  await sql`
+    INSERT INTO medical_histories (
+      user_id, pet_id, date, reason, anamnesis, weight, respiratory_rate, heart_rate, temperature, rectal_test, arterial_pressure, filled_hair_time, dehydration, clinical_test, diagnosis, auxiliary_test, treatment, prescription, observation, created_date, updated_date
+    )
+    VALUES (
+      ${user_id}, ${pet_id}, ${formattedDate}, ${reason}, ${anamnesis}, ${weight}, ${respiratory_rate}, ${heart_rate}, ${temperature}, ${rectal_test}, ${arterial_pressure}, ${filled_hair_time}, ${dehydration}, ${clinical_test}, ${diagnosis}, ${auxiliary_test}, ${treatment}, ${prescription}, ${observation}, ${created_date}, ${updated_date}
+    )
+  `;
+  revalidatePath(`/dashboard/mascotas/${pet_id}/medical-history`);
+}
+
+//products
+
 export async function createProduct(productsData: Products) {
   
   const created_date = new Date().toISOString().split('T')[0];

@@ -2,7 +2,7 @@ const { db } = require('@vercel/postgres');
 const {
   sales,
   users,
-  usuarios,
+  medicalHistories,
   salesProducts,
   customers,
   pets,
@@ -55,7 +55,7 @@ async function seedProducts(client) {
 
     // Create the "products" table if it doesn't exist
     const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS products1 (
+      CREATE TABLE IF NOT EXISTS products (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         name VARCHAR(255),
@@ -81,7 +81,7 @@ async function seedProducts(client) {
     const insertedProducts = await Promise.all(
       products.map(
         (p) => client.sql`
-        INSERT INTO products1 (id, user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, sell_price, buy_price, status, image_url)
+        INSERT INTO products (id, user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, sell_price, buy_price, status, image_url)
         VALUES (${p.id}, ${p.user_id}, ${p.name}, ${p.brand}, ${p.measure_unit}, ${p.presentation}, ${p.content}, ${p.supplier}, ${p.bar_code}, ${p.category}, ${p.stock}, ${p.sell_price}, ${p.buy_price}, ${p.status}, ${p.image_url}) 
         ON CONFLICT (id) DO NOTHING;
       `,
@@ -106,7 +106,7 @@ async function seedCustomers(client) {
 
     // Create the "clients" table if it doesn't exist
     const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS customers1 (
+      CREATE TABLE IF NOT EXISTS customers (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         user_id UUID,
         name VARCHAR(255),
@@ -130,7 +130,7 @@ async function seedCustomers(client) {
     const insertedClients = await Promise.all(
       customers.map(
         (c) => client.sql`
-        INSERT INTO customers1 (id, user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url)
+        INSERT INTO customers (id, user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url)
         VALUES (${c.id}, ${c.user_id}, ${c.name}, ${c.dni}, ${c.birthday}, ${c.email}, ${c.cellphone}, ${c.department}, ${c.province}, ${c.district}, ${c.address}, ${c.tags}, ${c.image_url}) 
         ON CONFLICT (id) DO NOTHING;
       `,
@@ -165,7 +165,7 @@ async function seedSales(client) {
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (customer_id) REFERENCES customers1(id)
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
       );
     `;
     console.log(`Created "sales" table`);
@@ -182,7 +182,7 @@ async function seedSales(client) {
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (product_id) REFERENCES products1(id),
+        FOREIGN KEY (product_id) REFERENCES products(id),
         FOREIGN KEY (sale_id) REFERENCES sales(id)
       );
     `;
@@ -274,7 +274,7 @@ async function seedPets(client) {
         created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (customer_id) REFERENCES customers1(id)
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
       );
     `;
 
@@ -335,6 +335,107 @@ async function seedPets(client) {
   }
 }
 
+async function seedMedicalHistories(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "medical_histories" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS medical_histories (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        pet_id UUID,
+        date TIMESTAMP,
+        reason TEXT,
+        anamnesis TEXT,
+        weight DECIMAL, 
+        respiratory_rate INTEGER, 
+        heart_rate INTEGER, 
+        temperature DECIMAL, 
+        rectal_test TEXT, 
+        arterial_pressure TEXT, 
+        filled_hair_time TEXT, 
+        dehydration TEXT, 
+        clinical_test TEXT,
+        diagnosis TEXT,
+        auxiliary_test TEXT,
+        treatment TEXT,
+        prescription TEXT,
+        observation TEXT,
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (pet_id) REFERENCES pets(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `;
+
+    console.log(`Created "medical_histories" table`);
+
+    // Insert data into the "medical_histories" table
+    const insertedMedicalHistories = await Promise.all(
+      medicalHistories.map(
+        (mh) => client.sql`
+        INSERT INTO medical_histories (
+          id,
+          user_id,
+          pet_id,
+          date,
+          reason,
+          anamnesis,
+          weight, 
+          respiratory_rate, 
+          heart_rate, 
+          temperature, 
+          rectal_test, 
+          arterial_pressure, 
+          filled_hair_time, 
+          dehydration, 
+          clinical_test,
+          diagnosis,
+          auxiliary_test,
+          treatment,
+          prescription,
+          observation
+        )
+        VALUES (
+          ${mh.id},
+          ${mh.user_id},
+          ${mh.pet_id},
+          ${mh.date},
+          ${mh.reason},
+          ${mh.anamnesis},
+          ${mh.weight},
+          ${mh.respiratory_rate},
+          ${mh.heart_rate},
+          ${mh.temperature},
+          ${mh.rectal_test},
+          ${mh.arterial_pressure},
+          ${mh.filled_hair_time},
+          ${mh.dehydration},
+          ${mh.clinical_test},
+          ${mh.diagnosis},
+          ${mh.auxiliary_test},
+          ${mh.treatment},
+          ${mh.prescription},
+          ${mh.observation}
+          
+        )
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedMedicalHistories.length} medical histories`);
+
+    return {
+      createTable,
+      medicalHistories: insertedMedicalHistories,
+    };
+  } catch (error) {
+    console.error('Error seeding medical histories:', error);
+    throw error;
+  }
+}
 
 async function main() {
   const client = await db.connect();
@@ -343,12 +444,12 @@ async function main() {
   // await seedUsers(client);
   await seedCustomers(client);
   await seedPets(client);
+  await seedMedicalHistories(client);
   await seedProducts(client);
   await seedSales(client);
-
   await client.end();
 }
-
+// DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories
 main().catch((err) => {
   console.error(
     'An error occurred while attempting to seed the database:',

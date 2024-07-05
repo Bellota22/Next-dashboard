@@ -105,6 +105,49 @@ function generateRandomPets(userIds, customerIds, count) {
 const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
 const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
 
+
+function generateRandomMedicalHistory(userId, petId) {
+  return {
+
+    id: uuidv4(),
+    user_id: userId,
+    pet_id: petId,
+    date: faker.date.anytime(),
+    reason: faker.helpers.arrayElement(['Consulta', 'Control', 'Cirugía', 'Vacuna', 'Desparasitación', 'Internamiento', 'Triaje', 'Profilaxis', 'Defunción', 'Exámenes']),
+    anamnesis: faker.lorem.sentence(),
+    weight: faker.number.float({ min: 1, max: 100, multipleOf: 0.01 }),
+    respiratory_rate: faker.number.int({ min: 1, max: 100 }),
+    heart_rate: faker.number.int({ min: 1, max: 100 }),
+    temperature: faker.number.float({ min: 1, max: 100, multipleOf: 0.01 }),
+    rectal_test: faker.lorem.sentence(),
+    arterial_pressure: faker.number.int({ min: 1, max: 100 }),
+    filled_hair_time: faker.number.int({ min: 1, max: 100 }),
+    dehydration: faker.number.int({ min: 1, max: 100 }),
+    clinical_test:  faker.lorem.sentence(),
+    diagnosis:  faker.lorem.sentence(),
+    auxiliary_test:  faker.lorem.sentence(),
+    treatment:  faker.lorem.sentence(),
+    prescription:  faker.lorem.sentence(),
+    observation:  faker.lorem.sentence(),
+    created_date:  faker.date.anytime(),
+    updated_date:  faker.date.anytime(),
+  };
+}
+
+function generateRandomMedicalHistories(userIds, petIds, count) {
+  const medicalHistories = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const petId = faker.helpers.arrayElement(petIds);
+    medicalHistories.push(generateRandomMedicalHistory(userId, petId));
+    console.log(`Generated ${i + 1}/${count} medical histories`);
+  }
+  return medicalHistories;
+}
+
+const petIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
+const medicalHistories = generateRandomMedicalHistories(usersIds, petIds, 50); // Genera 50 historias clínicas aleatorias
+
 //products
 
 function generateRandomProduct(userId) {
@@ -117,7 +160,7 @@ function generateRandomProduct(userId) {
     presentation: faker.helpers.arrayElement(['Botella', 'Caja', 'Bolsa', 'Tarro']),
     content: faker.commerce.productDescription(),
     supplier: faker.company.name(),
-    bar_code: faker.string.uuid(),
+    bar_code:  faker.commerce.productAdjective(),
     category: faker.commerce.department(),
     stock: faker.number.int({ min: 0, max: 1000 }),
     sell_price: faker.number.float({ min: 1, max: 1000, multipleOf: 0.01 }),
@@ -261,5 +304,6 @@ module.exports = {
   products,
   salesProducts,
   pets,
+  medicalHistories
   
 };
