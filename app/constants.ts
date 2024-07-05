@@ -181,7 +181,13 @@ const CREATE_PET_BREADCRUMB = [
 const EDIT_PET_BREADCRUMB = (id: string) => [
   { label: 'Mascotas', href: '/dashboard/mascotas' },
   { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`, active: true },
-  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/mascotas` },
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/medical-history` },
+];
+
+const MEDICAL_HISTORY_PET_BREADCRUMB = (id: string) => [
+  { label: 'Mascotas', href: '/dashboard/mascotas' },
+  { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`},
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/medical-history`, active: true  },
 ];
 
 const CREATE_PRODUCTS_BREADCRUMB = [
@@ -214,5 +220,6 @@ export {
     EDIT_PET_BREADCRUMB,
     CREATE_PRODUCTS_BREADCRUMB,
     EDIT_PRODUCTS_BREADCRUMB,
-    PETS_CUSTOMER_BREADCRUMB
+    PETS_CUSTOMER_BREADCRUMB,
+    MEDICAL_HISTORY_PET_BREADCRUMB
 }

@@ -5,7 +5,7 @@ import {
   Customers,
   SaleWithProducts,
   PetWithCustomer,
-  ProductToSell,
+  ProductsForShoppingCart,
   Pets,
 
 } from './definitions';
@@ -495,13 +495,11 @@ export async function getAllSales(query: string, currentPage: number, userId: st
     SELECT
       sp.sale_id,
       sp.product_id,
-      p.name as product_name,
-      sp.quantity
+      sp.quantity,
+      p.name as product_name
     FROM sales_products sp
     JOIN products1 p ON sp.product_id = p.id
-    WHERE sp.sale_id = ANY(${saleIds})
   `;
-  console.log('products::: ', products);
 
   const salesMap: Record<string, any> = {};
 

@@ -81,21 +81,40 @@ export type Sales = {
 };
 
 
-export interface ProductToSell extends Products {
+export type ProductsForShoppingCart = Products &{
   quantity: number; 
 }
 
-export type SaleWithProducts = {
+export type SaleWithProducts = Sales & {
+
+  products: ProductsForShoppingCart[];
+};
+
+export type MedicalHistory = {
   id: string;
   user_id: string;
-  customer_id: string;
-  customer_name: string;
-  status: string;
-  total_price: number;
-  created_date: string;
-  updated_date: string;
-  products: ProductToSell[];
+  pet_id: string;
+  date: Date;
+  reason: string;
+  anamnesis: string;
+  weight: number;
+  respiratory_rate: number;
+  heart_rate: number;
+  temperature: number;
+  rectal_test: number;
+  arterial_pressure: number;
+  filled_hair_time: number;
+  dehydration: number;
+  clinical_test: string;
+  diagnosis: string;
+  auxiliary_test: string;
+  treatment: string;
+  preescription: string;
+  observation: string;
+  created_date: Date;
+  updated_date: Date;
 };
+
 
 
 

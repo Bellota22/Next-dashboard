@@ -4,7 +4,7 @@ import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { useState } from 'react';
 import { Table, Checkbox, Text, Title, useMantineTheme } from '@mantine/core';
 import Link from 'next/link';
-import {  ProductToSell, SaleWithProducts } from '@/app/lib/definitions';
+import {  ProductsForShoppingCart, SaleWithProducts } from '@/app/lib/definitions';
 
 export default function SalesTable({
   query,
@@ -55,7 +55,7 @@ export default function SalesTable({
         <Text {...linkProps}>{sale.total_price}</Text>
       </Table.Td>
       <Table.Td>
-        {sale.products.map((product: ProductToSell) => (
+        {sale.products.map((product: ProductsForShoppingCart) => (
           <Text key={product.id} {...linkProps}>{product.name}: {product.quantity}</Text>
         ))}
       </Table.Td>

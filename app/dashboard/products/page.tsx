@@ -37,7 +37,7 @@ export default async function Page({
     totalPages,
   ] = await Promise.all([
     getAllProducts(query, currentPage, userId),
-    getFilteredCustomers(autocompleteCustomer, currentPage, userId),
+    getFilteredCustomers(autocompleteCustomer, 1, userId),
     getProductsPage(query, userId),
   ]);
 

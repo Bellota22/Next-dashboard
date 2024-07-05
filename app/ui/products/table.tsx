@@ -1,18 +1,14 @@
 'use client'
 import { UpdateProduct, DeleteProduct } from '@/app/ui/products/buttons';
-import { formatCurrency } from '@/app/lib/utils';
 import { useEffect, useState } from 'react';
 import { Table, Checkbox, Button, rem, Switch, useMantineTheme, Indicator, Modal, Box, Stack, Flex, Autocomplete, Text, Title, Image } from '@mantine/core';
-import { IconCheck, IconCreditCard, IconImageInPicture, IconMinus, IconPaywall, IconPhotoOff, IconPlus, IconShoppingBag, IconUser, IconUsersGroup, IconX } from '@tabler/icons-react';
+import { IconCheck, IconCreditCard, IconMinus, IconPhotoOff, IconPlus, IconShoppingBag, IconUser, IconUsersGroup, IconX } from '@tabler/icons-react';
 import { createSale, updateProductState } from '@/app/lib/actions';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Customers, Products, ProductToSell } from '@/app/lib/definitions';
-import { products } from '@/app/lib/placeholder-data';
+import { Customers, Products, ProductsForShoppingCart } from '@/app/lib/definitions';
 import { useDebouncedCallback } from 'use-debounce';
-import { getFilteredCustomers } from '@/app/lib/data';
-import { get } from 'http';
 
 
 
@@ -83,7 +79,7 @@ export default function ProductsTable({
     );
 
     if (isChecked) {
-      setQuantities((prevQuantities) => ({ ...prevQuantities, [product.id]: 0 }));
+      setQuantities((prevQuantities) => ({ ...prevQuantities, [product.id]: 1 }));
     } else {
       setQuantities((prevQuantities) => {
         const newQuantities = { ...prevQuantities };
@@ -175,13 +171,13 @@ export default function ProductsTable({
       return;
     }
 
-    const productsToSell: ProductToSell[] = selectedProducts.map((product) => ({
+    const productsToSell: ProductsForShoppingCart[] = selectedProducts.map((product) => ({
       quantity: quantities[product.id],
       ...product
     }));
 
     try {
-      const ventaId = await createSale(userId, customer.id, productsToSell);
+      await createSale(userId, customer.id, productsToSell);
       alert('Sale registered successfully');
       //reset cart
       setSelectedProducts([]);

@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, Pets, Products, ProductToSell, Sales, User } from './definitions';
+import { Customers, Pets, Products, ProductsForShoppingCart, Sales, User } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -320,7 +320,7 @@ export async function deleteProduct(id: string) {
     }
 }
 
-export async function createSale(userId: string, customerId: string, products: ProductToSell[] ) {
+export async function createSale(userId: string, customerId: string, products: ProductsForShoppingCart[] ) {
 
   const status = true;
   const total_price = products.reduce((sum, product) => sum + product.sell_price * product.quantity, 0);
