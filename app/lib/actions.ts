@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User } from './definitions';
+import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -252,6 +252,39 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
     )
   `;
   revalidatePath(`/dashboard/mascotas/${pet_id}/medical-history`);
+}
+
+//vets
+export async function createVet(pets: Veterinary) {
+
+  
+  const created_date = new Date().toISOString().split('T')[0];
+  const updated_date = created_date;
+
+  const { 
+    user_id,
+    name,
+    email,
+    dni,
+    cellphone,
+    address,
+    // specialties,  
+    image_url
+   } = pets
+
+   await sql`
+        INSERT INTO vets (
+          user_id, name, email, dni, cellphone, address, image_url, created_date, updated_date
+        )
+        VALUES (
+          ${user_id}, ${name}, ${email}, ${dni}, ${cellphone}, ${address}, ${image_url}, ${created_date}, ${updated_date}
+        )
+    `;
+
+   
+    revalidatePath('/dashboard/mascotas');
+    redirect('/dashboard/mascotas');
+
 }
 
 //products

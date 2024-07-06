@@ -208,6 +208,33 @@ const EDIT_PRODUCTS_BREADCRUMB = (id: string) => [
   },
 ]
 
+
+const CREATE_VET_BREADCRUMB = [
+  { label: 'Veterinarios', href: '/dashboard/vets' },
+  {
+    label: 'Crear veterinario',
+    href: '/dashboard/vets/create',
+    active: true,
+  },
+]
+const SPECIALTIES = [
+  { id: '1', name: 'Cirugía de animales pequeños' },
+  { id: '2', name: 'Dermatología' },
+  { id: '3', name: 'Medicina interna' },
+  { id: '4', name: 'Oftalmología' },
+  { id: '5', name: 'Odontología' },
+  { id: '6', name: 'Cardiología' },
+  { id: '7', name: 'Neurología' },
+  { id: '8', name: 'Oncología' },
+  { id: '9', name: 'Ortopedia' },
+  { id: '10', name: 'Medicina conductual' },
+  { id: '11', name: 'Radiología' },
+  { id: '12', name: 'Rehabilitación' },
+  { id: '13', name: 'Emergencias y cuidados críticos' },
+  { id: '14', name: 'Medicina de animales exóticos' },
+  { id: '15', name: 'Medicina aviar' },
+];
+
 export {
     FEATURES,
     COMMENTS,
@@ -221,5 +248,7 @@ export {
     CREATE_PRODUCTS_BREADCRUMB,
     EDIT_PRODUCTS_BREADCRUMB,
     PETS_CUSTOMER_BREADCRUMB,
-    MEDICAL_HISTORY_PET_BREADCRUMB
+    MEDICAL_HISTORY_PET_BREADCRUMB,
+    CREATE_VET_BREADCRUMB,
+    SPECIALTIES
 }

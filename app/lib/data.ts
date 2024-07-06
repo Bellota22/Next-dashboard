@@ -8,6 +8,7 @@ import {
   ProductsForShoppingCart,
   Pets,
   MedicalHistory,
+  Veterinary,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -350,6 +351,48 @@ export async function getMedicalHistoriesByPetId(id: string): Promise<MedicalHis
     throw new Error('Failed to fetch pets.');
   }
 
+}
+
+// vets
+
+
+export async function getFilteredVets(
+  query: string,
+  currentPage: number,
+  userId: string,
+): Promise<Veterinary[]> {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const users = await sql<Veterinary>`
+    SELECT
+      id,
+      user_id,
+      name,
+      email,
+      dni,
+      cellphone,
+      address,
+      specialties,
+      image_url,
+      created_date,
+      updated_date
+      
+    FROM vets
+    WHERE
+      user_id = ${userId} AND (
+      name ILIKE ${`%${query}%`} OR
+      email ILIKE ${`%${query}%`} OR
+      dni::text ILIKE ${`%${query}%`} OR
+      cellphone ILIKE ${`%${query}%`} OR
+      address ILIKE ${`%${query}%`} OR
+      specialties ILIKE ${`%${query}%`}
+           
+    )
+    ORDER BY name ASC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return users.rows;
 }
 
 

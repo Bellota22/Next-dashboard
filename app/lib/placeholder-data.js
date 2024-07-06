@@ -237,62 +237,31 @@ const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sale
 const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
 
 
+function generateRandomVet(userId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    name: faker.person.firstName() + ' ' + faker.person.lastName(),
+    email: faker.internet.email(),
+    dni: faker.number.int({ min: 10000000, max: 99999999 }),
+    cellphone: faker.number.int({ min: 10000000, max: 99999999 }),
+    address: faker.location.streetAddress(),
+    image_url: faker.image.avatar(),   
+    specialties: faker.helpers.arrayElement(['Medicina General', 'Cirugía', 'Dermatología', 'Oftalmología', 'Cardiología', 'Neurología', 'Oncología', 'Nutrición', 'Odontología', 'Rehabilitación', 'Urgencias']),     
+  };
+}
 
-// const eventos = [
-//   {
-//     customer_id: customers[0].id,
-//     mascota_id: mascotas[0].id,
-//     titulo: 'Consulta veterinaria',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: true,
-//     notificar_fecha: '2024-07-01T10:00:00Z',
-//     fecha_inicio: new Date('2024-07-01T10:00:00Z'),
-//     fecha_fin: new Date('2024-07-01T11:00:00Z'),
-//     color: 'azul',
-//   },
-//   {
-//     customer_id: customers[0].id,
-//     mascota_id: mascotas[1].id,
-//     titulo: 'Vacunación',
-//     tipo: 'Salud',
-//     status: 'Completado',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: false,
-//     notificar_fecha: '2024-07-15T15:00:00Z',
-//     fecha_inicio: new Date('2024-07-15T15:00:00Z'),
-//     fecha_fin: new Date('2024-07-15T16:00:00Z'),
-//     color: 'verde',
-//   },
-//   {
-//     customer_id: customers[1].id,
-//     mascota_id: mascotas[2].id,
-//     titulo: 'Chequeo general',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: true,
-//     notificar_fecha: '2024-06-30T09:00:00Z',
-//     fecha_inicio: new Date('2024-06-30T09:00:00Z'),
-//     fecha_fin: new Date('2024-06-30T10:00:00Z'),
-//     color: 'amarillo',
-//   },
-//   {
-//     customer_id: customers[1].id,
-//     mascota_id: mascotas[2].id,
-//     titulo: 'Desparasitación',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: false,
-//     notificar_fecha: '2024-08-10T14:00:00Z',
-//     fecha_inicio: new Date('2024-08-10T14:00:00Z'),
-//     fecha_fin: new Date('2024-08-10T15:00:00Z'),
-//     color: 'rojo',
-//   },
-// ];
+function generateRandomVets(userIds, count) {
+  const vets = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    vets.push(generateRandomVet(userId));
+    console.log(`Generated ${i + 1}/${count} vets`);
+  }
+  return vets;
+}
 
+const vets = generateRandomVets(usersIds, 50); // Generates 50 random vets
 
 
 
@@ -304,6 +273,7 @@ module.exports = {
   products,
   salesProducts,
   pets,
-  medicalHistories
+  medicalHistories,
+  vets
   
 };

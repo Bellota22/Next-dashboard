@@ -115,6 +115,31 @@ export type MedicalHistory = {
   updated_date: Date;
 };
 
+export type Specialty = {
+  id: string;
+  name: string;
+  created_date: Date;
+  updated_date: Date;
+};
+
+export type Veterinary = {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  dni: number;
+  cellphone: string;
+  address?: string;
+  specialties?: Specialty[];
+  image_url?: string;
+  created_date: Date;
+  updated_date: Date;
+};
+
+
+
+
+
 
 
 

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { IconPaw, IconPackage, IconUsersGroup, IconShoppingBag } from '@tabler/icons-react';
+import { IconPaw, IconPackage, IconUsersGroup, IconShoppingBag, IconStethoscope } from '@tabler/icons-react';
 import { Text, Title, useMantineTheme } from '@mantine/core';
 
 // Map of links to display in the side navigation.
@@ -13,6 +13,7 @@ const links = [
   { name: 'Clientes', href: '/dashboard/customers', icon: IconUsersGroup },
   { name: 'Mascotas', href: '/dashboard/mascotas', icon: IconPaw },
   { name: 'Productos', href: '/dashboard/products', icon: IconPackage },
+  { name: 'Veterinarios', href: '/dashboard/vets', icon: IconStethoscope },
 ];
 
 export default function NavLinks() {

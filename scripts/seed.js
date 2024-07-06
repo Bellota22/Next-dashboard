@@ -6,7 +6,8 @@ const {
   salesProducts,
   customers,
   pets,
-  products
+  products,
+  vets
 } = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcryptjs');
 
@@ -335,6 +336,63 @@ async function seedPets(client) {
   }
 }
 
+async function seedVets(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "vets" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS vets (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        name VARCHAR(255),
+        email TEXT UNIQUE,
+        dni INT UNIQUE,
+        cellphone VARCHAR(255),
+        address VARCHAR(255),
+        image_url VARCHAR(255),
+        specialties VARCHAR(255),
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+
+      );
+    `;
+
+    const insertedVets = await Promise.all(
+      vets.map(async (vet) => {
+        return client.sql`
+        INSERT INTO vets (id, user_id, name, email, dni, cellphone, address, image_url, specialties)
+        
+        VALUES (
+          ${vet.id},
+          ${vet.user_id},
+          ${vet.name},
+          ${vet.email},
+          ${vet.dni},
+          ${vet.cellphone},
+          ${vet.address},
+          ${vet.image_url},
+          ${vet.specialties}
+        )
+        ON CONFLICT (id) DO NOTHING;
+      `;
+      }),
+    );
+
+    console.log(`Seeded ${insertedVets.length} vets`);
+
+    return {
+      createTable,
+      vets: insertedVets,
+    };
+  } catch (error) {
+    console.error('Error seeding vets:', error);
+    throw error;
+  }
+
+}
+
 async function seedMedicalHistories(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -442,11 +500,12 @@ async function main() {
 
   // await seedEventos(client);
   // await seedUsers(client);
-  await seedCustomers(client);
-  await seedPets(client);
-  await seedMedicalHistories(client);
-  await seedProducts(client);
-  await seedSales(client);
+  // await seedCustomers(client);
+  // await seedPets(client);
+  // await seedMedicalHistories(client);
+  // await seedProducts(client);
+  // await seedSales(client);
+  await seedVets(client);
   await client.end();
 }
 // DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories
