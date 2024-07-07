@@ -235,6 +235,11 @@ const SPECIALTIES = [
   { id: '15', name: 'Medicina aviar' },
 ];
 
+const EDIT_VETS_BREADCRUMB = (id: string) => [
+  { label: 'Veterinarios', href: '/dashboard/vets' },
+  { label: 'Editar Veterinario', href: `/dashboard/vets/${id}/edit`, active: true }
+];
+
 export {
     FEATURES,
     COMMENTS,
@@ -250,5 +255,6 @@ export {
     PETS_CUSTOMER_BREADCRUMB,
     MEDICAL_HISTORY_PET_BREADCRUMB,
     CREATE_VET_BREADCRUMB,
-    SPECIALTIES
+    SPECIALTIES,
+    EDIT_VETS_BREADCRUMB
 }

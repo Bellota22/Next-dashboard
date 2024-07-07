@@ -237,6 +237,8 @@ const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sale
 const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
 
 
+//vets
+
 function generateRandomVet(userId) {
   return {
     id: uuidv4(),
@@ -264,6 +266,35 @@ function generateRandomVets(userIds, count) {
 const vets = generateRandomVets(usersIds, 50); // Generates 50 random vets
 
 
+function generateVetSchedule(userId, vetId) {
+
+  const day = faker.date.recent();
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 8, max: 12 }), 0);
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 13, max: 18 }), 0);
+  
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    vet_id: vetId,
+    title: faker.lorem.sentence(),
+    start_time: start,
+    end_time: end,
+    status: faker.datatype.boolean({probability: 0.8}),
+  };
+}
+function generateRandomVetSchedules(userIds, vetIds, count) {
+  const vetSchedules = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const vetId = faker.helpers.arrayElement(vetIds);
+    vetSchedules.push(generateVetSchedule(userId, vetId));
+    console.log(`Generated ${i + 1}/${count} vet schedules`);
+  }
+  return vetSchedules;
+}
+
+const vetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
+const vetSchedules = generateRandomVetSchedules(usersIds, vetIds, 50); // Genera 50 horarios de veterinarios aleatorios
 
 
 module.exports = {
@@ -274,6 +305,7 @@ module.exports = {
   salesProducts,
   pets,
   medicalHistories,
-  vets
+  vets,
+  vetSchedules
   
 };

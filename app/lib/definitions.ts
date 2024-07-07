@@ -136,12 +136,14 @@ export type Veterinary = {
   updated_date: Date;
 };
 
-
-
-
-
-
-
-
-
-
+export type VetSchedule = {
+  id: string;
+  user_id: string;
+  vet_id: string;
+  title: string;
+  start_time: Date;
+  end_time: Date;
+  status: boolean;
+  created_date: Date;
+  updated_date: Date;
+};

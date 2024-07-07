@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import { getCustomersPages, getFilteredVets } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { Button, Flex, Title } from '@mantine/core';
-import PaginationCustomers from '@/app/ui/vets/Pagination';
+import PaginationVets from '@/app/ui/vets/Pagination';
 import styles from './page.module.css';
 import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
@@ -49,7 +49,7 @@ export default async function Page({
         <Table vets={vets} query={query} currentPage={currentPage} />
       </Suspense>
       <Flex justify="center" mt="md">
-        <PaginationCustomers totalPages={totalPages} currentPage={currentPage} />
+        <PaginationVets totalPages={totalPages} currentPage={currentPage} />
       </Flex>
     </div>
   );

@@ -9,6 +9,7 @@ import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Veterinary } from '@/app/lib/definitions';
 import { SPECIALTIES } from '@/app/constants'
+import MyCalendar from './MyCalendar';
 
 export default function Form() {
   const router = useRouter();
@@ -124,6 +125,8 @@ export default function Form() {
             
               
           </Flex>
+
+          
         </Stack>
         <Box p={10} >
           {previews.length === 0 ? (
@@ -168,20 +171,25 @@ export default function Form() {
         }
         </Box>
       </Flex>
-      <Flex className="mt-6 justify-end gap-4 p-8">
-        <Button
-          color="gray.4"
-          onClick={() => router.back()}
-        >
-          <Title order={6}>Cancelar</Title>{' '}
-        </Button>
-        <Button
-          type="submit"
-          color="primary.3"
-        >
-          <Title order={6}>Crear</Title>{' '}
-        </Button>
-      </Flex>
+      <Box p={24}>
+          <MyCalendar />
+      </Box>
+        
+        <Flex className="mt-6 justify-end gap-4 p-6">
+          <Button
+            color="gray.4"
+            onClick={() => router.back()}
+          >
+            <Title order={6}>Cancelar</Title>{' '}
+          </Button>
+          <Button
+            type="submit"
+            color="primary.3"
+          >
+            <Title order={6}>Crear</Title>{' '}
+          </Button>
+        </Flex>
+
     </form>
   );
 }

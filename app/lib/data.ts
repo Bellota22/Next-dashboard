@@ -9,6 +9,7 @@ import {
   Pets,
   MedicalHistory,
   Veterinary,
+  VetSchedule,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -395,6 +396,21 @@ export async function getFilteredVets(
   return users.rows;
 }
 
+export async function getVetSchedule(id: string): Promise<VetSchedule[]> {
+
+  try{
+    const data = await sql<VetSchedule>`
+      SELECT *
+      FROM vet_schedules
+      WHERE vet_id = ${id}
+    `;
+    return data.rows;
+  }catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch vet schedule.');
+  }
+
+}
 
 //products
 

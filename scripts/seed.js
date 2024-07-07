@@ -7,7 +7,8 @@ const {
   customers,
   pets,
   products,
-  vets
+  vets,
+  vetSchedules
 } = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcryptjs');
 
@@ -393,6 +394,58 @@ async function seedVets(client) {
 
 }
 
+async function seedVetsSchedules(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "vets" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS vet_schedules (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        vet_id UUID,
+        title TEXT,
+        start_time TIMESTAMP,
+        end_time TIMESTAMP,
+        status BOOLEAN DEFAULT TRUE,
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (vet_id) REFERENCES vets(id)
+
+      );
+    `;
+
+    const insertedVetSchedules = await Promise.all(
+      vetSchedules.map(async (vs) => {
+        return client.sql`
+        INSERT INTO vet_schedules (id, vet_id, title, start_time, end_time, status)
+        
+        VALUES (
+          ${vs.id},
+          ${vs.vet_id},
+          ${vs.title},
+          ${vs.start_time},
+          ${vs.end_time},
+          ${vs.status}
+        )
+        ON CONFLICT (id) DO NOTHING;
+      `;
+      }),
+    );
+
+    console.log(`Seeded ${insertedVetSchedules.length} vet schedules`);
+
+    return {
+      createTable,
+      vetSchedules: insertedVetSchedules,
+    };
+  } catch (error) {
+    console.error('Error seeding vet schedules:', error);
+    throw error;
+  }
+}
+
+
+
 async function seedMedicalHistories(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -506,6 +559,7 @@ async function main() {
   // await seedProducts(client);
   // await seedSales(client);
   await seedVets(client);
+  await seedVetsSchedules(client);
   await client.end();
 }
 // DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories

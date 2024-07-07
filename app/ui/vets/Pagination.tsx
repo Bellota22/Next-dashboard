@@ -4,12 +4,12 @@ import { Pagination } from '@mantine/core'
 import { useSearchParams,useRouter } from 'next/navigation';
 import React from 'react'
 
-interface PaginationCustomersProps {
+interface PaginationVets {
   totalPages: number;
   currentPage: number;
   }
 
-export default function PaginationCustomers({totalPages, currentPage}: PaginationCustomersProps) {
+export default function PaginationVets({totalPages, currentPage}: PaginationVets) {
     const router = useRouter();
     const searchParams = useSearchParams();
   
@@ -17,7 +17,7 @@ export default function PaginationCustomers({totalPages, currentPage}: Paginatio
     const handlePageChange = (page: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', page.toString());
-        router.push(`/dashboard/customers?${params.toString()}`);
+        router.push(`/dashboard/vets?${params.toString()}`);
       };
     
   return (
