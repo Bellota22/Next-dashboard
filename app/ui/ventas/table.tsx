@@ -13,12 +13,13 @@ export default function SalesTable({
 }: {
   query: string;
   currentPage: number;
-  sales: SaleWithProducts[];
+  sales: any[];
   
 }) {
   const [selectedRows, setSelectedRows] = useState<SaleWithProducts[]>([]);
-  const theme = useMantineTheme();
   console.log('sales::: ', sales);
+
+  const theme = useMantineTheme();
 
 
   const rows = sales.map((sale) => {

@@ -1,13 +1,13 @@
 'use client'
 import React, { useState } from "react";
 
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
+import { Calendar, momentLocalizer, SlotInfo, View, Views } from 'react-big-calendar'
 import moment from "moment";
 import 'moment-timezone'
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+import withDragAndDrop, { withDragAndDropProps } from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import { Box, Modal, Button, TextInput } from '@mantine/core';
+import { Box, Modal, Button, TextInput, useMantineTheme } from '@mantine/core';
 import { inter } from "../fonts";
 import { Veterinary, VetSchedule } from "@/app/lib/definitions";
 import { createVetSchedule, editVetSchedule } from '@/app/lib/actions';
@@ -16,11 +16,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
-const DragAndDropCalendar = withDragAndDrop(Calendar);
+const DragAndDropCalendar = withDragAndDrop<CalendarEvent>(Calendar); // Note the generics here
 moment.locale("es");
 const localizer = momentLocalizer(moment);
 
-
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: any;
+  end: any;
+  allDay?: boolean;
+  status?: boolean;
+}
 
 interface CalendarProps {
   vetSchedule?: VetSchedule[];
@@ -31,7 +38,7 @@ interface CalendarProps {
 
 
 export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarProps) {
-  console.log('vetSchedule::: ', vetSchedule);
+  const theme = useMantineTheme();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const initialEvents = vetSchedule?.map(event => ({
     id: event.id,
@@ -40,12 +47,12 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
     end: event.end_time
   }));
 
-  const [events, setEvents] = useState(initialEvents || []);
-  const [view, setView] = useState(Views.WEEK); // Estado para la vista actual
+  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents || []);
+  const [view, setView] = useState<View>(Views.WEEK);
   const [modalOpen, setModalOpen] = useState(false);
-  const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null, end: null });
+  const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null as Date | null, end: null as Date | null });
 
-  const moveEvent = async ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
+  const moveEvent: withDragAndDropProps<CalendarEvent>['onEventDrop'] = async ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const idx = events.indexOf(event);
     let allDay = event.allDay;
 
@@ -66,15 +73,15 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
       user_id: userId,
       vet_id: vet.id,
       title: event.title,
-      start_time: new Date(start).toISOString(),
-      end_time: new Date(end).toISOString(),
+      start_time: new Date(start),
+      end_time: new Date(end),
       status: true,
       created_date: new Date(),
       updated_date: new Date(),
     })
   };
 
-  const resizeEvent = async ({ event, start, end }) => {
+  const resizeEvent: withDragAndDropProps<CalendarEvent>['onEventResize'] = async ({ event, start, end }) => {
     const nextEvents = events.map(existingEvent => {
       return existingEvent.id === event.id
         ? { ...existingEvent, start, end }
@@ -87,15 +94,15 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
       user_id: userId,
       vet_id: vet.id,
       title: event.title,
-      start_time: new Date(start).toISOString(),
-      end_time: new Date(end).toISOString(),
+      start_time: new Date(start),
+      end_time: new Date(end),
       status: true,
       created_date: new Date(),
       updated_date: new Date(),
     })
   };
 
-  const handleSelectSlot = async ({ start, end }) => {
+  const handleSelectSlot = ({ start, end }: SlotInfo) => {
 
     setModalOpen(true);
     
@@ -138,6 +145,26 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
         onNavigate={(date) => {
           setDate(new Date(date));
       }}
+      eventPropGetter={(event, start, end, isSelected) => {
+        console.log('event::: ', event);
+        let newStyle = {
+          backgroundColor: theme.colors.primary[1],
+          color: "black",
+          borderRadius: "5px",
+          border : "1px solid gray",
+        };
+
+        if (event.status === true) {
+          newStyle.backgroundColor = theme.colors.primary[4];
+        }
+
+        return {
+          className: "",
+          style: newStyle
+        };
+      
+      }
+    }
       />
       <Modal
         opened={modalOpen}

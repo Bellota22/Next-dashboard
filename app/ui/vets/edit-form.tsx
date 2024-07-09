@@ -22,7 +22,7 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-  const [vetEvent, setVetEvent] = useState([]);
+  const [vetEvent, setVetEvent] = useState<VetSchedule[]>([]);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
@@ -71,8 +71,8 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
           user_id: event.user_id,
           vet_id: vet.id,
           title: event.title,
-          start_time: event.start,
-          end_time: event.end,
+          start_time: event.start_time,
+          end_time: event.end_time,
           status: event.status,
           created_date: event.created_date,
           updated_date: event.updated_date,

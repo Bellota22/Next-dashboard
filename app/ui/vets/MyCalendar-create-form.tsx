@@ -1,22 +1,27 @@
 'use client'
 import React, { useState } from "react";
 
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
+import { Calendar, momentLocalizer, SlotInfo, stringOrDate, View, Views } from 'react-big-calendar'
 import moment from "moment";
 import 'moment-timezone'
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+import withDragAndDrop, { withDragAndDropProps } from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import { Box, Modal, Button, TextInput } from '@mantine/core';
-import { inter } from "../fonts";
+import { Box, Modal, Button, TextInput, useMantineTheme } from '@mantine/core';
 import { VetSchedule } from "@/app/lib/definitions";
-import { createVetSchedule, editVetSchedule } from '@/app/lib/actions';
-import { update } from "@react-spring/web";
 import { v4 as uuidv4 } from 'uuid';
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: any;
+  end: any;
+  allDay?: boolean;
+  status?: boolean;
+}
 
 
-const DragAndDropCalendar = withDragAndDrop(Calendar);
+const DragAndDropCalendar = withDragAndDrop<CalendarEvent>(Calendar); // Note the generics here
 moment.locale("es");
 const localizer = momentLocalizer(moment);
 
@@ -38,13 +43,14 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
     start: event.start_time,
     end: event.end_time
   })) || [];
+  const theme = useMantineTheme();
 
-  const [events, setEvents] = useState(initialEvents);
-  const [view, setView] = useState(Views.WEEK); // Estado para la vista actual
+  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
+  const [view, setView] = useState<View>(Views.WEEK);
   const [modalOpen, setModalOpen] = useState(false);
-  const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null, end: null });
+  const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null as Date | null, end: null as Date | null });
 
-  const moveEvent = async ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
+  const moveEvent: withDragAndDropProps<CalendarEvent>['onEventDrop'] = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const idx = events.indexOf(event);
     let allDay = event.allDay;
 
@@ -64,7 +70,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
     
   };
 
-  const resizeEvent = async ({ event, start, end }) => {
+  const resizeEvent: withDragAndDropProps<CalendarEvent>['onEventResize'] = ({ event, start, end }) => {
     const nextEvents = events.map(existingEvent => {
       return existingEvent.id === event.id
         ? { ...existingEvent, start, end }
@@ -77,7 +83,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
    
   };
 
-  const handleSelectSlot = async ({ start, end }) => {
+  const handleSelectSlot = ({ start, end }: SlotInfo) => {
     setNewEventInfo({ title: '', start, end });
     setModalOpen(true);
 
@@ -94,7 +100,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
       title: newEventInfo.title,
       start: newEventInfo.start,
       end: newEventInfo.end,
-      allDay: false,
+      allDay: false
     };
     
 
@@ -122,7 +128,27 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
         date={date} // https://stackoverflow.com/questions/78011246/react-big-calendar-next-and-back-buttons-not-navigating-to-the-correct-month
         onNavigate={(date) => {
           setDate(new Date(date));
-      }}
+        }}
+        eventPropGetter={(event, start, end, isSelected) => {
+          console.log('event::: ', event);
+          let newStyle = {
+            backgroundColor: theme.colors.primary[1],
+            color: "black",
+            borderRadius: "5px",
+            border : "1px solid gray",
+          };
+
+          if (event.status === true) {
+            newStyle.backgroundColor = theme.colors.primary[4];
+          }
+
+          return {
+            className: "",
+            style: newStyle
+          };
+        
+        }
+      }
       />
       <Modal
         opened={modalOpen}

@@ -10,9 +10,11 @@ import {
   MedicalHistory,
   Veterinary,
   VetSchedule,
+  Appointments,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
+import { appointments } from './placeholder-data';
 
 
 const ITEMS_PER_PAGE = 8;
@@ -484,10 +486,10 @@ function convertToPeruTimezone(date: Date): Date {
 
 //appointments
 
-export async function getAllAppointments(userId: string) {
+export async function getAllAppointments(userId: string): Promise<Appointments[]> {
   noStore();
   try {
-    const data = await sql`
+    const data = await sql<Appointments>`
       SELECT *
       FROM appointments
       WHERE user_id = ${userId}

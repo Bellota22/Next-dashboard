@@ -11,6 +11,7 @@ import { Veterinary } from '@/app/lib/definitions';
 import { SPECIALTIES } from '@/app/constants'
 import MyCalendar from './MyCalendar-create-form';
 import { v4 as uuidv4 } from 'uuid';
+import { stringOrDate } from 'react-big-calendar';
 
 interface VetEvent {
   id: string;
@@ -20,12 +21,24 @@ interface VetEvent {
 
 }
 
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: any;
+  end: any;
+  allDay?: boolean;
+  status?: boolean;
+}
+
 export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   
-  const [vetEvent, setVetEvent] = useState([]);
+  
+  const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
+  console.log('vetEvent::: ', vetEvent);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
@@ -67,6 +80,7 @@ export default function Form() {
 
       await createVet(values);
     
+
 
       // Crea cada evento en el calendario
       for (const event of vetEvent) {

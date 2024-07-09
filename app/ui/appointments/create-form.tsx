@@ -12,6 +12,7 @@ import { SPECIALTIES } from '@/app/constants'
 import MyCalendar from './MyCalendar-create-form';
 import { v4 as uuidv4 } from 'uuid';
 import { useDebouncedCallback } from 'use-debounce';
+import { stringOrDate } from 'react-big-calendar';
 
 interface VetEvent {
   id: string;
@@ -26,12 +27,19 @@ interface FormProps {
   vets: Veterinary[];
   pets: Pets[]
 }
-
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: stringOrDate;
+  end: stringOrDate;
+  allDay?: boolean;
+  status?: boolean;
+}
 export default function Form({ appointments, vetSchedule, vets, pets }: FormProps) {
   const router = useRouter();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   
-  const [vetEvent, setVetEvent] = useState([]);
+  const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
   const [selectedAppointments, setSelectedAppointments] = useState<Appointments[]>([]);
 
   const form = useForm({
@@ -41,6 +49,7 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
       user_id: userId,
       vet_id: '',
       pet_id: '',
+      title: '',
       start_time: new Date(),
       end_time: new Date(),
       status: false,
@@ -52,7 +61,7 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
   });
 
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values: Appointments) => {
     const vetId = uuidv4(); 
     values.id = vetId;
     values.user_id = userId;
@@ -72,8 +81,8 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
           user_id: userId,
           vet_id: selectedVetId,
           pet_id: selectedPetId,
-          start_time: appointments.start,
-          end_time: appointments.end,
+          start_time: appointments.start_time,
+          end_time: appointments.end_time,
           title: appointments.title,
           status: values.status,
           created_date: new Date(),
