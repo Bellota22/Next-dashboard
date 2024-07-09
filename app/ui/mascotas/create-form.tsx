@@ -32,6 +32,7 @@ export default function Form({ customers, query, currentPage }: FormProps) {
   const [insured, setInsured] = useState<boolean>(false);
   const [saludValues, setSaludValues] = useState<string[]>([]);
 
+  const router = useRouter();
   const [salud, setSalud] = useState<string[]>([]);
   const [grooming, setGrooming] = useState<boolean>(false);
   const [groomingFreq, setGroomingFreq] = useState<string>('');
@@ -122,7 +123,7 @@ export default function Form({ customers, query, currentPage }: FormProps) {
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
-      <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
+      <Flex justify={'space-between'} className="p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
               <Autocomplete
@@ -266,8 +267,8 @@ export default function Form({ customers, query, currentPage }: FormProps) {
               maxSize={5 * 1024 ** 2}
               accept={IMAGE_MIME_TYPE}
               style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              key={form.key('imagen_url')}
-              {...form.getInputProps('imagen_url')}
+              key={form.key('image_url')}
+              {...form.getInputProps('image_url')}
             >
               <Group justify="center" gap="xl" style={{ pointerEvents: 'none' }}>
                 <Dropzone.Accept>
@@ -290,7 +291,7 @@ export default function Form({ customers, query, currentPage }: FormProps) {
                 </Dropzone.Idle>
                 <div>
                   <Text size="xl" inline>
-                    Coloca tu imagen
+                    No hay foto
                   </Text>
                 </div>
               </Group>
@@ -302,14 +303,19 @@ export default function Form({ customers, query, currentPage }: FormProps) {
         }
         </Box>
       </Flex>
-      <Flex className="mt-6 justify-end gap-4">
-        <Link
-          href="/dashboard/mascotas"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+      <Flex className="mt-6 justify-end gap-4 p-8">
+        <Button
+          color="gray.4"
+          onClick={() => router.back()}
         >
-          Cancel
-        </Link>
-        <Button type="submit">Crear mascotas</Button>
+          <Title order={6}>Cancelar</Title>{' '}
+        </Button>
+        <Button
+          type="submit"
+          color="primary.3"
+        >
+          <Title order={6}>Crear</Title>{' '}
+        </Button>
       </Flex>
     </form>
   );

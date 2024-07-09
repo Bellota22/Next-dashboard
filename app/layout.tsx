@@ -9,6 +9,7 @@ import '@mantine/dates/styles.css';
 import '@mantine/carousel/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 export const metadata: Metadata = {
   title: {

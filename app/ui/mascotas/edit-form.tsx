@@ -25,7 +25,6 @@ interface FormProps {
 
 
 export default function Form({ customers, pet,  query, currentPage }: FormProps) {
-  console.log('pet::: ', pet);
   
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
 
@@ -141,7 +140,7 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
-      <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
+      <Flex justify={'space-between'} className="p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
             <Autocomplete
@@ -199,11 +198,16 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
                 onChange={() => {}}>
                   <Group mt="xs">
                     <Checkbox
+                      color="primary"
+                      
+                      variant='outline'
                       value="MACHO" 
                       label="Macho" 
                       onChange={() => handleGenderChange("MACHO")} 
                     />
                     <Checkbox
+                      color="primary"
+                      variant='outline'
                       value="HEMBRA" 
                       label="Hembra" 
                       onChange={() => handleGenderChange("HEMBRA")} 
@@ -217,12 +221,16 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
                 onChange={() => {}}>
                   <Group mt="xs">
                     <Checkbox
+                      color="primary"
+                      variant='outline'
                       value="sterelized" 
                       label="¿Ha sido esterilizado?" 
                       checked={sterelized}
                       onChange={(event) => handleSterelizedChange(event.currentTarget.checked)}
                       />
                     <Checkbox
+                      color="primary"
+                      variant='outline'
                       value="insured" 
                       label="¿Ha sido asegurado?" 
                       checked={insured}
@@ -246,6 +254,8 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
             <Title mt={10} order={5} >Opciones para grooming</Title>
               <Stack w={350}>
                 <Checkbox
+                  color="primary"
+                  variant='outline'
                   onChange={(event) => setGrooming(event.currentTarget.checked)}
                   defaultChecked={pet.grooming}
                   label="Crear evento de grooming" 
@@ -312,14 +322,19 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
         }
         </Box>
       </Flex>
-      <Flex className="mt-6 justify-end gap-4">
-        <Link
-          href="/dashboard/mascotas"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+      <Flex className="mt-6 justify-end gap-4 p-8">
+        <Button
+          color="gray.4"
+          onClick={() => router.back()}
         >
-          Cancel
-        </Link>
-        <Button type="submit">Editar mascota</Button>
+          <Title order={6}>Cancelar</Title>{' '}
+        </Button>
+        <Button
+          type="submit"
+          color="primary.3"
+        >
+          <Title order={6}>Editar</Title>{' '}
+        </Button>
       </Flex>
     </form>
   );

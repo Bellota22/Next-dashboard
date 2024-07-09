@@ -3,7 +3,7 @@
 import Link from 'next/link';
 // import { Button } from '@/app/ui/button';
 import { createCustomer } from '@/app/lib/actions';
-import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter } from '@mantine/core';
+import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { DateInput } from '@mantine/dates';
 import { useEffect, useState } from 'react';
@@ -103,7 +103,7 @@ export default function Form() {
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
-      <Flex justify={'space-between'} className="rounded-md bg-gray-50 p-4 md:p-6">
+      <Flex justify={'space-between'} className="p-4 md:p-6">
         <Stack>
           <Flex mb={4} gap={8}>
               <TextInput
@@ -222,14 +222,10 @@ export default function Form() {
                     stroke={1.5}
                   />
                 </Dropzone.Idle>
-                <div>
                   <Text size="xl" inline>
-                    Drag images here or click to select files
+                    No hay foto
                   </Text>
-                  <Text size="sm" color="dimmed" inline mt={7}>
-                    Attach as many files as you like, each file should not exceed 5mb
-                  </Text>
-                </div>
+                  
               </Group>
             </Dropzone>
           ):
@@ -239,14 +235,19 @@ export default function Form() {
         }
         </Box>
       </Flex>
-      <Flex className="mt-6 justify-end gap-4">
-        <Link
-          href="/dashboard/customers"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+      <Flex className="mt-6 justify-end gap-4 p-8">
+        <Button
+          color="gray.4"
+          onClick={() => router.back()}
         >
-          Cancel
-        </Link>
-        <Button type="submit">Crear cliente</Button>
+          <Title order={6}>Cancelar</Title>{' '}
+        </Button>
+        <Button
+          type="submit"
+          color="primary.3"
+        >
+          <Title order={6}>Crear</Title>{' '}
+        </Button>
       </Flex>
     </form>
   );

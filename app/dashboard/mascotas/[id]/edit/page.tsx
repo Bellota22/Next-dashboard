@@ -33,7 +33,7 @@ export default async function Page({ params }: {
       getFilteredCustomers(query, currentPage, userId)
     ]);
     const items = EDIT_PET_BREADCRUMB(id)
-    
+
 
     return (
     <main>

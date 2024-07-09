@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { UpdatePet, DeletePets } from '@/app/ui/mascotas/buttons';
 import { formatDateToLocal,  } from '@/app/lib/utils';
 import { useState } from 'react';
-import { Table, Checkbox, Text, Title } from '@mantine/core';
+import { Table, Checkbox, Text, Title, useMantineTheme } from '@mantine/core';
 import Link from 'next/link';
 import { PetWithCustomer } from '@/app/lib/definitions';
 
@@ -16,10 +16,19 @@ export default function PetsTable({
   currentPage: number;
   pets: PetWithCustomer[];
 }) {
-  // const invoices = await fetchFilteredInvoices(query, currentPage);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<PetWithCustomer[]>([]);
+  const theme = useMantineTheme();
+  const handleCheckboxChange = (product: PetWithCustomer, isChecked: boolean) => {
+    setSelectedRows((prevSelected) =>
+      isChecked
+        ? [...prevSelected, product]
+        : prevSelected.filter((p) => p.id !== product.id)
+    );
 
+  }
   const rows = pets.map((pet: PetWithCustomer) => {
+    const isSelected = selectedRows.some((p) => p.id === pet.id);
+
     const linkStyle = { cursor: "pointer" };
     const linkProps = {
       component: Link,
@@ -31,19 +40,16 @@ export default function PetsTable({
     <Table.Tr
       ta="right"
       key={pet.id}
-      bg={selectedRows.includes(pet.id) ? 'var(--mantine-color-blue-light)' : undefined}
+      bg={isSelected ? theme.colors.primary[1] : undefined}
     >
       <Table.Td>
         <Checkbox
+          variant="outline"
+          color="primary"
           aria-label="Select row"
-          checked={selectedRows.includes(pet.id)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, pet.id]
-                : selectedRows.filter((id) => id !== pet.id)
-            )
-          }
+          checked={isSelected}
+          onChange={(event) => handleCheckboxChange(pet, event.currentTarget.checked)}
+
         />
       </Table.Td>
       <Table.Td>

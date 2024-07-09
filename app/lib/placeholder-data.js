@@ -67,7 +67,6 @@ function generateRandomCustomers(userIds, count) {
   }
   return customers;
 }
-const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
 
 //pets
 
@@ -102,8 +101,47 @@ function generateRandomPets(userIds, customerIds, count) {
   return pets;
 }
 
-const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
-const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
+//medicalHistory
+
+function generateRandomMedicalHistory(userId, petId) {
+  return {
+
+    id: uuidv4(),
+    user_id: userId,
+    pet_id: petId,
+    date: faker.date.anytime(),
+    reason: faker.helpers.arrayElement(['Consulta', 'Control', 'Cirugía', 'Vacuna', 'Desparasitación', 'Internamiento', 'Triaje', 'Profilaxis', 'Defunción', 'Exámenes']),
+    anamnesis: faker.lorem.sentence(),
+    weight: faker.number.float({ min: 1, max: 100, multipleOf: 0.01 }),
+    respiratory_rate: faker.number.int({ min: 1, max: 100 }),
+    heart_rate: faker.number.int({ min: 1, max: 100 }),
+    temperature: faker.number.float({ min: 1, max: 100, multipleOf: 0.01 }),
+    rectal_test: faker.lorem.sentence(),
+    arterial_pressure: faker.number.int({ min: 1, max: 100 }),
+    filled_hair_time: faker.number.int({ min: 1, max: 100 }),
+    dehydration: faker.number.int({ min: 1, max: 100 }),
+    clinical_test:  faker.lorem.sentence(),
+    diagnosis:  faker.lorem.sentence(),
+    auxiliary_test:  faker.lorem.sentence(),
+    treatment:  faker.lorem.sentence(),
+    prescription:  faker.lorem.sentence(),
+    observation:  faker.lorem.sentence(),
+    created_date:  faker.date.anytime(),
+    updated_date:  faker.date.anytime(),
+  };
+}
+
+function generateRandomMedicalHistories(userIds, petIds, count) {
+  const medicalHistories = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const petId = faker.helpers.arrayElement(petIds);
+    medicalHistories.push(generateRandomMedicalHistory(userId, petId));
+    console.log(`Generated ${i + 1}/${count} medical histories`);
+  }
+  return medicalHistories;
+}
+
 
 //products
 
@@ -117,7 +155,7 @@ function generateRandomProduct(userId) {
     presentation: faker.helpers.arrayElement(['Botella', 'Caja', 'Bolsa', 'Tarro']),
     content: faker.commerce.productDescription(),
     supplier: faker.company.name(),
-    bar_code: faker.string.uuid(),
+    bar_code:  faker.commerce.productAdjective(),
     category: faker.commerce.department(),
     stock: faker.number.int({ min: 0, max: 1000 }),
     sell_price: faker.number.float({ min: 1, max: 1000, multipleOf: 0.01 }),
@@ -137,7 +175,6 @@ function generateRandomProducts(userIds, count) {
   return products;
 }
 
-const products = generateRandomProducts(usersIds, 50); // Generates 50 random products
 
 //sales
 
@@ -162,8 +199,6 @@ function generateRandomSales(userIds, customerIds, count) {
   return sales;
 }
 
-const saleCustomerIds = customers.map(customer => customer.id); // Get the IDs of the generated customers
-const sales = generateRandomSales(usersIds, saleCustomerIds, 50); // Generates 50 random sales
 
 
 function generateRandomSalesProduct(userId, productId, saleId) {
@@ -189,70 +224,126 @@ function generateRandomSalesProducts(userIds, productIds, saleIds, count) {
   return salesProducts;
 }
 
-const productIds = products.map(product => product.id); // Get the IDs of the generated products
-const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sales
-const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
+
+//vets
+
+function generateRandomVet(userId) {
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    name: faker.person.firstName() + ' ' + faker.person.lastName(),
+    email: faker.internet.email(),
+    dni: faker.number.int({ min: 10000000, max: 99999999 }),
+    cellphone: faker.number.int({ min: 10000000, max: 99999999 }),
+    address: faker.location.streetAddress(),
+    image_url: faker.image.avatar(),   
+    specialties: faker.helpers.arrayElement(['Medicina General', 'Cirugía', 'Dermatología', 'Oftalmología', 'Cardiología', 'Neurología', 'Oncología', 'Nutrición', 'Odontología', 'Rehabilitación', 'Urgencias']),     
+  };
+}
+
+function generateRandomVets(userIds, count) {
+  const vets = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    vets.push(generateRandomVet(userId));
+    console.log(`Generated ${i + 1}/${count} vets`);
+  }
+  return vets;
+}
 
 
 
-// const eventos = [
-//   {
-//     customer_id: customers[0].id,
-//     mascota_id: mascotas[0].id,
-//     titulo: 'Consulta veterinaria',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: true,
-//     notificar_fecha: '2024-07-01T10:00:00Z',
-//     fecha_inicio: new Date('2024-07-01T10:00:00Z'),
-//     fecha_fin: new Date('2024-07-01T11:00:00Z'),
-//     color: 'azul',
-//   },
-//   {
-//     customer_id: customers[0].id,
-//     mascota_id: mascotas[1].id,
-//     titulo: 'Vacunación',
-//     tipo: 'Salud',
-//     status: 'Completado',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: false,
-//     notificar_fecha: '2024-07-15T15:00:00Z',
-//     fecha_inicio: new Date('2024-07-15T15:00:00Z'),
-//     fecha_fin: new Date('2024-07-15T16:00:00Z'),
-//     color: 'verde',
-//   },
-//   {
-//     customer_id: customers[1].id,
-//     mascota_id: mascotas[2].id,
-//     titulo: 'Chequeo general',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: true,
-//     notificar_fecha: '2024-06-30T09:00:00Z',
-//     fecha_inicio: new Date('2024-06-30T09:00:00Z'),
-//     fecha_fin: new Date('2024-06-30T10:00:00Z'),
-//     color: 'amarillo',
-//   },
-//   {
-//     customer_id: customers[1].id,
-//     mascota_id: mascotas[2].id,
-//     titulo: 'Desparasitación',
-//     tipo: 'Salud',
-//     status: 'Pendiente',
-//     observaciones: 'Firulais necesita vacuna contra la rabia',
-//     notificar_correo: false,
-//     notificar_fecha: '2024-08-10T14:00:00Z',
-//     fecha_inicio: new Date('2024-08-10T14:00:00Z'),
-//     fecha_fin: new Date('2024-08-10T15:00:00Z'),
-//     color: 'rojo',
-//   },
-// ];
+function generateVetSchedule(userId, vetId) {
+
+  const day = faker.date.recent({ days: 20 });
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 8, max: 12 }), 0);
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 13, max: 18 }), 0);
+  
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    vet_id: vetId,
+    title: faker.lorem.sentence(),
+    start_time: start,
+    end_time: end,
+    status: faker.datatype.boolean({probability: 0.8}),
+  };
+}
+function generateRandomVetSchedules(userIds, vetIds, count) {
+  const vetSchedules = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const vetId = faker.helpers.arrayElement(vetIds);
+    vetSchedules.push(generateVetSchedule(userId, vetId));
+    console.log(`Generated ${i + 1}/${count} vet schedules`);
+  }
+  return vetSchedules;
+}
 
 
 
+function generateAppointment(userId, petId,  vetId) {
+  const day = faker.date.recent({ days: 20 });
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 8, max: 12 }), 0);
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 13, max: 18 }), 0);
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    pet_id: petId,
+    vet_id: vetId,
+    title: faker.lorem.sentence(3),
+    start_time: start,
+    end_time: end,
+    status: faker.datatype.boolean({probability: 0.8}),
+  };
+}
 
+function generateRandomAppointments(userIds, petIds, vetIds, count) {
+  const appointments = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const petId = faker.helpers.arrayElement(petIds);
+    const vetId = faker.helpers.arrayElement(vetIds);
+    appointments.push(generateAppointment(userId, petId, vetId));
+    console.log(`Generated ${i + 1}/${count} appointments`);
+  }
+  return appointments;
+}
+// const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
+
+// const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
+// const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
+
+// const petIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
+// const medicalHistories = generateRandomMedicalHistories(usersIds, petIds, 50); // Genera 50 historias clínicas aleatorias
+
+// const saleCustomerIds = customers.map(customer => customer.id); // Get the IDs of the generated customers
+// const sales = generateRandomSales(usersIds, saleCustomerIds, 50); // Generates 50 random sales
+
+// const products = generateRandomProducts(usersIds, 50); // Generates 50 random products
+
+// const productIds = products.map(product => product.id); // Get the IDs of the generated products
+// const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sales
+// const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
+
+// const vets = generateRandomVets(usersIds, 50); // Generates 50 random vets
+
+// const vetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
+// const vetSchedules = generateRandomVetSchedules(usersIds, vetIds, 50); // Genera 50 horarios de veterinarios aleatorios
+
+// const appointmentPetIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
+// const appointmentVetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
+// const appointments = generateRandomAppointments(usersIds, appointmentPetIds, appointmentVetIds, 50); // Genera 50 citas aleatorias
+
+const customers = []
+const sales = []
+const products = []
+const salesProducts = []
+const pets = []
+const medicalHistories = []
+const vets = []
+const vetSchedules = []
+const appointments = []
 
 module.exports = {
   users,
@@ -261,5 +352,9 @@ module.exports = {
   products,
   salesProducts,
   pets,
+  medicalHistories,
+  vets,
+  vetSchedules,
+  appointments
   
 };

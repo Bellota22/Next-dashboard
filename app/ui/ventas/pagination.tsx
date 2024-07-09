@@ -4,12 +4,12 @@ import { Pagination } from '@mantine/core'
 import { useSearchParams,useRouter } from 'next/navigation';
 import React from 'react'
 
-interface PaginationProductProps {
+interface PaginationSalesProps {
   totalPages: number;
   currentPage: number;
   }
 
-function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
+function PaginationSales({totalPages, currentPage}: PaginationSalesProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
   
@@ -25,4 +25,4 @@ function PaginationProduct({totalPages, currentPage}: PaginationProductProps) {
   )
 }
 
-export default PaginationProduct
+export default PaginationSales

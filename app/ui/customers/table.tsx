@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { UpdateCustomer, DeleteCustomer } from '@/app/ui/customers/buttons';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { useState } from 'react';
-import { Table, Checkbox, Text, Title } from '@mantine/core';
+import { Table, Checkbox, Text, Title, useMantineTheme } from '@mantine/core';
 import Link from 'next/link';
 import { Customers } from '@/app/lib/definitions';
 
@@ -16,10 +16,19 @@ export default function CustomerTable({
   currentPage: number;
   customers: Customers[];
 }) {
-  // const invoices = await fetchFilteredInvoices(query, currentPage);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Customers[]>([]);
+  const theme = useMantineTheme();
 
+  const handleCheckboxChange = (product: Customers, isChecked: boolean) => {
+    setSelectedRows((prevSelected) =>
+      isChecked
+        ? [...prevSelected, product]
+        : prevSelected.filter((p) => p.id !== product.id)
+    );
+
+  }
   const rows = customers.map((customer: Customers) => {
+    const isSelected = selectedRows.some((p) => p.id === customer.id);
 
     const linkStyle = { cursor: "pointer" };
     const linkProps = {
@@ -31,19 +40,16 @@ export default function CustomerTable({
     <Table.Tr
       ta="right"
       key={customer.id}
-      bg={selectedRows.includes(customer.id) ? 'var(--mantine-color-blue-light)' : undefined}
-    >
+      bg={isSelected ? theme.colors.primary[1] : undefined}
+      >
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          checked={selectedRows.includes(customer.id)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, customer.id]
-                : selectedRows.filter((id) => id !== customer.id)
-            )
-          }
+          variant="outline"
+          color="primary"
+          checked={isSelected}
+          onChange={(event) => handleCheckboxChange(customer, event.currentTarget.checked)}
+
         />
       </Table.Td>
       <Table.Td>

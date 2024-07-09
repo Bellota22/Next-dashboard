@@ -5,12 +5,21 @@ import {
   Customers,
   SaleWithProducts,
   PetWithCustomer,
+  ProductsForShoppingCart,
+  Pets,
+  MedicalHistory,
+  Veterinary,
+  VetSchedule,
+  Appointments,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
+import { appointments } from './placeholder-data';
 
 
 const ITEMS_PER_PAGE = 8;
+
+//customers
 
 export async function getFilteredCustomers(
   query: string,
@@ -36,7 +45,7 @@ export async function getFilteredCustomers(
       image_url,
       created_date,
       updated_date
-    FROM customers1
+    FROM customers
     WHERE
       user_id = ${userId} AND (
       name ILIKE ${`%${query}%`} OR
@@ -49,7 +58,7 @@ export async function getFilteredCustomers(
       address ILIKE ${`%${query}%`} OR
       tags ILIKE ${`%${query}%`}
     )
-    ORDER BY name ASC
+    ORDER BY  created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
@@ -60,7 +69,7 @@ export async function getCustomersPages(query: string, userId: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM customers1
+      FROM customers
       WHERE
         user_id = ${userId} AND (
           name ILIKE ${`%${query}%`} OR
@@ -83,7 +92,7 @@ export async function getCustomersPages(query: string, userId: string) {
   }
 }
 
-export async function getCustomberById(id: string) {
+export async function getCustomerById(id: string) {
   try {
     const data = await sql<Customers>`
       SELECT
@@ -102,7 +111,7 @@ export async function getCustomberById(id: string) {
         image_url,
         created_date,
         updated_date
-      FROM customers1
+      FROM customers
       WHERE id = ${id};
     `;
 
@@ -114,157 +123,23 @@ export async function getCustomberById(id: string) {
   }
 }
 
-export async function getAllCostumers(query: string, currentPage: number, userId: string) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-    const data = await sql<Customers>`
-      SELECT
-        c.id,
-        c.user_id,
-        c.name,
-        c.dni,
-        c.birthday,
-        c.email,
-        c.cellphone,
-        c.department,
-        c.province,
-        c.district,
-        c.address,
-        c.tags,
-        c.image_url
-      FROM customers1 c
-      JOIN users u ON c.user_id = u.id
-      WHERE 
-      c.user_id = ${userId} AND (
-        c.name ILIKE ${`%${query}%`} OR 
-        c.dni::text ILIKE ${`%${query}%`} OR
-        c.email ILIKE ${`%${query}%`} OR
-        c.cellphone ILIKE ${`%${query}%`} OR
-        c.department ILIKE ${`%${query}%`} OR
-        c.province ILIKE ${`%${query}%`} OR
-        c.district ILIKE ${`%${query}%`} OR
-        c.address ILIKE ${`%${query}%`} OR
-        c.tags ILIKE ${`%${query}%`}
-      )
-      ORDER BY c.name ASC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
-
-    const customers = data.rows;
-    return customers;
-
-}
-
-export async function getPetById(id: string): Promise<PetWithCustomer>{
+export async function getPetsByCustomerId(id: string): Promise<Pets[]>{
   try {
-    const data = await sql`
-      SELECT
-        p.id,
-        p.user_id,
-        p.customer_id,
-        p.name AS pet_name,
-        p.birthday AS pet_birthday,
-        p.specie,
-        p.race,
-        p.gender,
-        p.sterelized,
-        p.insured,
-        p.grooming,
-        p.grooming_freq,
-        p.grooming_day,
-        p.tags AS pet_tags,
-        p.image_url AS pet_image_url,
-        p.created_date AS pet_created_date,
-        p.updated_date AS pet_updated_date,
-        c.id AS customer_id,
-        c.name AS customer_name,
-        c.user_id AS customer_user_id,
-        c.dni AS customer_dni,
-        c.birthday AS customer_birthday,
-        c.email AS customer_email,
-        c.cellphone AS customer_cellphone,
-        c.department AS customer_department,
-        c.province AS customer_province,
-        c.district AS customer_district,
-        c.address AS customer_address,
-        c.tags AS customer_tags,
-        c.image_url AS customer_image_url,
-        c.created_date AS customer_created_date,
-        c.updated_date AS customer_updated_date
-      FROM pets p
-      JOIN customers1 c ON p.customer_id = c.id
-      WHERE p.id = ${id};
+    const data = await sql<Pets>`
+      SELECT *
+      FROM pets
+      WHERE customer_id = ${id}
     `;
-
-    const row  = data.rows[0];
-    if (!row) throw new Error("Pet not found");
-
-    const petWithCustomer: PetWithCustomer = {
-      id: row.id,
-      user_id: row.user_id,
-      customer_id: row.customer_id,
-      name: row.pet_name,
-      birthday: row.pet_birthday ? new Date(row.pet_birthday) : undefined,
-      specie: row.specie,
-      race: row.race,
-      gender: row.gender,
-      sterelized: row.sterelized,
-      insured: row.insured,
-      tags: row.pet_tags,
-      grooming: row.grooming,
-      grooming_freq: row.grooming_freq,
-      grooming_day: row.grooming_day,
-      image_url: row.pet_image_url,
-      created_date: new Date(row.pet_created_date),
-      updated_date: new Date(row.pet_updated_date),
-      customer: {
-        id: row.customer_id,
-        name: row.customer_name,
-        user_id: row.customer_user_id,
-        dni: row.customer_dni,
-        birthday: row.customer_birthday ? new Date(row.customer_birthday) : undefined,
-        email: row.customer_email,
-        cellphone: row.customer_cellphone,
-        department: row.customer_department,
-        province: row.customer_province,
-        district: row.customer_district,
-        address: row.customer_address,
-        tags: row.customer_tags,
-        image_url: row.customer_image_url,
-        created_date: new Date(row.customer_created_date),
-        updated_date: new Date(row.customer_updated_date)
-      }
-    };
-    return petWithCustomer;
+    return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch pet.');
+    throw new Error('Failed to fetch pets.');
   }
+
 }
 
-export async function getPetsPages(query: string, userId: string) {
-  try {
-    const count = await sql`
-      SELECT COUNT(*)
-      FROM pets p
-      JOIN customers1 c ON p.customer_id = c.id
-      WHERE
-        p.user_id = ${userId} AND (
-          p.name ILIKE ${`%${query}%`} OR
-          p.specie ILIKE ${`%${query}%`} OR
-          p.race ILIKE ${`%${query}%`} OR
-          p.tags ILIKE ${`%${query}%`} OR
-          c.name ILIKE ${`%${query}%`} 
-        )
-    `;
+//pets
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of customers.');
-  }
-}
 
 export async function getAllFilteredPets(query: string, currentPage: number, userId: string): Promise<PetWithCustomer[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -303,7 +178,7 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
       c.created_date AS customer_created_date,
       c.updated_date AS customer_updated_date
     FROM pets p
-    JOIN customers1 c ON p.customer_id = c.id
+    JOIN customers c ON p.customer_id = c.id
     WHERE
       p.user_id = ${userId} AND (
       p.name ILIKE ${`%${query}%`} OR
@@ -355,12 +230,295 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
   }));
 }
 
+export async function getPetsPages(query: string, userId: string) {
+  try {
+    const count = await sql`
+      SELECT COUNT(*)
+      FROM pets p
+      JOIN customers c ON p.customer_id = c.id
+      WHERE
+        p.user_id = ${userId} AND (
+          p.name ILIKE ${`%${query}%`} OR
+          p.specie ILIKE ${`%${query}%`} OR
+          p.race ILIKE ${`%${query}%`} OR
+          p.tags ILIKE ${`%${query}%`} OR
+          c.name ILIKE ${`%${query}%`} 
+        )
+    `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of customers.');
+  }
+}
+
+export async function getPetById(id: string): Promise<PetWithCustomer>{
+  try {
+    const data = await sql`
+      SELECT
+        p.id,
+        p.user_id,
+        p.customer_id,
+        p.name AS pet_name,
+        p.birthday AS pet_birthday,
+        p.specie,
+        p.race,
+        p.gender,
+        p.sterelized,
+        p.insured,
+        p.grooming,
+        p.grooming_freq,
+        p.grooming_day,
+        p.tags AS pet_tags,
+        p.image_url AS pet_image_url,
+        p.created_date AS pet_created_date,
+        p.updated_date AS pet_updated_date,
+        c.id AS customer_id,
+        c.name AS customer_name,
+        c.user_id AS customer_user_id,
+        c.dni AS customer_dni,
+        c.birthday AS customer_birthday,
+        c.email AS customer_email,
+        c.cellphone AS customer_cellphone,
+        c.department AS customer_department,
+        c.province AS customer_province,
+        c.district AS customer_district,
+        c.address AS customer_address,
+        c.tags AS customer_tags,
+        c.image_url AS customer_image_url,
+        c.created_date AS customer_created_date,
+        c.updated_date AS customer_updated_date
+      FROM pets p
+      JOIN customers c ON p.customer_id = c.id
+      WHERE p.id = ${id};
+    `;
+
+    const row  = data.rows[0];
+    if (!row) throw new Error("Pet not found");
+
+    const petWithCustomer: PetWithCustomer = {
+      id: row.id,
+      user_id: row.user_id,
+      customer_id: row.customer_id,
+      name: row.pet_name,
+      birthday: row.pet_birthday ? new Date(row.pet_birthday) : undefined,
+      specie: row.specie,
+      race: row.race,
+      gender: row.gender,
+      sterelized: row.sterelized,
+      insured: row.insured,
+      tags: row.pet_tags,
+      grooming: row.grooming,
+      grooming_freq: row.grooming_freq,
+      grooming_day: row.grooming_day,
+      image_url: row.pet_image_url,
+      created_date: new Date(row.pet_created_date),
+      updated_date: new Date(row.pet_updated_date),
+      customer: {
+        id: row.customer_id,
+        name: row.customer_name,
+        user_id: row.customer_user_id,
+        dni: row.customer_dni,
+        birthday: row.customer_birthday ? new Date(row.customer_birthday) : undefined,
+        email: row.customer_email,
+        cellphone: row.customer_cellphone,
+        department: row.customer_department,
+        province: row.customer_province,
+        district: row.customer_district,
+        address: row.customer_address,
+        tags: row.customer_tags,
+        image_url: row.customer_image_url,
+        created_date: new Date(row.customer_created_date),
+        updated_date: new Date(row.customer_updated_date)
+      }
+    };
+    return petWithCustomer;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch pet.');
+  }
+}
+
+export async function getMedicalHistoriesByPetId(id: string): Promise<MedicalHistory[]>{
+  try {
+    const data = await sql<MedicalHistory>`
+      SELECT *
+      FROM medical_histories
+      WHERE pet_id = ${id}
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch pets.');
+  }
+
+}
+
+// vets
+
+
+export async function getVetById(id: string) {
+  try {
+    const data = await sql<Veterinary>`
+      SELECT 
+        v.id,
+        v.user_id,
+        v.name,
+        v.email,
+        v.dni,
+        v.cellphone,
+        v.address,
+        v.specialties,
+        v.image_url,
+        v.created_date,
+        v.updated_date
+      FROM vets v
+      JOIN users u ON v.user_id = u.id
+      WHERE v.id = ${id};
+    `;
+
+    const vet = data.rows[0];
+    return vet;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch product.');
+  }
+
+}
+
+export async function getFilteredVets(
+  query: string,
+  currentPage: number,
+  userId: string,
+): Promise<Veterinary[]> {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const users = await sql<Veterinary>`
+    SELECT
+      id,
+      user_id,
+      name,
+      email,
+      dni,
+      cellphone,
+      address,
+      specialties,
+      image_url,
+      created_date,
+      updated_date
+      
+    FROM vets
+    WHERE
+      user_id = ${userId} AND (
+      name ILIKE ${`%${query}%`} OR
+      email ILIKE ${`%${query}%`} OR
+      dni::text ILIKE ${`%${query}%`} OR
+      cellphone ILIKE ${`%${query}%`} OR
+      address ILIKE ${`%${query}%`} OR
+      specialties ILIKE ${`%${query}%`}
+           
+    )
+    ORDER BY created_date DESC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
+
+  return users.rows;
+}
+
+export async function getAllVetsSchedules(userId: string): Promise<VetSchedule[]> {
+
+  
+  try {
+    const data = await sql<VetSchedule>`
+      SELECT *
+      FROM vet_schedules
+      WHERE user_id = ${userId}
+    `;
+
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch vet schedule.');
+  }
+}
+
+export async function getVetScheduleById(id: string): Promise<VetSchedule[]> {
+  noStore();
+  
+  try {
+    const data = await sql<VetSchedule>`
+      SELECT *
+      FROM vet_schedules
+      WHERE vet_id = ${id}
+    `;
+    
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch vet schedule.');
+  }
+}
+
+function convertToPeruTimezone(date: Date): Date {
+  const utcDate = new Date(date);
+  const peruOffset = -5 * 60; // Offset en minutos para Perú
+  const peruTime = new Date(utcDate.getTime() + peruOffset * 60000);
+  return peruTime;
+}
+
+//appointments
+
+export async function getAllAppointments(userId: string): Promise<Appointments[]> {
+  noStore();
+  try {
+    const data = await sql<Appointments>`
+      SELECT *
+      FROM appointments
+      WHERE user_id = ${userId}
+    `;
+
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch appointments.');
+  }
+}
+
+
+
+//products
 
 export async function getProductsPage(query: string, userId: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
-      FROM products1 p
+      FROM products p
       WHERE
         user_id = ${userId} AND (
         p.name ILIKE ${`%${query}%`} OR
@@ -406,7 +564,7 @@ export async function getAllProducts(query: string, currentPage: number, userId:
       p.image_url,
       p.created_date,
       p.updated_date
-    FROM products1 p
+    FROM products p
     JOIN users u ON p.user_id = u.id
     WHERE
       p.user_id = ${userId} AND (
@@ -421,7 +579,7 @@ export async function getAllProducts(query: string, currentPage: number, userId:
       p.sell_price::text ILIKE ${`%${query}%`} OR
       p.buy_price::text ILIKE ${`%${query}%`}
     )
-    ORDER BY p.name ASC
+    ORDER BY p.created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
@@ -449,7 +607,7 @@ export async function getProductById(id: string) {
         p.image_url,
         p.created_date,
         p.updated_date
-      FROM products1 p
+      FROM products p
       JOIN users u ON p.user_id = u.id
       WHERE p.id = ${id};
     `;
@@ -486,8 +644,7 @@ export async function getSalesPages(query: string, userId: string) {
 
 export async function getAllSales(query: string, currentPage: number, userId: string): Promise<SaleWithProducts[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  console.log('offset::: ', offset);
-
+  
   const sales = await sql`
     SELECT
       s.id as sale_id,
@@ -499,8 +656,12 @@ export async function getAllSales(query: string, currentPage: number, userId: st
       s.created_date,
       s.updated_date
     FROM sales s
-    JOIN customers1 c ON s.customer_id = c.id
-    WHERE s.user_id = ${userId}
+    JOIN customers c ON s.customer_id = c.id
+    WHERE s.user_id = ${userId} AND (
+      s.status ILIKE ${`%${query}%`} OR
+      s.total_price::text ILIKE ${`%${query}%`} OR
+      c.name ILIKE ${`%${query}%`}
+      )
     ORDER BY s.created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
@@ -516,13 +677,13 @@ export async function getAllSales(query: string, currentPage: number, userId: st
     SELECT
       sp.sale_id,
       sp.product_id,
-      p.name as product_name,
-      sp.quantity
+      sp.quantity,
+      p.name as product_name
     FROM sales_products sp
-    JOIN products1 p ON sp.product_id = p.id
+    JOIN products p ON sp.product_id = p.id
   `;
 
-  const salesMap: Record<string, SaleWithProducts> = {};
+  const salesMap: Record<string, any> = {};
 
   sales.rows.forEach((sale) => {
     salesMap[sale.sale_id] = {
@@ -541,12 +702,13 @@ export async function getAllSales(query: string, currentPage: number, userId: st
   products.rows.forEach((product) => {
     if (salesMap[product.sale_id]) {
       salesMap[product.sale_id].products.push({
-        product_id: product.product_id,
-        product_name: product.product_name,
+        id: product.product_id,
+        name: product.product_name,
         quantity: product.quantity,
       });
     }
   });
+  console.log('salesMap::: ', salesMap);
 
   return Object.values(salesMap);
 }

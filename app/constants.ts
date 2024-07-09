@@ -159,7 +159,13 @@ const CREATE_CUSTOMER_BREADCRUMB = [
 const EDIT_CUSTOMER_BREADCRUMB = (id: string) => [
   { label: 'Clientes', href: '/dashboard/customers' },
   { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`, active: true },
-  { label: 'Mascotas', href: `/dashboard/customers/${id}/mascotas` },
+  { label: 'Mis Mascotas', href: `/dashboard/customers/${id}/pets` },
+];
+
+const PETS_CUSTOMER_BREADCRUMB = (id: string) => [
+  { label: 'Clientes', href: '/dashboard/customers' },
+  { label: 'Editar cliente', href: `/dashboard/customers/${id}/edit`},
+  { label: 'Mis Mascotas', href: `/dashboard/customers/${id}/pets`, active: true  },
 ];
 
 const CREATE_PET_BREADCRUMB = [
@@ -175,7 +181,13 @@ const CREATE_PET_BREADCRUMB = [
 const EDIT_PET_BREADCRUMB = (id: string) => [
   { label: 'Mascotas', href: '/dashboard/mascotas' },
   { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`, active: true },
-  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/mascotas` },
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/medical-history` },
+];
+
+const MEDICAL_HISTORY_PET_BREADCRUMB = (id: string) => [
+  { label: 'Mascotas', href: '/dashboard/mascotas' },
+  { label: 'Editar Mascota', href: `/dashboard/mascotas/${id}/edit`},
+  { label: 'Ficha médica', href: `/dashboard/mascotas/${id}/medical-history`, active: true  },
 ];
 
 const CREATE_PRODUCTS_BREADCRUMB = [
@@ -196,6 +208,38 @@ const EDIT_PRODUCTS_BREADCRUMB = (id: string) => [
   },
 ]
 
+
+const CREATE_VET_BREADCRUMB = [
+  { label: 'Veterinarios', href: '/dashboard/vets' },
+  {
+    label: 'Crear veterinario',
+    href: '/dashboard/vets/create',
+    active: true,
+  },
+]
+const SPECIALTIES = [
+  { id: '1', name: 'Cirugía de animales pequeños' },
+  { id: '2', name: 'Dermatología' },
+  { id: '3', name: 'Medicina interna' },
+  { id: '4', name: 'Oftalmología' },
+  { id: '5', name: 'Odontología' },
+  { id: '6', name: 'Cardiología' },
+  { id: '7', name: 'Neurología' },
+  { id: '8', name: 'Oncología' },
+  { id: '9', name: 'Ortopedia' },
+  { id: '10', name: 'Medicina conductual' },
+  { id: '11', name: 'Radiología' },
+  { id: '12', name: 'Rehabilitación' },
+  { id: '13', name: 'Emergencias y cuidados críticos' },
+  { id: '14', name: 'Medicina de animales exóticos' },
+  { id: '15', name: 'Medicina aviar' },
+];
+
+const EDIT_VETS_BREADCRUMB = (id: string) => [
+  { label: 'Veterinarios', href: '/dashboard/vets' },
+  { label: 'Editar Veterinario', href: `/dashboard/vets/${id}/edit`, active: true }
+];
+
 export {
     FEATURES,
     COMMENTS,
@@ -207,5 +251,10 @@ export {
     CREATE_PET_BREADCRUMB,
     EDIT_PET_BREADCRUMB,
     CREATE_PRODUCTS_BREADCRUMB,
-    EDIT_PRODUCTS_BREADCRUMB
+    EDIT_PRODUCTS_BREADCRUMB,
+    PETS_CUSTOMER_BREADCRUMB,
+    MEDICAL_HISTORY_PET_BREADCRUMB,
+    CREATE_VET_BREADCRUMB,
+    SPECIALTIES,
+    EDIT_VETS_BREADCRUMB
 }
