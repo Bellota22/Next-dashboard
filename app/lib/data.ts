@@ -56,7 +56,7 @@ export async function getFilteredCustomers(
       address ILIKE ${`%${query}%`} OR
       tags ILIKE ${`%${query}%`}
     )
-    ORDER BY name ASC
+    ORDER BY  created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
@@ -418,14 +418,39 @@ export async function getFilteredVets(
       specialties ILIKE ${`%${query}%`}
            
     )
-    ORDER BY name ASC
+    ORDER BY created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
   return users.rows;
 }
 
-export async function getVetSchedule(id: string): Promise<VetSchedule[]> {
+export async function getAllVetsSchedules(userId: string): Promise<VetSchedule[]> {
+
+  
+  try {
+    const data = await sql<VetSchedule>`
+      SELECT *
+      FROM vet_schedules
+      WHERE user_id = ${userId}
+    `;
+
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch vet schedule.');
+  }
+}
+
+export async function getVetScheduleById(id: string): Promise<VetSchedule[]> {
   noStore();
   
   try {
@@ -456,6 +481,35 @@ function convertToPeruTimezone(date: Date): Date {
   const peruTime = new Date(utcDate.getTime() + peruOffset * 60000);
   return peruTime;
 }
+
+//appointments
+
+export async function getAllAppointments(userId: string) {
+  noStore();
+  try {
+    const data = await sql`
+      SELECT *
+      FROM appointments
+      WHERE user_id = ${userId}
+    `;
+
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch appointments.');
+  }
+}
+
+
+
 //products
 
 export async function getProductsPage(query: string, userId: string) {
@@ -523,7 +577,7 @@ export async function getAllProducts(query: string, currentPage: number, userId:
       p.sell_price::text ILIKE ${`%${query}%`} OR
       p.buy_price::text ILIKE ${`%${query}%`}
     )
-    ORDER BY p.name ASC
+    ORDER BY p.created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 

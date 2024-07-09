@@ -104,7 +104,6 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
    
   };
   const [date, setDate] = useState(new Date());
-  console.log('events::: ', events)
   return (
     <Box>
       <DragAndDropCalendar

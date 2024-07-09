@@ -1,5 +1,5 @@
 import { Breadcrumbs, Title } from '@mantine/core';
-import { getVetById, getVetSchedule } from '@/app/lib/data';
+import { getVetById, getVetScheduleById } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { EDIT_VETS_BREADCRUMB } from '@/app/constants';
 import styles from './page.module.css';
@@ -15,7 +15,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     // const customer = await getCustomerById(id);
     const items = EDIT_VETS_BREADCRUMB(id)
 
-    const vetSchedule = await getVetSchedule(id);
+    const vetSchedule = await getVetScheduleById(id);
     const vet = await getVetById(id);
 
     return (

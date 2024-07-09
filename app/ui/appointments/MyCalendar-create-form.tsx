@@ -7,12 +7,10 @@ import 'moment-timezone'
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
-import { Box, Modal, Button, TextInput } from '@mantine/core';
-import { inter } from "../fonts";
-import { VetSchedule } from "@/app/lib/definitions";
-import { createVetSchedule, editVetSchedule } from '@/app/lib/actions';
-import { update } from "@react-spring/web";
+import { Box, Modal, Button, TextInput, useMantineTheme } from '@mantine/core';
+import { Appointments, VetSchedule } from "@/app/lib/definitions";
 import { v4 as uuidv4 } from 'uuid';
+import { stat } from "fs";
 
 
 
@@ -23,20 +21,25 @@ const localizer = momentLocalizer(moment);
 
 
 interface CalendarProps {
+  appointments?: Appointments[]
   vetSchedule?: VetSchedule[];
-  setVetEvent: (vetEvent: any) => void;
+  setVetEvent?: (vetEvent: any) => void;
+  setSelectedAppointments?: (appointments: Appointments[]) => void;
+  selectedAppointments?: Appointments[];
   
 }
 
 
-export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) {
-
+export default function MyCalendar({ appointments, vetSchedule, setVetEvent, setSelectedAppointments, selectedAppointments }: CalendarProps) {
+  const appointments_and_vetschedule = appointments.concat(vetSchedule);
+  const theme = useMantineTheme();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-  const initialEvents = vetSchedule?.map(event => ({
+  const initialEvents = appointments_and_vetschedule?.map(event => ({
     id: event.id,
     title: event.title,
     start: event.start_time,
-    end: event.end_time
+    end: event.end_time,
+    status: event.status,
   })) || [];
 
   const [events, setEvents] = useState(initialEvents);
@@ -100,11 +103,11 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
 
     setEvents(events.concat([newEvent]));
     setVetEvent(events.concat([newEvent]));
+    setSelectedAppointments(selectedAppointments.concat([newEvent]));
     setModalOpen(false);
    
   };
   const [date, setDate] = useState(new Date());
-  console.log('events::: ', events)
   return (
     <Box>
       <DragAndDropCalendar
@@ -114,6 +117,26 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
         selectable
         onView={(newView) => setView(newView)} // Manejar cambio de vista
         onEventDrop={moveEvent}
+        eventPropGetter={(event, start, end, isSelected) => {
+          console.log('event::: ', event);
+          let newStyle = {
+            backgroundColor: theme.colors.primary[1],
+            color: "black",
+            borderRadius: "5px",
+            border : "1px solid gray",
+          };
+
+          if (event.status === true) {
+            newStyle.backgroundColor = theme.colors.primary[4];
+          }
+
+          return {
+            className: "",
+            style: newStyle
+          };
+        
+        }
+      }
         resizable
         onEventResize={resizeEvent}
         onSelectSlot={handleSelectSlot}

@@ -1,14 +1,8 @@
-import Search from '@/app/ui/search';
-import Table from '@/app/ui/vets/table';
-import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { Suspense } from 'react';
-import { getCustomersPages, getFilteredVets } from '@/app/lib/data';
+import { getAllAppointments, getAllFilteredPets, getAllVetsSchedules, getFilteredVets } from '@/app/lib/data';
 import { Metadata } from 'next';
-import { Button, Flex, Title } from '@mantine/core';
-import PaginationVets from '@/app/ui/vets/Pagination';
+import { Title } from '@mantine/core';
 import styles from './page.module.css';
-import Link from 'next/link';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import Form from '@/app/ui/appointments/create-form';
 
 export const metadata: Metadata = {
   title: 'Vets',
@@ -18,39 +12,37 @@ export default async function Page({
   searchParams,
 }: {
   searchParams?: {
-    query?: string;
+    queryPet?: string;
     page?: string;
+    queryVet?: string;
   };
 }) {
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-  const query = searchParams?.query || '';
+  const queryVet = searchParams?.queryVet || '';
+  const queryPet = searchParams?.queryPet || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await getCustomersPages(query, userId);
-  const vets = await getFilteredVets(query, currentPage, userId);
 
   
+  const [
+    appointments,
+    vets,
+    pets,
+    vetSchedule
+  ] = await Promise.all([
+    getAllAppointments(userId),
+    getFilteredVets(queryVet, currentPage, userId),
+    getAllFilteredPets(queryPet, currentPage, userId),
+    getAllVetsSchedules(userId)
+  ]);
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
         <Title className={styles.breadcrumbs} order={1}>Citas</Title>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Buscar veterinarios..." />
-        <Button
-          color="primary.3"
-          component={Link}
-          rightSection={<PlusIcon className="h-5" />}
-          href="/dashboard/vets/create"
-        >
-          <Title order={6}>Crear Veterinario</Title>{' '}
-        </Button>
-      </div>
-      <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table vets={vets} query={query} currentPage={currentPage} />
-      </Suspense>
-      <Flex justify="center" mt="md">
-        <PaginationVets totalPages={totalPages} currentPage={currentPage} />
-      </Flex>
+      
+      <Form appointments={appointments} vetSchedule={vetSchedule} vets={vets} pets={pets}  />
+
     </div>
   );
 }

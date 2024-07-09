@@ -67,7 +67,6 @@ function generateRandomCustomers(userIds, count) {
   }
   return customers;
 }
-const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
 
 //pets
 
@@ -102,9 +101,7 @@ function generateRandomPets(userIds, customerIds, count) {
   return pets;
 }
 
-const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
-const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
-
+//medicalHistory
 
 function generateRandomMedicalHistory(userId, petId) {
   return {
@@ -145,8 +142,6 @@ function generateRandomMedicalHistories(userIds, petIds, count) {
   return medicalHistories;
 }
 
-const petIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
-const medicalHistories = generateRandomMedicalHistories(usersIds, petIds, 50); // Genera 50 historias clínicas aleatorias
 
 //products
 
@@ -180,7 +175,6 @@ function generateRandomProducts(userIds, count) {
   return products;
 }
 
-const products = generateRandomProducts(usersIds, 50); // Generates 50 random products
 
 //sales
 
@@ -205,8 +199,6 @@ function generateRandomSales(userIds, customerIds, count) {
   return sales;
 }
 
-const saleCustomerIds = customers.map(customer => customer.id); // Get the IDs of the generated customers
-const sales = generateRandomSales(usersIds, saleCustomerIds, 50); // Generates 50 random sales
 
 
 function generateRandomSalesProduct(userId, productId, saleId) {
@@ -231,10 +223,6 @@ function generateRandomSalesProducts(userIds, productIds, saleIds, count) {
   }
   return salesProducts;
 }
-
-const productIds = products.map(product => product.id); // Get the IDs of the generated products
-const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sales
-const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
 
 
 //vets
@@ -263,12 +251,11 @@ function generateRandomVets(userIds, count) {
   return vets;
 }
 
-const vets = generateRandomVets(usersIds, 50); // Generates 50 random vets
 
 
 function generateVetSchedule(userId, vetId) {
 
-  const day = faker.date.recent();
+  const day = faker.date.recent({ days: 20 });
   const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 8, max: 12 }), 0);
   const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 13, max: 18 }), 0);
   
@@ -293,9 +280,70 @@ function generateRandomVetSchedules(userIds, vetIds, count) {
   return vetSchedules;
 }
 
-const vetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
-const vetSchedules = generateRandomVetSchedules(usersIds, vetIds, 50); // Genera 50 horarios de veterinarios aleatorios
 
+
+function generateAppointment(userId, petId,  vetId) {
+  const day = faker.date.recent({ days: 20 });
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 8, max: 12 }), 0);
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), faker.number.int({ min: 13, max: 18 }), 0);
+  return {
+    id: uuidv4(),
+    user_id: userId,
+    pet_id: petId,
+    vet_id: vetId,
+    title: faker.lorem.sentence(3),
+    start_time: start,
+    end_time: end,
+    status: faker.datatype.boolean({probability: 0.8}),
+  };
+}
+
+function generateRandomAppointments(userIds, petIds, vetIds, count) {
+  const appointments = [];
+  for (let i = 0; i < count; i++) {
+    const userId = faker.helpers.arrayElement(userIds);
+    const petId = faker.helpers.arrayElement(petIds);
+    const vetId = faker.helpers.arrayElement(vetIds);
+    appointments.push(generateAppointment(userId, petId, vetId));
+    console.log(`Generated ${i + 1}/${count} appointments`);
+  }
+  return appointments;
+}
+// const customers = generateRandomCustomers(usersIds, 50); // Genera 10 clientes aleatorios
+
+// const customerIds = customers.map(customer => customer.id); // Obtener los IDs de los clientes generados
+// const pets = generateRandomPets(usersIds, customerIds, 50); // Genera 50 mascotas aleatorias
+
+// const petIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
+// const medicalHistories = generateRandomMedicalHistories(usersIds, petIds, 50); // Genera 50 historias clínicas aleatorias
+
+// const saleCustomerIds = customers.map(customer => customer.id); // Get the IDs of the generated customers
+// const sales = generateRandomSales(usersIds, saleCustomerIds, 50); // Generates 50 random sales
+
+// const products = generateRandomProducts(usersIds, 50); // Generates 50 random products
+
+// const productIds = products.map(product => product.id); // Get the IDs of the generated products
+// const saleIds = sales.map(sale => sale.id); // Get the IDs of the generated sales
+// const salesProducts = generateRandomSalesProducts(usersIds, productIds, saleIds, 50); // Generates 50 random sales products
+
+// const vets = generateRandomVets(usersIds, 50); // Generates 50 random vets
+
+// const vetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
+// const vetSchedules = generateRandomVetSchedules(usersIds, vetIds, 50); // Genera 50 horarios de veterinarios aleatorios
+
+// const appointmentPetIds = pets.map(pet => pet.id); // Obtener los IDs de las mascotas generadas
+// const appointmentVetIds = vets.map(vet => vet.id); // Obtener los IDs de los veterinarios generados
+// const appointments = generateRandomAppointments(usersIds, appointmentPetIds, appointmentVetIds, 50); // Genera 50 citas aleatorias
+
+const customers = []
+const sales = []
+const products = []
+const salesProducts = []
+const pets = []
+const medicalHistories = []
+const vets = []
+const vetSchedules = []
+const appointments = []
 
 module.exports = {
   users,
@@ -306,6 +354,7 @@ module.exports = {
   pets,
   medicalHistories,
   vets,
-  vetSchedules
+  vetSchedules,
+  appointments
   
 };

@@ -1,16 +1,17 @@
 'use client';
 
-import { createVet, createVetSchedule } from '@/app/lib/actions';
-import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
+import { createAppointment, createVet, createVetSchedule } from '@/app/lib/actions';
+import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title, Badge  } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Veterinary } from '@/app/lib/definitions';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Appointments, Pets, Veterinary, VetSchedule } from '@/app/lib/definitions';
 import { SPECIALTIES } from '@/app/constants'
 import MyCalendar from './MyCalendar-create-form';
 import { v4 as uuidv4 } from 'uuid';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface VetEvent {
   id: string;
@@ -19,186 +20,169 @@ interface VetEvent {
   end: Date | null;
 
 }
+interface FormProps {
+  vetSchedule: VetSchedule[];
+  appointments: Appointments[];
+  vets: Veterinary[];
+  pets: Pets[]
+}
 
-export default function Form() {
+export default function Form({ appointments, vetSchedule, vets, pets }: FormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   
   const [vetEvent, setVetEvent] = useState([]);
+  const [selectedAppointments, setSelectedAppointments] = useState<Appointments[]>([]);
 
-  const form = useForm<Veterinary>({
+  const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
       id: '',
       user_id: userId,
-      name: '',
-      email: '',
-      dni: 0,
-      cellphone: '',
-      address: '',
-      specialties: [],
-      image_url: '',
+      vet_id: '',
+      pet_id: '',
+      start_time: new Date(),
+      end_time: new Date(),
+      status: false,
       created_date: new Date(),
       updated_date: new Date(),
     },
 
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email incorrecto'),
-          
-    },
+
   });
 
-  const [files, setFiles] = useState<FileWithPath[]>([]);
-  const previews = files.map((file, index) => {
-    const imageUrl = URL.createObjectURL(file);
-    return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
-  });
 
-  const handleSubmit = async (values: Veterinary) => {
+  const handleSubmit = async (values) => {
     const vetId = uuidv4(); 
     values.id = vetId;
+    values.user_id = userId;
+    values.vet_id = selectedVetId;
+    values.pet_id = selectedPetId;
+
     
-    if (vetEvent.length === 0) {
+    if (selectedAppointments.length === 0) {
       alert('Seleccione al menos un horario');
       return;
     }
     try {
 
-      await createVet(values);
-    
-
-      // Crea cada evento en el calendario
-      for (const event of vetEvent) {
-        await createVetSchedule({
-          id:'',
+      for (const appointments of selectedAppointments) {
+        await createAppointment({
+          id: uuidv4(),
           user_id: userId,
-          vet_id: vetId,
-          title: event.title,
-          start_time: event.start,
-          end_time: event.end,
-          status: true,
+          vet_id: selectedVetId,
+          pet_id: selectedPetId,
+          start_time: appointments.start,
+          end_time: appointments.end,
+          title: appointments.title,
+          status: values.status,
           created_date: new Date(),
-          updated_date: new Date(),
+          updated_date: new Date(),         
         });
       }
 
-      router.push('/dashboard/vets');
+      router.push('/dashboard/appointments');
     } catch (error) {
       console.error('Error al crear el evento del veterinario:', error);
     }
   };
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleSearchVet = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (term) {
+      params.set('queryVet', term);
+    } else {
+      params.delete('queryVet');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
+  const handleSearchPet = useDebouncedCallback((term) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (term) {
+      params.set('queryPet', term);
+    } else {
+      params.delete('queryPet');
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
+
+  const [selectedVetId, setSelectedVetId] = useState<string>('');
+  const [selectedPetId, setSelectedPetId] = useState<string>('');
+
+
+
 
   return (
     <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
       <Flex justify={'space-between'} className="p-4 md:p-6">
         <Stack>
-          <Flex mb={4} gap={8}>
-              <TextInput
-                withAsterisk
-                label="Nombre"
-                placeholder="Juan Perez Lopez"
-                required
-                key={form.key('name')}
-                {...form.getInputProps('name')}
-              />
-              <TextInput
-                withAsterisk
-                label="Email"
-                placeholder="your@email.com"
-                required
-                key={form.key('email')}
-                {...form.getInputProps('email')}
-              />
-              <NumberInput
-                hideControls
-                withAsterisk
-                maxLength={8}
-                label="DNI" 
-                placeholder="72224455"
-                required
-                key={form.key('dni')}
-                {...form.getInputProps('dni')}
-              />
-             <TextInput
-                withAsterisk
-                label="Celular"
-                placeholder="941941320"
-                required
-                key={form.key('cellphone')}
-                {...form.getInputProps('cellphone')}
-              />
-              <TextInput
-                withAsterisk
-                label="Dirección" 
-                placeholder="Mz 29 Lt 10 Urb. Los Jardines de California" 
-                required
-                key={form.key('address')}
-                {...form.getInputProps('address')}
-              />
-          </Flex>
           <Flex mb={4} gap={8} >
           <Autocomplete
+                withAsterisk
+                label="Veterinario"
+                placeholder="Buscar veterinario"
                 required
-                label="Especialidad"
-                placeholder="Tags"
-                data={
-                  SPECIALTIES.map((tag) => ({ value: tag.id, label: tag.name }))
-                }
-                key={form.key('specialties')}
-                {...form.getInputProps('specialties')}
+                defaultValue={searchParams.get('query')?.toString()}
+                data={vets.map((vet) => ({ value: vet.id, label: vet.name }))}
+                key={form.key('vet_id')}
+                {...form.getInputProps('vet_id')}
+                onChange={(value) => {
+                  const selectedVet = vets.find(vet => vet.name === value);
+                  if (selectedVet) {
+                    setSelectedVetId(selectedVet.id);
+                  } else {
+                    setSelectedVetId('');
+                  }
+                  handleSearchVet(value);
+                }}
               />
-            
+          <Autocomplete
+                withAsterisk
+                label="Mascota"
+                placeholder="Buscar mascota"
+                required
+                defaultValue={searchParams.get('query')?.toString()}
+                data={pets.map((pet) => ({ value: pet.id, label: pet.name }))}
+                key={form.key('pet_id')}
+                {...form.getInputProps('pet_id')}
+                onChange={(value) => {
+                  const selectedPet = pets.find(pet => pet.name === value);
+                  if (selectedPet) {
+                    setSelectedPetId(selectedPet.id);
+                  } else {
+                    setSelectedPetId('');
+                  }
+                  handleSearchPet(value);
+                }}
+              />
               
           </Flex>
 
+          <Stack gap={3}>
+            <Text>Leyenda</Text>
+            <Badge variant="dot" size="lg" color="primary.1"><Text size="md">Citas</Text></Badge >
+            <Badge variant="dot" size="lg"  color="primary.4"><Text size="md">Horario Veterinario</Text></Badge >
+          </Stack>
+        
           
         </Stack>
-        <Box p={10} >
-          {previews.length === 0 ? (
-            <Dropzone
-              onDrop={setFiles}
-              onReject={(files) => console.log('rejected files', files)}
-              maxSize={5 * 1024 ** 2}
-              accept={IMAGE_MIME_TYPE}
-              style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              key={form.key('imagen_url')}
-              {...form.getInputProps('imagen_url')}
-            >
-              <Group justify="center" gap="xl" style={{ pointerEvents: 'none' }}>
-                <Dropzone.Accept>
-                  <IconUpload
-                    style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
-                    stroke={1.5}
-                  />
-                </Dropzone.Accept>
-                <Dropzone.Reject>
-                  <IconX
-                    style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
-                    stroke={1.5}
-                  />
-                </Dropzone.Reject>
-                <Dropzone.Idle>
-                  <IconPhoto
-                    style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
-                    stroke={1.5}
-                  />
-                </Dropzone.Idle>
-                  <Text size="xl" inline>
-                    No hay foto
-                  </Text>
-                  
-              </Group>
-            </Dropzone>
-          ):
-          <Box w={200} h={200}>
-            {previews}
-          </Box>
-        }
-        </Box>
+        
       </Flex>
       <Box p={24}>
-        <MyCalendar setVetEvent={setVetEvent} />
+        <MyCalendar
+          appointments={appointments} 
+          vetSchedule={vetSchedule} 
+          setSelectedAppointments={setSelectedAppointments}  
+          selectedAppointments={selectedAppointments}
+          setVetEvent={setVetEvent}
+        />
       </Box>
         
         <Flex className="mt-6 justify-end gap-4 p-6">

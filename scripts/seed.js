@@ -8,7 +8,8 @@ const {
   pets,
   products,
   vets,
-  vetSchedules
+  vetSchedules,
+  appointments
 } = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcryptjs');
 
@@ -446,8 +447,6 @@ async function seedVetsSchedules(client) {
   }
 }
 
-
-
 async function seedMedicalHistories(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -550,6 +549,74 @@ async function seedMedicalHistories(client) {
   }
 }
 
+async function seedAppointments(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    // Create the "appointments" table if it doesn't exist
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS appointments (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        pet_id UUID,
+        vet_id UUID,
+        start_time TIMESTAMP,
+        end_time TIMESTAMP,
+        title TEXT,
+        status BOOLEAN DEFAULT TRUE,
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (pet_id) REFERENCES pets(id),
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (vet_id) REFERENCES vets(id)
+      );
+    `;
+
+    console.log(`Created "appointments" table`);
+
+    // Insert data into the "appointments" table
+    const insertedAppointments = await Promise.all(
+      appointments.map(
+        (a) => client.sql`
+        INSERT INTO appointments (
+          id,
+          user_id,
+          pet_id,
+          vet_id,
+          start_time,
+          end_time,
+          title,
+          status
+        )
+        VALUES (
+          ${a.id},
+          ${a.user_id},
+          ${a.pet_id},
+          ${a.vet_id},
+          ${a.start_time},
+          ${a.end_time},
+          ${a.title},
+          ${a.status}
+        )
+        ON CONFLICT (id) DO NOTHING;
+      `,
+      ),
+    );
+
+    console.log(`Seeded ${insertedAppointments.length} appointments`);
+
+    return {
+      createTable,
+      appointments: insertedAppointments,
+    };
+  } catch (error) {
+    console.error('Error seeding appointments:', error);
+    throw error;
+  }
+
+}
+
+
 async function main() {
   const client = await db.connect();
 
@@ -562,9 +629,10 @@ async function main() {
   await seedSales(client);
   await seedVets(client);
   await seedVetsSchedules(client);
+  await seedAppointments(client);
   await client.end();
 }
-// DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories, vets, vet_schedules
+// DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories, vets, vet_schedules, appointments
 main().catch((err) => {
   console.error(
     'An error occurred while attempting to seed the database:',

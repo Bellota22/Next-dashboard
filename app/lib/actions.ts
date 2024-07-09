@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
+import { Appointments, Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -38,6 +38,8 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 
   return newUser.rows[0];
 }
+
+// customer
 export async function createCustomer(customerData: Customers) {
   const created_date = new Date().toISOString();
   const updated_date = created_date; 
@@ -58,7 +60,7 @@ export async function createCustomer(customerData: Customers) {
   const formattedBirthday = birthday ? birthday.toISOString() : null;
 
   await sql`
-      INSERT INTO customers1 (
+      INSERT INTO customers (
         user_id, name, dni, birthday, email, cellphone, department, province, district, address, tags, image_url, created_date, updated_date
       )
       VALUES (
@@ -67,7 +69,6 @@ export async function createCustomer(customerData: Customers) {
   revalidatePath('/dashboard/customers');
 
 }
-
 
 export async function editCustomer(customerData: Customers) {
     const { 
@@ -89,7 +90,7 @@ export async function editCustomer(customerData: Customers) {
       const formattedBirthday = birthday ? birthday.toISOString() : null;
 
       await sql`
-        UPDATE customers1
+        UPDATE customers
         SET user_id = ${user_id}, name = ${name}, dni = ${dni}, birthday = ${formattedBirthday}, email = ${email}, cellphone = ${cellphone}, department = ${department}, province = ${province}, district = ${district}, address = ${address}, tags = ${tags}, image_url = ${image_url}
         WHERE id = ${id}
       `;
@@ -103,7 +104,7 @@ export async function editCustomer(customerData: Customers) {
 
 export async function deleteCustomer(id: string) {
   try{
-      await sql`DELETE FROM customers1 WHERE id = ${id}`;
+      await sql`DELETE FROM customers WHERE id = ${id}`;
       revalidatePath('/dashboard/customers');
   }catch{
       return {
@@ -216,6 +217,9 @@ export async function deletePet(id: string) {
   }
 }
 
+
+//medical history
+
 export async function createMedicalHistory(medicalHistory: MedicalHistory) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
@@ -320,6 +324,8 @@ export async function editVet(vet: Veterinary) {
   redirect('/dashboard/products');
 }
 
+//vet schedules
+
 export async function createVetSchedule(vetSchedule: VetSchedule) {
   console.log('vetSchedule::: ', vetSchedule);
   const created_date = new Date().toISOString();
@@ -383,6 +389,37 @@ export async function editVetSchedule(vetSchedule: VetSchedule) {
   revalidatePath('/dashboard/vets');
 
   return res;
+}
+
+// appointments
+export async function createAppointment(appointmentData: Appointments) {
+  const created_date = new Date().toISOString();
+  const updated_date = created_date;
+
+  const {
+    user_id,
+    pet_id,
+    vet_id,
+    start_time,
+    end_time,
+    title,
+    status,
+  } = appointmentData;
+
+  const formattedStartTime = start_time ? start_time.toISOString() : null;
+  const formattedEndTime = end_time ? end_time.toISOString() : null;
+
+  await sql`
+    INSERT INTO appointments (
+      user_id, pet_id, vet_id, start_time, end_time, title, status, created_date, updated_date
+    )
+    VALUES (
+      ${user_id}, ${pet_id}, ${vet_id}, ${formattedStartTime}, ${formattedEndTime}, ${title}, ${status}, ${created_date}, ${updated_date}
+    )
+  `;
+  revalidatePath('/dashboard/appointments');
+
+
 }
 
 //products
@@ -466,7 +503,6 @@ export async function editProduct(productsData: Products) {
   redirect('/dashboard/products');
 }
 
-
 export async function updateProductState(id: string, estado: boolean) {
   try {
     await sql`
@@ -492,6 +528,7 @@ export async function deleteProduct(id: string) {
     }
 }
 
+//sales
 export async function createSale(userId: string, customerId: string, products: ProductsForShoppingCart[] ) {
 
   const status = true;

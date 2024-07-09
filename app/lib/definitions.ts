@@ -147,3 +147,16 @@ export type VetSchedule = {
   created_date: Date;
   updated_date: Date;
 };
+
+export type Appointments = {
+  id: string;
+  user_id: string;
+  pet_id: string;
+  vet_id: string;
+  start_time: Date;
+  end_time: Date;
+  title: string;
+  status: boolean;
+  created_date: Date;
+  updated_date: Date;
+};
