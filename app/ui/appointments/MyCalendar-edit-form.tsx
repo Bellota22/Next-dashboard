@@ -9,9 +9,10 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { Box, Modal, Button, TextInput } from '@mantine/core';
 import { inter } from "../fonts";
-import { VetSchedule } from "@/app/lib/definitions";
-import { createVetSchedule, updateVetSchedule } from '@/app/lib/actions';
+import { Veterinary, VetSchedule } from "@/app/lib/definitions";
+import { createVetSchedule, editVetSchedule } from '@/app/lib/actions';
 import { update } from "@react-spring/web";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -23,10 +24,13 @@ const localizer = momentLocalizer(moment);
 
 interface CalendarProps {
   vetSchedule?: VetSchedule[];
+  setVetEvent: (vetEvent: any) => void;
+  vet: Veterinary;
+
 }
 
 
-export default function MyCalendar({ vetSchedule }: CalendarProps) {
+export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarProps) {
   console.log('vetSchedule::: ', vetSchedule);
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const initialEvents = vetSchedule?.map(event => ({
@@ -57,10 +61,10 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
 
     setEvents(nextEvents);
     
-    await updateVetSchedule({
+    await editVetSchedule({
       id: event.id,
       user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
+      vet_id: vet.id,
       title: event.title,
       start_time: new Date(start).toISOString(),
       end_time: new Date(end).toISOString(),
@@ -78,10 +82,10 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
     });
 
     setEvents(nextEvents);
-    await updateVetSchedule({
+    await editVetSchedule({
       id: event.id,
       user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
+      vet_id: vet.id,
       title: event.title,
       start_time: new Date(start).toISOString(),
       end_time: new Date(end).toISOString(),
@@ -99,32 +103,19 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
 
   
   const handleCreateEvent = async () => {
-    let idList = events.map(a => a.id);
-    let newId = Math.max(...idList) + 1;
+
     let newEvent = {
-      id: newId,
+      id:  uuidv4(),
       title: newEventInfo.title,
       start: newEventInfo.start,
       end: newEventInfo.end,
       allDay: false,
     };
-    const start_time = newEventInfo.start ? new Date(newEventInfo.start).toISOString() : new Date().toISOString();
-    const end_time = newEventInfo.end ? new Date(newEventInfo.end).toISOString() : new Date().toISOString();
-
 
     setEvents(events.concat([newEvent]));
     setModalOpen(false);
-    await createVetSchedule({
-      id: '',
-      user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
-      title: newEventInfo.title,
-      start_time: start_time,
-      end_time: end_time,
-      status: true,
-      created_date: new Date(),
-      updated_date: new Date(),
-    })
+    setVetEvent(events.concat([newEvent]));
+
   };
   const [date, setDate] = useState(new Date());
 

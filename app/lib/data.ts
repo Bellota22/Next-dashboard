@@ -357,6 +357,35 @@ export async function getMedicalHistoriesByPetId(id: string): Promise<MedicalHis
 // vets
 
 
+export async function getVetById(id: string) {
+  try {
+    const data = await sql<Veterinary>`
+      SELECT 
+        v.id,
+        v.user_id,
+        v.name,
+        v.email,
+        v.dni,
+        v.cellphone,
+        v.address,
+        v.specialties,
+        v.image_url,
+        v.created_date,
+        v.updated_date
+      FROM vets v
+      JOIN users u ON v.user_id = u.id
+      WHERE v.id = ${id};
+    `;
+
+    const vet = data.rows[0];
+    return vet;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch product.');
+  }
+
+}
+
 export async function getFilteredVets(
   query: string,
   currentPage: number,
@@ -397,6 +426,8 @@ export async function getFilteredVets(
 }
 
 export async function getVetSchedule(id: string): Promise<VetSchedule[]> {
+  noStore();
+  
   try {
     const data = await sql<VetSchedule>`
       SELECT *

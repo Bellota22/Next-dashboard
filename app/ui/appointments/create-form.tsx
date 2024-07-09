@@ -1,43 +1,46 @@
 'use client';
 
-import { createVet, editVet, editVetSchedule } from '@/app/lib/actions';
+import { createVet, createVetSchedule } from '@/app/lib/actions';
 import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Veterinary, VetSchedule } from '@/app/lib/definitions';
+import { Veterinary } from '@/app/lib/definitions';
 import { SPECIALTIES } from '@/app/constants'
-import MyCalendar from './MyCalendar-edit-form';
+import MyCalendar from './MyCalendar-create-form';
 import { v4 as uuidv4 } from 'uuid';
 
-interface VeterinaryFormProps {
-  vetSchedule: VetSchedule[];
-  vet: Veterinary;
+interface VetEvent {
+  id: string;
+  title: string;
+  start: Date | null;
+  end: Date | null;
+
 }
 
-export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
-
+export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+  
   const [vetEvent, setVetEvent] = useState([]);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
     initialValues: {
-      id: vet.id,
+      id: '',
       user_id: userId,
-      name: vet.name,
-      email: vet.email,
-      dni: vet.dni,
-      cellphone: vet.cellphone,
-      address: vet.address,
-      specialties: vet.specialties,
-      image_url: vet.image_url,
-      created_date: vet.created_date,
-      updated_date: vet.updated_date,
+      name: '',
+      email: '',
+      dni: 0,
+      cellphone: '',
+      address: '',
+      specialties: [],
+      image_url: '',
+      created_date: new Date(),
+      updated_date: new Date(),
     },
 
     validate: {
@@ -52,30 +55,31 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
-  
   const handleSubmit = async (values: Veterinary) => {
-
-    values.id = vet.id;
-    if (vetEvent.length === 0 && vetSchedule.length === 0) {
+    const vetId = uuidv4(); 
+    values.id = vetId;
+    
+    if (vetEvent.length === 0) {
       alert('Seleccione al menos un horario');
       return;
     }
-
     try {
-      await editVet(values);
+
+      await createVet(values);
+    
 
       // Crea cada evento en el calendario
       for (const event of vetEvent) {
-        await editVetSchedule({
-          id: event.id,
-          user_id: event.user_id,
-          vet_id: vet.id,
+        await createVetSchedule({
+          id:'',
+          user_id: userId,
+          vet_id: vetId,
           title: event.title,
           start_time: event.start,
           end_time: event.end,
-          status: event.status,
-          created_date: event.created_date,
-          updated_date: event.updated_date,
+          status: true,
+          created_date: new Date(),
+          updated_date: new Date(),
         });
       }
 
@@ -83,7 +87,6 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
     } catch (error) {
       console.error('Error al crear el evento del veterinario:', error);
     }
-    
   };
 
   return (
@@ -195,7 +198,7 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
         </Box>
       </Flex>
       <Box p={24}>
-        <MyCalendar vet={vet} vetSchedule={vetSchedule} setVetEvent={setVetEvent} />
+        <MyCalendar setVetEvent={setVetEvent} />
       </Box>
         
         <Flex className="mt-6 justify-end gap-4 p-6">
@@ -209,7 +212,7 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
             type="submit"
             color="primary.3"
           >
-            <Title order={6}>Editar</Title>{' '}
+            <Title order={6}>Crear</Title>{' '}
           </Button>
         </Flex>
 

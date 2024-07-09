@@ -9,7 +9,7 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { Box, Modal, Button, TextInput } from '@mantine/core';
 import { inter } from "../fonts";
-import { VetSchedule } from "@/app/lib/definitions";
+import { Veterinary, VetSchedule } from "@/app/lib/definitions";
 import { createVetSchedule, editVetSchedule } from '@/app/lib/actions';
 import { update } from "@react-spring/web";
 import { v4 as uuidv4 } from 'uuid';
@@ -25,21 +25,22 @@ const localizer = momentLocalizer(moment);
 interface CalendarProps {
   vetSchedule?: VetSchedule[];
   setVetEvent: (vetEvent: any) => void;
-  
+  vet: Veterinary;
+
 }
 
 
-export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) {
-
+export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarProps) {
+  console.log('vetSchedule::: ', vetSchedule);
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const initialEvents = vetSchedule?.map(event => ({
     id: event.id,
     title: event.title,
     start: event.start_time,
     end: event.end_time
-  })) || [];
+  }));
 
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState(initialEvents || []);
   const [view, setView] = useState(Views.WEEK); // Estado para la vista actual
   const [modalOpen, setModalOpen] = useState(false);
   const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null, end: null });
@@ -59,9 +60,18 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
     nextEvents.splice(idx, 1, updatedEvent);
 
     setEvents(nextEvents);
-    setVetEvent(nextEvents);
-
     
+    await editVetSchedule({
+      id: event.id,
+      user_id: userId,
+      vet_id: vet.id,
+      title: event.title,
+      start_time: new Date(start).toISOString(),
+      end_time: new Date(end).toISOString(),
+      status: true,
+      created_date: new Date(),
+      updated_date: new Date(),
+    })
   };
 
   const resizeEvent = async ({ event, start, end }) => {
@@ -72,17 +82,22 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
     });
 
     setEvents(nextEvents);
-    setVetEvent(nextEvents);
-
-   
+    await editVetSchedule({
+      id: event.id,
+      user_id: userId,
+      vet_id: vet.id,
+      title: event.title,
+      start_time: new Date(start).toISOString(),
+      end_time: new Date(end).toISOString(),
+      status: true,
+      created_date: new Date(),
+      updated_date: new Date(),
+    })
   };
 
   const handleSelectSlot = async ({ start, end }) => {
-    setNewEventInfo({ title: '', start, end });
+
     setModalOpen(true);
-
-
-  
     
   };
 
@@ -90,21 +105,20 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
   const handleCreateEvent = async () => {
 
     let newEvent = {
-      id: uuidv4(),
+      id:  uuidv4(),
       title: newEventInfo.title,
       start: newEventInfo.start,
       end: newEventInfo.end,
       allDay: false,
     };
-    
 
     setEvents(events.concat([newEvent]));
-    setVetEvent(events.concat([newEvent]));
     setModalOpen(false);
-   
+    setVetEvent(events.concat([newEvent]));
+
   };
   const [date, setDate] = useState(new Date());
-  console.log('events::: ', events)
+
   return (
     <Box>
       <DragAndDropCalendar
@@ -120,7 +134,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
         onDragStart={console.log}
         defaultView={Views.MONTH}
         view={view} // Vista actual controlada por el estado
-        date={date} // https://stackoverflow.com/questions/78011246/react-big-calendar-next-and-back-buttons-not-navigating-to-the-correct-month
+        date={date} // Include the date prop
         onNavigate={(date) => {
           setDate(new Date(date));
       }}
@@ -133,9 +147,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) 
         <TextInput
           label="Título del Evento"
           value={newEventInfo.title}
-          onChange={
-            (event) => setNewEventInfo({ ...newEventInfo, title: event.currentTarget.value })
-          }
+          onChange={(e) => setNewEventInfo({ ...newEventInfo, title: e.currentTarget.value })}
         />
         <Button onClick={handleCreateEvent} style={{ marginTop: 10 }}>Crear Evento</Button>
       </Modal>

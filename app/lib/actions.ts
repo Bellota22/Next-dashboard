@@ -286,6 +286,40 @@ export async function createVet(vets: Veterinary) {
   redirect('/dashboard/vets');
 }
 
+export async function editVet(vet: Veterinary) {
+  const updated_date = new Date().toISOString();
+
+  const {
+    id,
+    user_id,
+    name,
+    email,
+    dni,
+    cellphone,
+    address,
+    image_url
+   
+  } = vet;
+    
+
+  await sql`
+    UPDATE vets
+    SET 
+      user_id = ${user_id}, 
+      name = ${name}, 
+      email = ${email}, 
+      dni = ${dni}, 
+      cellphone = ${cellphone}, 
+      address = ${address}, 
+      image_url = ${image_url},
+      updated_date = ${updated_date}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath('/dashboard/products');
+  redirect('/dashboard/products');
+}
+
 export async function createVetSchedule(vetSchedule: VetSchedule) {
   console.log('vetSchedule::: ', vetSchedule);
   const created_date = new Date().toISOString();
@@ -317,7 +351,8 @@ export async function createVetSchedule(vetSchedule: VetSchedule) {
 
 }
 
-export async function updateVetSchedule(vetSchedule: VetSchedule) {
+export async function editVetSchedule(vetSchedule: VetSchedule) {
+  console.log('EditvetSchedule::: ', vetSchedule);
   const updated_date = new Date().toISOString();
   const {
     id,
