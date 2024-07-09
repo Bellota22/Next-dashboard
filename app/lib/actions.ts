@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary } from './definitions';
+import { Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -39,7 +39,7 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
   return newUser.rows[0];
 }
 export async function createCustomer(customerData: Customers) {
-  const created_date = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString();
   const updated_date = created_date; 
   const {
     user_id,
@@ -55,7 +55,7 @@ export async function createCustomer(customerData: Customers) {
     tags,
     image_url,
   } = customerData;
-  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+  const formattedBirthday = birthday ? birthday.toISOString() : null;
 
   await sql`
       INSERT INTO customers1 (
@@ -86,7 +86,7 @@ export async function editCustomer(customerData: Customers) {
       image_url,
      } = customerData;
     try {
-      const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+      const formattedBirthday = birthday ? birthday.toISOString() : null;
 
       await sql`
         UPDATE customers1
@@ -117,7 +117,7 @@ export async function deleteCustomer(id: string) {
 export async function createPet(pets: Pets) {
   console.log('pets::: ', pets);
   
-  const created_date = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString();
   const updated_date = created_date;
 
   const { 
@@ -136,7 +136,7 @@ export async function createPet(pets: Pets) {
     grooming_day,
     image_url
    } = pets
-   const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
+   const formattedBirthday = birthday ? birthday.toISOString() : null;
 
    await sql`
         INSERT INTO pets (
@@ -173,8 +173,8 @@ export async function editPet(pet: Pets) {
     grooming_day,
     image_url
   } = pet;
-  const formattedBirthday = birthday ? birthday.toISOString().split('T')[0] : null;
-  const formattedDate = new Date().toISOString().split('T')[0];
+  const formattedBirthday = birthday ? birthday.toISOString() : null;
+  const formattedDate = new Date().toISOString();
   
   try {
     await sql`
@@ -217,7 +217,7 @@ export async function deletePet(id: string) {
 }
 
 export async function createMedicalHistory(medicalHistory: MedicalHistory) {
-  const created_date = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString();
   const updated_date = created_date;
   const {
     user_id,
@@ -241,7 +241,7 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
     observation,
   } = medicalHistory;
   
-  const formattedDate = date ? date.toISOString().split('T')[0] : null;
+  const formattedDate = date ? date.toISOString() : null;
 
   await sql`
     INSERT INTO medical_histories (
@@ -255,43 +255,106 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
 }
 
 //vets
-export async function createVet(pets: Veterinary) {
-
-  
-  const created_date = new Date().toISOString().split('T')[0];
+export async function createVet(vets: Veterinary) {
+  console.log('vets123::: ', vets);
+  const created_date = new Date().toISOString();
   const updated_date = created_date;
 
   const { 
+    id,
     user_id,
     name,
     email,
     dni,
     cellphone,
     address,
-    // specialties,  
     image_url
-   } = pets
+  } = vets;
+  
 
-   await sql`
-        INSERT INTO vets (
-          user_id, name, email, dni, cellphone, address, image_url, created_date, updated_date
-        )
-        VALUES (
-          ${user_id}, ${name}, ${email}, ${dni}, ${cellphone}, ${address}, ${image_url}, ${created_date}, ${updated_date}
-        )
+  await sql`
+    INSERT INTO vets (
+      id, user_id, name, email, dni, cellphone, address, image_url, created_date, updated_date
+    )
+    VALUES (
+    ${id}, ${user_id}, ${name}, ${email}, ${dni}, ${cellphone}, ${address}, ${image_url}, ${created_date}, ${updated_date}
+    )
     `;
+  
 
-   
-    revalidatePath('/dashboard/mascotas');
-    redirect('/dashboard/mascotas');
+  revalidatePath('/dashboard/vets');
+  redirect('/dashboard/vets');
+}
 
+export async function createVetSchedule(vetSchedule: VetSchedule) {
+  console.log('vetSchedule::: ', vetSchedule);
+  const created_date = new Date().toISOString();
+  const updated_date = created_date;
+  const {
+    user_id,
+    vet_id,
+    title,
+    start_time,
+    end_time,
+    status
+  } = vetSchedule;
+
+  const formattedStartTime = start_time ? new Date(start_time).toISOString() : null;
+  const formattedEndTime = end_time ? new Date(end_time).toISOString() : null;
+  console.log('formattedStartTime::: ', formattedStartTime);
+  console.log('formattedEndTime::: ', formattedEndTime);
+
+  await sql`
+    INSERT INTO vet_schedules (
+       user_id, vet_id, title, start_time, end_time, status, created_date, updated_date
+    )
+    VALUES (
+      
+     ${user_id}, ${vet_id}, ${title}, ${formattedStartTime}, ${formattedEndTime}, ${status}, ${created_date}, ${updated_date}
+    )
+  `;
+  revalidatePath('/dashboard/vets');
+
+}
+
+export async function updateVetSchedule(vetSchedule: VetSchedule) {
+  const updated_date = new Date().toISOString();
+  const {
+    id,
+    user_id,
+    vet_id,
+    title,
+    start_time,
+    end_time,
+    status
+  } = vetSchedule;
+
+  const formattedStartTime = start_time ? new Date(start_time).toISOString() : null;
+  const formattedEndTime = end_time ? new Date(end_time).toISOString() : null;
+
+  const res = await sql`
+    UPDATE vet_schedules
+    SET 
+      user_id = ${user_id}, 
+      vet_id = ${vet_id}, 
+      title = ${title}, 
+      start_time = ${formattedStartTime}, 
+      end_time = ${formattedEndTime}, 
+      status = ${status}, 
+      updated_date = ${updated_date}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath('/dashboard/vets');
+
+  return res;
 }
 
 //products
 
 export async function createProduct(productsData: Products) {
   
-  const created_date = new Date().toISOString().split('T')[0];
+  const created_date = new Date().toISOString();
   const updated_date = created_date;
 
   const {
@@ -322,7 +385,7 @@ redirect('/dashboard/products');
 }
 
 export async function editProduct(productsData: Products) {
-  const updated_date = new Date().toISOString().split('T')[0];
+  const updated_date = new Date().toISOString();
 
   const {
     id,

@@ -397,21 +397,34 @@ export async function getFilteredVets(
 }
 
 export async function getVetSchedule(id: string): Promise<VetSchedule[]> {
-
-  try{
+  try {
     const data = await sql<VetSchedule>`
       SELECT *
       FROM vet_schedules
       WHERE vet_id = ${id}
     `;
-    return data.rows;
-  }catch (error) {
+    
+    const adjustedData = data.rows.map(row => {
+      row.start_time = convertToPeruTimezone(row.start_time);
+      row.end_time = convertToPeruTimezone(row.end_time);
+      row.created_date = convertToPeruTimezone(row.created_date);
+      row.updated_date = convertToPeruTimezone(row.updated_date);
+      return row;
+    });
+
+    return adjustedData;
+  } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch vet schedule.');
   }
-
 }
 
+function convertToPeruTimezone(date: Date): Date {
+  const utcDate = new Date(date);
+  const peruOffset = -5 * 60; // Offset en minutos para Perú
+  const peruTime = new Date(utcDate.getTime() + peruOffset * 60000);
+  return peruTime;
+}
 //products
 
 export async function getProductsPage(query: string, userId: string) {

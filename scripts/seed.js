@@ -402,6 +402,7 @@ async function seedVetsSchedules(client) {
     const createTable = await client.sql`
       CREATE TABLE IF NOT EXISTS vet_schedules (
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
         vet_id UUID,
         title TEXT,
         start_time TIMESTAMP,
@@ -417,10 +418,11 @@ async function seedVetsSchedules(client) {
     const insertedVetSchedules = await Promise.all(
       vetSchedules.map(async (vs) => {
         return client.sql`
-        INSERT INTO vet_schedules (id, vet_id, title, start_time, end_time, status)
+        INSERT INTO vet_schedules (id, user_id, vet_id, title, start_time, end_time, status)
         
         VALUES (
           ${vs.id},
+          ${vs.user_id},
           ${vs.vet_id},
           ${vs.title},
           ${vs.start_time},
@@ -553,16 +555,16 @@ async function main() {
 
   // await seedEventos(client);
   // await seedUsers(client);
-  // await seedCustomers(client);
-  // await seedPets(client);
-  // await seedMedicalHistories(client);
-  // await seedProducts(client);
-  // await seedSales(client);
+  await seedCustomers(client);
+  await seedPets(client);
+  await seedMedicalHistories(client);
+  await seedProducts(client);
+  await seedSales(client);
   await seedVets(client);
   await seedVetsSchedules(client);
   await client.end();
 }
-// DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories
+// DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories, vets, vet_schedules
 main().catch((err) => {
   console.error(
     'An error occurred while attempting to seed the database:',

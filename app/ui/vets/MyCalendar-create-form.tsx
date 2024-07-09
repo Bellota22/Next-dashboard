@@ -12,6 +12,7 @@ import { inter } from "../fonts";
 import { VetSchedule } from "@/app/lib/definitions";
 import { createVetSchedule, updateVetSchedule } from '@/app/lib/actions';
 import { update } from "@react-spring/web";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -23,10 +24,12 @@ const localizer = momentLocalizer(moment);
 
 interface CalendarProps {
   vetSchedule?: VetSchedule[];
+  setVetEvent: (vetEvent: any) => void;
+  
 }
 
 
-export default function MyCalendar({ vetSchedule }: CalendarProps) {
+export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) {
   console.log('vetSchedule::: ', vetSchedule);
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const initialEvents = vetSchedule?.map(event => ({
@@ -34,9 +37,9 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
     title: event.title,
     start: event.start_time,
     end: event.end_time
-  }));
+  })) || [];
 
-  const [events, setEvents] = useState(initialEvents || []);
+  const [events, setEvents] = useState(initialEvents);
   const [view, setView] = useState(Views.WEEK); // Estado para la vista actual
   const [modalOpen, setModalOpen] = useState(false);
   const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null, end: null });
@@ -56,18 +59,9 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
     nextEvents.splice(idx, 1, updatedEvent);
 
     setEvents(nextEvents);
+    setVetEvent(nextEvents);
+
     
-    await updateVetSchedule({
-      id: event.id,
-      user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
-      title: event.title,
-      start_time: new Date(start).toISOString(),
-      end_time: new Date(end).toISOString(),
-      status: true,
-      created_date: new Date(),
-      updated_date: new Date(),
-    })
   };
 
   const resizeEvent = async ({ event, start, end }) => {
@@ -78,56 +72,51 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
     });
 
     setEvents(nextEvents);
-    await updateVetSchedule({
-      id: event.id,
-      user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
-      title: event.title,
-      start_time: new Date(start).toISOString(),
-      end_time: new Date(end).toISOString(),
-      status: true,
-      created_date: new Date(),
-      updated_date: new Date(),
-    })
+    setVetEvent(nextEvents);
+
+   
   };
 
   const handleSelectSlot = async ({ start, end }) => {
-
+    setNewEventInfo({ title: '', start, end });
     setModalOpen(true);
+
+
+  
     
   };
 
   
   const handleCreateEvent = async () => {
-    let idList = events.map(a => a.id);
-    let newId = Math.max(...idList) + 1;
+    const start_time = newEventInfo.start ? new Date(newEventInfo.start).toISOString() : new Date().toISOString();
+    const end_time = newEventInfo.end ? new Date(newEventInfo.end).toISOString() : new Date().toISOString();
+
     let newEvent = {
-      id: newId,
+      id: uuidv4(),
       title: newEventInfo.title,
       start: newEventInfo.start,
       end: newEventInfo.end,
       allDay: false,
     };
-    const start_time = newEventInfo.start ? new Date(newEventInfo.start).toISOString() : new Date().toISOString();
-    const end_time = newEventInfo.end ? new Date(newEventInfo.end).toISOString() : new Date().toISOString();
-
+    
 
     setEvents(events.concat([newEvent]));
+    setVetEvent(events.concat([newEvent]));
     setModalOpen(false);
-    await createVetSchedule({
-      id: '',
-      user_id: userId,
-      vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
-      title: newEventInfo.title,
-      start_time: start_time,
-      end_time: end_time,
-      status: true,
-      created_date: new Date(),
-      updated_date: new Date(),
-    })
+    // await createVetSchedule({
+    //   id: '',
+    //   user_id: userId,
+    //   vet_id: 'e9e4dbd1-59d3-466a-9e06-2ffcc3759f38',
+    //   title: newEventInfo.title,
+    //   start_time: start_time,
+    //   end_time: end_time,
+    //   status: true,
+    //   created_date: new Date(),
+    //   updated_date: new Date(),
+    // })
   };
   const [date, setDate] = useState(new Date());
-
+  console.log('events::: ', events)
   return (
     <Box>
       <DragAndDropCalendar
@@ -143,7 +132,7 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
         onDragStart={console.log}
         defaultView={Views.MONTH}
         view={view} // Vista actual controlada por el estado
-        date={date} // Include the date prop
+        date={date} // https://stackoverflow.com/questions/78011246/react-big-calendar-next-and-back-buttons-not-navigating-to-the-correct-month
         onNavigate={(date) => {
           setDate(new Date(date));
       }}
@@ -156,7 +145,9 @@ export default function MyCalendar({ vetSchedule }: CalendarProps) {
         <TextInput
           label="Título del Evento"
           value={newEventInfo.title}
-          onChange={(e) => setNewEventInfo({ ...newEventInfo, title: e.currentTarget.value })}
+          onChange={
+            (event) => setNewEventInfo({ ...newEventInfo, title: event.currentTarget.value })
+          }
         />
         <Button onClick={handleCreateEvent} style={{ marginTop: 10 }}>Crear Evento</Button>
       </Modal>

@@ -177,7 +177,7 @@ export default function Form({ vetSchedule }: VeterinaryFormProps) {
         </Box>
       </Flex>
       <Box p={24}>
-          <MyCalendar vetSchedule={vetSchedule} />
+        <MyCalendar vetSchedule={vetSchedule} />
       </Box>
         
         <Flex className="mt-6 justify-end gap-4 p-6">

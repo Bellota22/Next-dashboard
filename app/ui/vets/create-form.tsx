@@ -1,6 +1,6 @@
 'use client';
 
-import { createVet } from '@/app/lib/actions';
+import { createVet, createVetSchedule } from '@/app/lib/actions';
 import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
@@ -9,12 +9,23 @@ import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Veterinary } from '@/app/lib/definitions';
 import { SPECIALTIES } from '@/app/constants'
-import MyCalendar from './MyCalendar';
+import MyCalendar from './MyCalendar-create-form';
+import { v4 as uuidv4 } from 'uuid';
+
+interface VetEvent {
+  id: string;
+  title: string;
+  start: Date | null;
+  end: Date | null;
+
+}
 
 export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+  
+  const [vetEvent, setVetEvent] = useState([]);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
@@ -44,23 +55,38 @@ export default function Form() {
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;
   });
 
-
-  const optionsFilter: OptionsFilter = ({ options, search }) => {
-    const filtered = (options as ComboboxItem[]).filter((option) =>
-      option.label.toLowerCase().trim().includes(search.toLowerCase().trim())
-    );
-  
-    filtered.sort((a, b) => a.label.localeCompare(b.label));
-    return filtered;
-  };
- 
-  
   const handleSubmit = async (values: Veterinary) => {
-
-    await createVet(values);
-
-    router.push('/dashboard/vets');
+    const vetId = uuidv4(); 
+    values.id = vetId;
     
+    if (vetEvent.length === 0) {
+      alert('Seleccione al menos un horario');
+      return;
+    }
+    try {
+
+      await createVet(values);
+    
+
+      // Crea cada evento en el calendario
+      for (const event of vetEvent) {
+        await createVetSchedule({
+          id:'',
+          user_id: userId,
+          vet_id: vetId,
+          title: event.title,
+          start_time: event.start,
+          end_time: event.end,
+          status: true,
+          created_date: new Date(),
+          updated_date: new Date(),
+        });
+      }
+
+      router.push('/dashboard/vets');
+    } catch (error) {
+      console.error('Error al crear el evento del veterinario:', error);
+    }
   };
 
   return (
@@ -172,7 +198,7 @@ export default function Form() {
         </Box>
       </Flex>
       <Box p={24}>
-          <MyCalendar />
+        <MyCalendar setVetEvent={setVetEvent} />
       </Box>
         
         <Flex className="mt-6 justify-end gap-4 p-6">
