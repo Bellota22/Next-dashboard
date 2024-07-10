@@ -9,10 +9,10 @@ import { DateInput } from '@mantine/dates';
 import { useEffect, useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
-import data from '@/app/lib/cities_data';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { setCookie } from 'cookies-next';
 import { Customers } from '@/app/lib/definitions';
+import { DEPARTMENTS, PROVINCES } from '@/app/constants';
 
 export default function Form() {
   const router = useRouter();
@@ -51,6 +51,15 @@ export default function Form() {
       
     },
   });
+  const [department, setDepartment] = useState('');
+  const [provinces, setProvinces] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (department) {
+      setProvinces(PROVINCES[department] || []);
+      form.setFieldValue('province', '');
+    }
+  }, [department]);
 
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const previews = files.map((file, index) => {
@@ -67,29 +76,12 @@ export default function Form() {
     filtered.sort((a, b) => a.label.localeCompare(b.label));
     return filtered;
   };
-  const [province, setProvinces] = useState<string[]>([]);
-  const [distritos, setDistritos] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (form.values.department) {
-      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
-      setProvinces(data[departamentoKey]?.provinces || []);
-      setDistritos([]);
-      form.setFieldValue('provincia', '');
-      form.setFieldValue('distrito', '');
-    }
-  }, [form.values.department]);
-
-  useEffect(() => {
-    if (form.values.province && form.values.department) {
-      const departamentoKey = form.values.department.toLowerCase().replace(/ /g, '_');
-      const provinciaKey = form.values.province.toLowerCase().replace(/ /g, '_');
-      setDistritos(data[departamentoKey]?.districts[provinciaKey] || []);
-      form.setFieldValue('distrito', '');
-    }
-  }, [form.values.province, form.values.department]);
+ 
+  
+ 
   
   const handleSubmit = async (values: Customers) => {
+    values.department = department;
     await createCustomer(values);
     if (fromModal) {
       setCookie('fromModal', 'true');
@@ -161,27 +153,31 @@ export default function Form() {
                 required
                 label="Departamento"
                 placeholder="Trujillo"
-                data={Object.keys(data).map((departamento) => ({ value: departamento.replace(/_/g, ' '), label: departamento.replace(/_/g, ' ') }))}
+                data={DEPARTMENTS}
+                value={department}
                 filter={optionsFilter}
+                onChange={(value) => setDepartment(value)}
                 key={form.key('department')}
-                {...form.getInputProps('department')}
               />
-              <Autocomplete
-                required
-                label="Distrito"
-                placeholder="Distrito"
-                data={distritos.map(dist => dist.replace(/_/g, ' '))}
-                key={form.key('district')}
-                {...form.getInputProps('district')}
-              />          
               <Autocomplete
                 withAsterisk
                 label="Provincia" 
                 placeholder="Provincia" 
                 required
+                data={provinces}
+                disabled={!department}
                 key={form.key('province')} 
                 {...form.getInputProps('province')}
-              />
+
+                />
+              <TextInput
+                required
+                label="Distrito"
+                placeholder="Distrito"
+                key={form.key('district')}
+                {...form.getInputProps('district')}
+              />          
+              
               <TextInput
                 withAsterisk
                 label="Dirección" 
