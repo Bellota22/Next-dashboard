@@ -378,6 +378,7 @@ export async function getVetById(id: string) {
       JOIN users u ON v.user_id = u.id
       WHERE v.id = ${id};
     `;
+    
 
     const vet = data.rows[0];
     return vet;

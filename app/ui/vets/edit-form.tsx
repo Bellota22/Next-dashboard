@@ -1,7 +1,7 @@
 'use client';
 
 import { createVet, editVet, editVetSchedule } from '@/app/lib/actions';
-import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
+import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title, MultiSelect } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
@@ -24,6 +24,9 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const [vetEvent, setVetEvent] = useState<VetSchedule[]>([]);
+  const initualSpecialties = vet.specialties?.split(',').map((item: any)  => item.trim());
+  console.log('initualSpecialties::: ', initualSpecialties);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(initualSpecialties  || []);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
@@ -63,6 +66,9 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
     }
 
     try {
+
+      values.specialties = selectedSpecialties;
+
       await editVet(values);
 
       // Crea cada evento en el calendario
@@ -136,16 +142,16 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
               />
           </Flex>
           <Flex mb={4} gap={8} >
-          <Autocomplete
-                required
-                label="Especialidad"
-                placeholder="Tags"
-                data={
-                  SPECIALTIES.map((tag) => ({ value: tag.id, label: tag.name }))
-                }
-                key={form.key('specialties')}
-                {...form.getInputProps('specialties')}
-              />
+          <MultiSelect
+              required
+              label="Especialidades"
+              placeholder="Seleccione especialidades"
+              data={SPECIALTIES}
+              value={selectedSpecialties}
+              onChange={setSelectedSpecialties}
+              searchable
+              clearable
+            />
             
               
           </Flex>

@@ -35,12 +35,11 @@ export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-  const [value, setValue] = useState<string[]>([]);
-  console.log('value::: ', value);
-
+  
   
   const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
   console.log('vetEvent::: ', vetEvent);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
 
   const form = useForm<Veterinary>({
     mode: 'uncontrolled',
@@ -79,6 +78,7 @@ export default function Form() {
       return;
     }
     try {
+      values.specialties = selectedSpecialties;
 
       await createVet(values);
     
@@ -155,18 +155,15 @@ export default function Form() {
           </Flex>
           <Flex mb={4} gap={8} >
           <MultiSelect
-                required
-                label="Especialidad"
-                placeholder="Tags"
-                data={
-                  SPECIALTIES.map((tag) => ({label: tag.name }))
-                }
-                onChange={setValue}
-                key={form.key('specialties')}
-                {...form.getInputProps('specialties')}
-              />
-            
-              
+              required
+              label="Especialidades"
+              placeholder="Seleccione especialidades"
+              data={SPECIALTIES}
+              value={selectedSpecialties}
+              onChange={setSelectedSpecialties}
+              searchable
+              clearable
+            />
           </Flex>
 
           

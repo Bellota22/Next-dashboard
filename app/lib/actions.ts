@@ -267,18 +267,20 @@ export async function createVet(vets: Veterinary) {
     dni,
     cellphone,
     address,
-    image_url
+    image_url,
+    specialties
   } = vets;
   
+  const specialtiesCSV = specialties?.join(', ') || '';
 
   await sql`
     INSERT INTO vets (
-      id, user_id, name, email, dni, cellphone, address, image_url, created_date, updated_date
+      id, user_id, name, email, dni, cellphone, address, image_url, specialties, created_date, updated_date
     )
     VALUES (
-    ${id}, ${user_id}, ${name}, ${email}, ${dni}, ${cellphone}, ${address}, ${image_url}, ${created_date}, ${updated_date}
+      ${id}, ${user_id}, ${name}, ${email}, ${dni}, ${cellphone}, ${address}, ${image_url}, ${specialtiesCSV}, ${created_date}, ${updated_date}
     )
-    `;
+  `;
   
 
   revalidatePath('/dashboard/vets');
@@ -296,10 +298,12 @@ export async function editVet(vet: Veterinary) {
     dni,
     cellphone,
     address,
-    image_url
+    image_url,
+    specialties
    
   } = vet;
     
+  const specialtiesCSV = specialties?.join(', ') || '';
 
   await sql`
     UPDATE vets
@@ -311,7 +315,8 @@ export async function editVet(vet: Veterinary) {
       cellphone = ${cellphone}, 
       address = ${address}, 
       image_url = ${image_url},
-      updated_date = ${updated_date}
+      updated_date = ${updated_date},
+      specialties = ${specialtiesCSV}
     WHERE id = ${id}
   `;
 

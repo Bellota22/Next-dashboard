@@ -115,10 +115,7 @@ export type MedicalHistory = {
   updated_date: Date;
 };
 
-export type Specialty = {
-  id: string;
-  name: string;
-};
+
 
 export type Veterinary = {
   id: string;
@@ -128,7 +125,7 @@ export type Veterinary = {
   dni: number;
   cellphone: string;
   address?: string;
-  specialties?: Specialty[];
+  specialties?: any;
   image_url?: string;
   created_date: Date;
   updated_date: Date;
