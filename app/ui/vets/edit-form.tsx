@@ -18,6 +18,7 @@ interface VeterinaryFormProps {
 }
 
 export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
+  console.log('vet::: ', vet);
 
   const router = useRouter();
   const searchParams = useSearchParams();

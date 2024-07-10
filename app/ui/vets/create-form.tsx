@@ -1,7 +1,7 @@
 'use client';
 
 import { createVet, createVetSchedule } from '@/app/lib/actions';
-import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title } from '@mantine/core';
+import { Autocomplete, Box, Button, Flex, Group, Image, NumberInput, rem, Stack, Text, TextInput, ComboboxItem, OptionsFilter, Title, MultiSelect } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
@@ -35,7 +35,9 @@ export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
-  
+  const [value, setValue] = useState<string[]>([]);
+  console.log('value::: ', value);
+
   
   const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
   console.log('vetEvent::: ', vetEvent);
@@ -152,13 +154,14 @@ export default function Form() {
               />
           </Flex>
           <Flex mb={4} gap={8} >
-          <Autocomplete
+          <MultiSelect
                 required
                 label="Especialidad"
                 placeholder="Tags"
                 data={
-                  SPECIALTIES.map((tag) => ({ value: tag.id, label: tag.name }))
+                  SPECIALTIES.map((tag) => ({label: tag.name }))
                 }
+                onChange={setValue}
                 key={form.key('specialties')}
                 {...form.getInputProps('specialties')}
               />

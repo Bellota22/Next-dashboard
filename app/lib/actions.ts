@@ -103,14 +103,9 @@ export async function editCustomer(customerData: Customers) {
 }
 
 export async function deleteCustomer(id: string) {
-  try{
       await sql`DELETE FROM customers WHERE id = ${id}`;
       revalidatePath('/dashboard/customers');
-  }catch{
-      return {
-          message: 'Failed to delete customer'
-      }
-  }
+  
 }
 
 //pets
@@ -320,8 +315,8 @@ export async function editVet(vet: Veterinary) {
     WHERE id = ${id}
   `;
 
-  revalidatePath('/dashboard/products');
-  redirect('/dashboard/products');
+  revalidatePath('/dashboard/vets');
+  redirect('/dashboard/vets');
 }
 
 //vet schedules
@@ -341,8 +336,6 @@ export async function createVetSchedule(vetSchedule: VetSchedule) {
 
   const formattedStartTime = start_time ? new Date(start_time).toISOString() : null;
   const formattedEndTime = end_time ? new Date(end_time).toISOString() : null;
-  console.log('formattedStartTime::: ', formattedStartTime);
-  console.log('formattedEndTime::: ', formattedEndTime);
 
   await sql`
     INSERT INTO vet_schedules (
@@ -358,7 +351,7 @@ export async function createVetSchedule(vetSchedule: VetSchedule) {
 }
 
 export async function editVetSchedule(vetSchedule: VetSchedule) {
-  console.log('EditvetSchedule::: ', vetSchedule);
+
   const updated_date = new Date().toISOString();
   const {
     id,
@@ -372,23 +365,29 @@ export async function editVetSchedule(vetSchedule: VetSchedule) {
 
   const formattedStartTime = start_time ? new Date(start_time).toISOString() : null;
   const formattedEndTime = end_time ? new Date(end_time).toISOString() : null;
+  
 
-  const res = await sql`
-    UPDATE vet_schedules
-    SET 
-      user_id = ${user_id}, 
-      vet_id = ${vet_id}, 
-      title = ${title}, 
-      start_time = ${formattedStartTime}, 
-      end_time = ${formattedEndTime}, 
-      status = ${status}, 
-      updated_date = ${updated_date}
-    WHERE id = ${id}
-  `;
+    const res = await sql`
+      UPDATE vet_schedules
+      SET 
+        user_id = ${user_id}, 
+        vet_id = ${vet_id}, 
+        title = ${title}, 
+        start_time = ${formattedStartTime}, 
+        end_time = ${formattedEndTime}, 
+        status = ${status}, 
+        updated_date = ${updated_date}
+      WHERE id = ${id}
+    `;
 
-  revalidatePath('/dashboard/vets');
+    console.log('SQL Update Result:', res);
 
-  return res;
+  
+
+    revalidatePath('/dashboard/vets'); // Espera a que la revalidación termine
+
+    return res;
+
 }
 
 // appointments
@@ -419,7 +418,6 @@ export async function createAppointment(appointmentData: Appointments) {
   `;
   revalidatePath('/dashboard/appointments');
 
-
 }
 
 //products
@@ -446,7 +444,7 @@ export async function createProduct(productsData: Products) {
     image_url,    
   } = productsData;
   await sql`
-  INSERT INTO products1 (
+  INSERT INTO products (
     user_id, name, brand, measure_unit, presentation, content, supplier, bar_code, category, stock, buy_price, sell_price, status, image_url, created_date, updated_date)
   VALUES (
     ${user_id}, ${name}, ${brand}, ${measure_unit}, ${presentation}, ${content}, ${supplier}, ${bar_code}, ${category}, ${stock}, ${buy_price}, ${sell_price}, ${status}, ${image_url}, ${created_date}, ${updated_date})
@@ -479,7 +477,7 @@ export async function editProduct(productsData: Products) {
     
 
   await sql`
-    UPDATE products1
+    UPDATE products
     SET 
       user_id = ${user_id}, 
       name = ${name}, 
@@ -503,11 +501,11 @@ export async function editProduct(productsData: Products) {
   redirect('/dashboard/products');
 }
 
-export async function updateProductState(id: string, estado: boolean) {
+export async function updateProductState(id: string, status: boolean) {
   try {
     await sql`
       UPDATE products
-      SET estado = ${estado}
+      SET status = ${status}
       WHERE id = ${id}
     `;
     revalidatePath('/dashboard/products');
@@ -519,7 +517,7 @@ export async function updateProductState(id: string, estado: boolean) {
 
 export async function deleteProduct(id: string) {
     try{
-        await sql`DELETE FROM products1 WHERE id = ${id}`;
+        await sql`DELETE FROM products WHERE id = ${id}`;
         revalidatePath('/dashboard/products');
     }catch{
         return {

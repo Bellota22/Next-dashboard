@@ -51,6 +51,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
   const [view, setView] = useState<View>(Views.WEEK);
   const [modalOpen, setModalOpen] = useState(false);
   const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null as Date | null, end: null as Date | null });
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   const moveEvent: withDragAndDropProps<CalendarEvent>['onEventDrop'] = async ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const idx = events.indexOf(event);
@@ -103,12 +104,16 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
   };
 
   const handleSelectSlot = ({ start, end }: SlotInfo) => {
-
+    setSelectedEvent(null); 
+    setNewEventInfo({ title: '', start, end });
     setModalOpen(true);
-    
   };
 
-  
+  const handleSelectEvent = (event: CalendarEvent) => {
+    setSelectedEvent(event); // Carga el evento seleccionado
+    setNewEventInfo({ title: event.title, start: event.start, end: event.end });
+    setModalOpen(true);
+  };
   const handleCreateEvent = async () => {
 
     let newEvent = {
@@ -124,6 +129,17 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
     setVetEvent(events.concat([newEvent]));
 
   };
+
+  const handleDeleteEvent = async () => {
+    if (selectedEvent) {
+      const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
+      setEvents(updatedEvents);
+      setVetEvent(updatedEvents);
+      setModalOpen(false);
+    }
+  };
+    
+
   const [date, setDate] = useState(new Date());
 
   return (
@@ -139,6 +155,8 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
         onEventResize={resizeEvent}
         onSelectSlot={handleSelectSlot}
         onDragStart={console.log}
+        onSelectEvent={handleSelectEvent}
+
         defaultView={Views.MONTH}
         view={view} // Vista actual controlada por el estado
         date={date} // Include the date prop
@@ -176,8 +194,13 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
           value={newEventInfo.title}
           onChange={(e) => setNewEventInfo({ ...newEventInfo, title: e.currentTarget.value })}
         />
-        <Button onClick={handleCreateEvent} style={{ marginTop: 10 }}>Crear Evento</Button>
-      </Modal>
+        <Button variant="outline" color="primary" onClick={handleCreateEvent} style={{ marginTop: 10 }}>Crear Evento</Button>
+        {selectedEvent && (
+          <Button onClick={handleDeleteEvent} style={{ marginTop: 10, marginLeft: 10 }}  variant="outline" color="red">
+            Eliminar Evento
+          </Button>
+        )}     
+        </Modal>
     </Box>
   );
 }

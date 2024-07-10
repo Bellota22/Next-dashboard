@@ -118,8 +118,6 @@ export type MedicalHistory = {
 export type Specialty = {
   id: string;
   name: string;
-  created_date: Date;
-  updated_date: Date;
 };
 
 export type Veterinary = {
