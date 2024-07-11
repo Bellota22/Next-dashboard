@@ -80,6 +80,7 @@ export default function Form({ customers, query, currentPage }: FormProps) {
     
   });
 
+  form.setFieldValue('name', '');
   form.setFieldValue('gender', gender === "MACHO" ? true : false);
   form.setFieldValue('sterelized', sterelized);
   form.setFieldValue('insured', insured);
@@ -95,11 +96,12 @@ export default function Form({ customers, query, currentPage }: FormProps) {
       setError('Debe seleccionar un propietario válido.');
       return;
     }
-    values.customer_id = selectedCustomerId;  // Set customer_id before submitting
+    
+  
+    values.customer_id = selectedCustomerId;
     await createPet(values);
   };
 
-  
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
     return <Image w={200} h={200} key={index} src={imageUrl} alt="image" onLoad={() => URL.revokeObjectURL(imageUrl)} />;

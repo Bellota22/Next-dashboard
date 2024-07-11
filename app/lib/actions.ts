@@ -18,18 +18,20 @@ const registerSchema = z.object({
   }),
 });
 
-const userCookie =  cookies().get('user')?.value
-let user = null;
-if (userCookie) {
+const getUserId = () => {
+  const userCookie = cookies().get('user')?.value;
+  if (!userCookie) {
+    return null;
+  }
+
   try {
-    user = JSON.parse(userCookie);
+    const user = JSON.parse(userCookie);
+    return user?.user_id || user?.id;
   } catch (error) {
     console.error('Failed to parse user cookie:', error);
+    return null;
   }
-}
-const user_id = user?.id || user?.user_id;
-console.log('user::: ', user);
-
+};
 
 export async function registerUser({ email, name, password, terms }: z.infer<typeof registerSchema>): Promise<User> {
   const parsed = registerSchema.safeParse({ email, name, password, terms });
@@ -55,6 +57,7 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 
 
 export async function registerEmployees(employe: Employee): Promise<Employee>{
+  const user_id = getUserId();
 
   const {
     email,
@@ -82,6 +85,8 @@ export async function registerEmployees(employe: Employee): Promise<Employee>{
 // customer
 export async function createCustomer(customerData: Customers) {
   const created_date = new Date().toISOString();
+  const user_id = getUserId();
+
   const updated_date = created_date; 
   const {
     name,
@@ -110,6 +115,8 @@ export async function createCustomer(customerData: Customers) {
 }
 
 export async function editCustomer(customerData: Customers) {
+  const user_id = getUserId();
+
     const { 
       id,
       name,
@@ -149,7 +156,7 @@ export async function deleteCustomer(id: string) {
 //pets
 
 export async function createPet(pets: Pets) {
-  console.log('pets::: ', pets);
+  const user_id = getUserId();
   
   const created_date = new Date().toISOString();
   const updated_date = created_date;
@@ -188,7 +195,8 @@ export async function createPet(pets: Pets) {
 }
 
 export async function editPet(pet: Pets) {
-  
+  const user_id = getUserId();
+
   const {
     id,
     customer_id,
@@ -254,6 +262,8 @@ export async function deletePet(id: string) {
 export async function createMedicalHistory(medicalHistory: MedicalHistory) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
+  const user_id = getUserId();
+
   const {
     pet_id,
     date,
@@ -292,6 +302,7 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
 export async function createVet(vets: Veterinary) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
+  const user_id = getUserId();
 
   const { 
     id,
@@ -322,6 +333,7 @@ export async function createVet(vets: Veterinary) {
 
 export async function editVet(vet: Veterinary) {
   const updated_date = new Date().toISOString();
+  const user_id = getUserId();
 
   const {
     id,
@@ -359,7 +371,7 @@ export async function editVet(vet: Veterinary) {
 //vet schedules
 
 export async function createVetSchedule(vetSchedule: VetSchedule) {
-  console.log('vetSchedule::: ', vetSchedule);
+  const user_id = getUserId();
   const created_date = new Date().toISOString();
   const updated_date = created_date;
   const {
@@ -387,6 +399,7 @@ export async function createVetSchedule(vetSchedule: VetSchedule) {
 }
 
 export async function editVetSchedule(vetSchedule: VetSchedule) {
+  const user_id = getUserId();
 
   const updated_date = new Date().toISOString();
   const {
@@ -429,6 +442,7 @@ export async function editVetSchedule(vetSchedule: VetSchedule) {
 export async function createAppointment(appointmentData: Appointments) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
+  const user_id = getUserId();
 
   const {
     pet_id,
@@ -460,6 +474,7 @@ export async function createProduct(productsData: Products) {
   
   const created_date = new Date().toISOString();
   const updated_date = created_date;
+  const user_id = getUserId();
 
   const {
     name,
@@ -489,6 +504,7 @@ redirect('/dashboard/products');
 
 export async function editProduct(productsData: Products) {
   const updated_date = new Date().toISOString();
+  const user_id = getUserId();
 
   const {
     id,
@@ -560,6 +576,7 @@ export async function deleteProduct(id: string) {
 
 //sales
 export async function createSale(customerId: string, products: ProductsForShoppingCart[] ) {
+  const user_id = getUserId();
 
   const status = true;
   const total_price = products.reduce((sum, product) => sum + product.sell_price * product.quantity, 0);

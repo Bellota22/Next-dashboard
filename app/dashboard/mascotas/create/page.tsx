@@ -17,7 +17,7 @@ export default async function Page({
    
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const customers = await getFilteredCustomers(query, currentPage);
+  const customers = await getFilteredCustomers(query, currentPage) || [];
   
   return (
     <main>

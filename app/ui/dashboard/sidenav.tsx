@@ -17,10 +17,19 @@ import { notifications } from '@mantine/notifications';
 import { useForm } from "@mantine/form";
 import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
-
+import { getCookie, setCookie } from 'cookies-next';
 
 export default function SideNav() {
 
+  const userCookie =  getCookie('user')
+  let user = { name: 'User', email: ''};
+  if (userCookie) {
+    try {
+      user = JSON.parse(userCookie);
+    } catch (error) {
+      console.error('Failed to parse user cookie:', error);
+    }
+  }
   const [products, setProducts] = useState<Products[]>([]);
   const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
     Object.fromEntries(products.map((product: Products) => [product.id, product.status]))
@@ -85,6 +94,8 @@ export default function SideNav() {
   const handleSignOut = async () => {
     try {
       await handleServerSignOut();
+      setCookie('user', '');
+
       router.push('/');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -100,10 +111,10 @@ export default function SideNav() {
           <Menu.Target>
               <Button
                 color="primary" 
-                leftSection={<Avatar name={"Gabriel Villanueva"} size="md" variant="outline" color="primary" />}
+                leftSection={<Avatar name={`${user.name}`} size="md" variant="outline" color="primary" />}
                 variant='light'
               >
-                <Text>Gabriel Villanueva</Text>
+                <Text>{user.name}</Text>
                 </Button>
               
           </Menu.Target>
@@ -121,9 +132,8 @@ export default function SideNav() {
         </Menu>
         <Modal
           opened={opened}
-          
           onClose={close} 
-          title={createUserView ? 'Crear usuario' : 'Usuarios de Patitas Felices'}
+          title={createUserView ? 'Crear usuario' : 'Mis usuarios'}
           transitionProps={{ transition: 'rotate-left' }}
           >
           {createUserView ? (

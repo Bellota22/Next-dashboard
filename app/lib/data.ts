@@ -17,17 +17,20 @@ import { cookies } from 'next/headers';
 
 
 const ITEMS_PER_PAGE = 8;
-const userCookie =  cookies().get('user')?.value
-let user = null;
-if (userCookie) {
+const getUserId = () => {
+  const userCookie = cookies().get('user')?.value;
+  if (!userCookie) {
+    return null;
+  }
+
   try {
-    user = JSON.parse(userCookie);
+    const user = JSON.parse(userCookie);
+    return user?.user_id || user?.id;
   } catch (error) {
     console.error('Failed to parse user cookie:', error);
+    return null;
   }
-}
-const user_id = user?.id || user?.user_id;
-console.log('user::: ', user);
+};
 
 //customers
 
@@ -35,31 +38,49 @@ export async function getFilteredCustomers(
   query: string,
   currentPage: number,
 ): Promise<Customers[]> {
+  const user_id = getUserId();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const users = await sql<Customers>`
-    SELECT *
-    FROM customers
-    WHERE
-      user_id = ${user_id} AND (
-      name ILIKE ${`%${query}%`} OR
-      dni::text ILIKE ${`%${query}%`} OR
-      email ILIKE ${`%${query}%`} OR
-      cellphone ILIKE ${`%${query}%`} OR
-      department ILIKE ${`%${query}%`} OR
-      province ILIKE ${`%${query}%`} OR
-      district ILIKE ${`%${query}%`} OR
-      address ILIKE ${`%${query}%`} OR
-      tags ILIKE ${`%${query}%`}
-    )
-    ORDER BY created_date DESC
-    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-  `;
+  SELECT
+    id,
+    user_id,
+    name,
+    dni,
+    birthday,
+    email,
+    cellphone,
+    department,
+    province,
+    district,
+    address,
+    tags,
+    image_url,
+    created_date,
+    updated_date
+  FROM customers
+  WHERE
+    user_id = ${user_id} AND (
+    name ILIKE ${`%${query}%`} OR
+    dni::text ILIKE ${`%${query}%`} OR
+    email ILIKE ${`%${query}%`} OR
+    cellphone ILIKE ${`%${query}%`} OR
+    department ILIKE ${`%${query}%`} OR
+    province ILIKE ${`%${query}%`} OR
+    district ILIKE ${`%${query}%`} OR
+    address ILIKE ${`%${query}%`} OR
+    tags ILIKE ${`%${query}%`}
+  )
+  ORDER BY  created_date DESC
+  LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+`;
 
   return users.rows;
 }
 
 export async function getCustomersPages(query: string) {
+  const user_id = getUserId();
+
   try {
     const count = await sql`
       SELECT COUNT(*)
@@ -121,6 +142,7 @@ export async function getPetsByCustomerId(id: string): Promise<Pets[]>{
 
 
 export async function getAllFilteredPets(query: string, currentPage: number): Promise<PetWithCustomer[]> {
+  const user_id = getUserId();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const pets = await sql`
@@ -210,6 +232,8 @@ export async function getAllFilteredPets(query: string, currentPage: number): Pr
 }
 
 export async function getPetsPages(query: string) {
+  const user_id = getUserId();
+
   try {
     const count = await sql`
       SELECT COUNT(*)
@@ -234,6 +258,7 @@ export async function getPetsPages(query: string) {
 }
 
 export async function getPetById(id: string): Promise<PetWithCustomer>{
+  
   try {
     const data = await sql`
       SELECT
@@ -372,6 +397,7 @@ export async function getFilteredVets(
   query: string,
   currentPage: number
 ): Promise<Veterinary[]> {
+  const user_id = getUserId();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const users = await sql<Veterinary>`
@@ -395,6 +421,7 @@ export async function getFilteredVets(
 }
 
 export async function getAllVetsSchedules(): Promise<VetSchedule[]> {
+  const user_id = getUserId();
 
   
   try {
@@ -405,6 +432,7 @@ export async function getAllVetsSchedules(): Promise<VetSchedule[]> {
     `;
 
     const adjustedData = data.rows.map(row => {
+      const user_id =
       row.start_time = convertToPeruTimezone(row.start_time);
       row.end_time = convertToPeruTimezone(row.end_time);
       row.created_date = convertToPeruTimezone(row.created_date);
@@ -420,6 +448,7 @@ export async function getAllVetsSchedules(): Promise<VetSchedule[]> {
 }
 
 export async function getVetScheduleById(id: string): Promise<VetSchedule[]> {
+  const user_id = getUserId();
   noStore();
   
   try {
@@ -430,6 +459,7 @@ export async function getVetScheduleById(id: string): Promise<VetSchedule[]> {
     `;
     
     const adjustedData = data.rows.map(row => {
+      const user_id =
       row.start_time = convertToPeruTimezone(row.start_time);
       row.end_time = convertToPeruTimezone(row.end_time);
       row.created_date = convertToPeruTimezone(row.created_date);
@@ -454,6 +484,7 @@ function convertToPeruTimezone(date: Date): Date {
 //appointments
 
 export async function getAllAppointments(): Promise<Appointments[]> {
+  const user_id = getUserId();
   noStore();
   try {
     const data = await sql<Appointments>`
@@ -463,6 +494,7 @@ export async function getAllAppointments(): Promise<Appointments[]> {
     `;
 
     const adjustedData = data.rows.map(row => {
+      const user_id =
       row.start_time = convertToPeruTimezone(row.start_time);
       row.end_time = convertToPeruTimezone(row.end_time);
       row.created_date = convertToPeruTimezone(row.created_date);
@@ -482,6 +514,8 @@ export async function getAllAppointments(): Promise<Appointments[]> {
 //products
 
 export async function getProductsPage(query: string) {
+  const user_id = getUserId();
+
   try {
     const count = await sql`
       SELECT COUNT(*)
@@ -511,6 +545,7 @@ export async function getProductsPage(query: string) {
 
 export async function getAllProducts(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const user_id = getUserId();
 
   const products = await sql<Products>`
     SELECT 
@@ -589,6 +624,8 @@ export async function getProductById(id: string) {
 }
 
 export async function getSalesPages(query: string) {
+  const user_id = getUserId();
+
   try {
     const count = await sql`
       SELECT COUNT(*)
@@ -610,6 +647,7 @@ export async function getSalesPages(query: string) {
 }
 
 export async function getAllSales(query: string, currentPage: number): Promise<SaleWithProducts[]> {
+  const user_id = getUserId();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   
   const sales = await sql`
@@ -653,6 +691,7 @@ export async function getAllSales(query: string, currentPage: number): Promise<S
   const salesMap: Record<string, any> = {};
 
   sales.rows.forEach((sale) => {
+    const user_id =
     salesMap[sale.sale_id] = {
       id: sale.sale_id,
       user_id: sale.user_id,
