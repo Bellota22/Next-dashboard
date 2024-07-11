@@ -3,8 +3,11 @@ import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
-import type { User } from '@/app/lib/definitions';
+import type { Employee, User } from '@/app/lib/definitions';
 import bcrypt from 'bcryptjs';
+import { cookies } from 'next/headers';
+import { NextApiRequest, NextApiResponse } from 'next';
+
  
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -13,6 +16,15 @@ async function getUser(email: string): Promise<User | undefined> {
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
+  }
+}
+async function getEmployee(email: string): Promise<Employee | undefined> {
+  try {
+    const employee = await sql<Employee>`SELECT * FROM employees WHERE email=${email}`;
+    return employee.rows[0];
+  } catch (error) {
+    console.error('Failed to fetch employee:', error);
+    throw new Error('Failed to fetch employee.');
   }
 }
  
@@ -27,11 +39,17 @@ export const { auth, signIn, signOut } = NextAuth({
  
           if (parsedCredentials.success) {
             const { email, password } = parsedCredentials.data;
-            const user = await getUser(email);
-            if (!user) return null;
-            const passwordsMatch = await bcrypt.compare(password, user.password);
-   
-            if (passwordsMatch) return user;
+            const user = await getUser(email) || await getEmployee(email);
+
+            if (user && user.password) {
+              const passwordsMatch = await bcrypt.compare(password, user.password);
+              if (passwordsMatch) {
+                // Set the user object in a cookie 
+                const serializedUser = JSON.stringify(user);
+                cookies().set('user', serializedUser);
+                return user;
+              }
+            }
           }
         return null;
       },

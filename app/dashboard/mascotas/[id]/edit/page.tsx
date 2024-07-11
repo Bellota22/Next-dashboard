@@ -30,7 +30,7 @@ export default async function Page({ params }: {
       customers
     ] = await Promise.all([
       getPetById(id),
-      getFilteredCustomers(query, currentPage, userId)
+      getFilteredCustomers(query, currentPage)
     ]);
     const items = EDIT_PET_BREADCRUMB(id)
 

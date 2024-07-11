@@ -52,6 +52,37 @@ async function seedUsers(client) {
   }
 }
 
+async function seedEmployees(client) {
+  console.log('start')
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS employees (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        user_id UUID,
+        name VARCHAR(255) NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        status BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+
+      );
+    `;
+
+    console.log(`Seeded emplouees`);
+
+    return {
+      createTable,
+    };
+  } catch (error) {
+    console.error('Error seeding users:', error);
+    throw error;
+  }
+}
+
 async function seedProducts(client) {
   try {
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -623,14 +654,15 @@ async function main() {
 
   // await seedEventos(client);
   // await seedUsers(client);
-  await seedCustomers(client);
-  await seedPets(client);
-  await seedMedicalHistories(client);
-  await seedProducts(client);
-  await seedSales(client);
-  await seedVets(client);
-  await seedVetsSchedules(client);
-  await seedAppointments(client);
+  await seedEmployees(client);
+  // await seedCustomers(client);
+  // await seedPets(client);
+  // await seedMedicalHistories(client);
+  // await seedProducts(client);
+  // await seedSales(client);
+  // await seedVets(client);
+  // await seedVetsSchedules(client);
+  // await seedAppointments(client);
   await client.end();
 }
 // DROP TABLE IF EXISTS customers, products, sales, sales_products, pets, medical_histories, vets, vet_schedules, appointments

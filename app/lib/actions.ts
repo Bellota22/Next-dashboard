@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { Appointments, Customers, Employee, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
 import bcrypt from 'bcryptjs';
 
@@ -618,8 +618,7 @@ export async function authenticate(
 }
 
 
-import { signOut } from '@/auth';
 
-export async function handleSignOut() {
+export async function handleServerSignOut() {
   await signOut();
 }

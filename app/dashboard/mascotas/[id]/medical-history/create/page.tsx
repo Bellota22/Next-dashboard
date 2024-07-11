@@ -31,7 +31,7 @@ export default async function Page({ params }: {
       medicalHistories
     ] = await Promise.all([
       getPetById(id),
-      getFilteredCustomers(query, currentPage, userId),
+      getFilteredCustomers(query, currentPage),
       getMedicalHistoriesByPetId(id)
     ]);
     const items = MEDICAL_HISTORY_PET_BREADCRUMB(id)

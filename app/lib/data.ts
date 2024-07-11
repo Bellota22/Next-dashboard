@@ -15,16 +15,27 @@ import {
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 import { appointments } from './placeholder-data';
+import { cookies } from 'next/headers';
 
 
 const ITEMS_PER_PAGE = 8;
+const userCookie =  cookies().get('user')?.value
+let user = null;
+if (userCookie) {
+  try {
+    user = JSON.parse(userCookie);
+  } catch (error) {
+    console.error('Failed to parse user cookie:', error);
+  }
+}
+const user_id = user?.id || user?.user_id;
+console.log('user::: ', user);
 
 //customers
 
 export async function getFilteredCustomers(
   query: string,
   currentPage: number,
-  userId: string,
 ): Promise<Customers[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -47,7 +58,7 @@ export async function getFilteredCustomers(
       updated_date
     FROM customers
     WHERE
-      user_id = ${userId} AND (
+      user_id = ${user_id} AND (
       name ILIKE ${`%${query}%`} OR
       dni::text ILIKE ${`%${query}%`} OR
       email ILIKE ${`%${query}%`} OR
@@ -65,13 +76,13 @@ export async function getFilteredCustomers(
   return users.rows;
 }
 
-export async function getCustomersPages(query: string, userId: string) {
+export async function getCustomersPages(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
       FROM customers
       WHERE
-        user_id = ${userId} AND (
+        user_id = ${user_id} AND (
           name ILIKE ${`%${query}%`} OR
           dni::text ILIKE ${`%${query}%`} OR
           email ILIKE ${`%${query}%`} OR
@@ -95,22 +106,7 @@ export async function getCustomersPages(query: string, userId: string) {
 export async function getCustomerById(id: string) {
   try {
     const data = await sql<Customers>`
-      SELECT
-        id,
-        user_id,
-        name,
-        dni,
-        birthday,
-        email,
-        cellphone,
-        department,
-        province,
-        district,
-        address,
-        tags,
-        image_url,
-        created_date,
-        updated_date
+      SELECT *
       FROM customers
       WHERE id = ${id};
     `;

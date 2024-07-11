@@ -2,7 +2,7 @@
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { Avatar, Box, Button, Checkbox, Flex, Menu, Modal, Paper, PasswordInput, rem, Stack, Switch, Text, TextInput, Title, useMantineTheme } from '@mantine/core';
 import { useState } from 'react';
-import { authenticate, handleSignOut, registerEmployees, registerUser } from '@/app/lib/actions';
+import { authenticate, handleServerSignOut, registerEmployees, registerUser } from '@/app/lib/actions';
 import {
   IconSettings,
   IconLogout,
@@ -16,8 +16,8 @@ import { set } from 'zod';
 import { notifications } from '@mantine/notifications';
 import { useForm } from "@mantine/form";
 import { useFormState } from 'react-dom';
+import { useRouter } from 'next/navigation';
 
-interface AuthenticationFormProps extends React.ComponentPropsWithoutRef<'div'> {}
 
 export default function SideNav() {
 
@@ -63,6 +63,7 @@ export default function SideNav() {
           icon: <IconCheck />,
         })
         console.log('newEmployee:::', newEmployee);
+      setCreateUserView(false);
     } catch (error: any) {
       const errorMsg = 'An error occurred during authentication.';
       notifications.show({
@@ -74,11 +75,23 @@ export default function SideNav() {
       console.error('Authentication error:', error);
     }
   };
+  const router = useRouter();
 
   const handleOpenAdmin = () => {
     setCreateUserView(false);
     open();
   }
+
+
+  const handleSignOut = async () => {
+    try {
+      await handleServerSignOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
   return (
     <Stack className="h-full px-3 py-4 pt-12 md:px-2">
       <Box className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
@@ -185,7 +198,7 @@ export default function SideNav() {
                       )
                     }
                   />
-                  <DeleteCustomer />
+                  <DeleteCustomer id={'1'} />
                 </Flex>
               </Flex>
             </Box>
