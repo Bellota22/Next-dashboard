@@ -7,6 +7,16 @@ export type User = {
   created_date: Date;
   updated_date: Date;
 };
+export type Employee = {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  password: string;
+  created_date: Date;
+  updated_date: Date;
+};
+
 
 export type Customers = {
   id: string;

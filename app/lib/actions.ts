@@ -5,7 +5,7 @@ import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
-import { Appointments, Customers, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
+import { Appointments, Customers, Employee, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
 import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
@@ -38,6 +38,33 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 
   return newUser.rows[0];
 }
+
+
+export async function registerEmployees(employe: Employee): Promise<Employee>{
+
+  const {
+    user_id,
+    email,
+    name,
+    password,
+  } = employe;
+  
+
+  const existingUser = await sql<User>`SELECT * FROM employees WHERE email=${email}`;
+  if (existingUser.rows.length > 0) {
+    throw new Error('User already exists with this email');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newEmployee = await sql<Employee>`
+    INSERT INTO employees (user_id, email, name, password)
+    VALUES (${user_id}, ${email}, ${name}, ${hashedPassword})
+    RETURNING *;
+  `;
+
+  return newEmployee.rows[0];
+}
+
 
 // customer
 export async function createCustomer(customerData: Customers) {
@@ -588,4 +615,11 @@ export async function authenticate(
       console.error('Authentication error:', error);
       throw error;
     }
+}
+
+
+import { signOut } from '@/auth';
+
+export async function handleSignOut() {
+  await signOut();
 }
