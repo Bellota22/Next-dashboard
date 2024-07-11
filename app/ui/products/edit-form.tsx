@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 export default function Form({ product }: { product: Products }) {
   const [checked, setChecked] = useState(product.status);
   const theme = useMantineTheme();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const router = useRouter();
   const [files, setFiles] = useState<FileWithPath[]>(product.image_url ? [{ path: product.image_url } as FileWithPath] : []);
    const form = useForm<Products>({
@@ -48,7 +48,6 @@ export default function Form({ product }: { product: Products }) {
     },
     
   });
-  form.setFieldValue('user_id', userId);
   form.setFieldValue('status', checked);
   form.setFieldValue('image_url', files.length > 0 ? files[0].path || '' : '');
 

@@ -21,7 +21,7 @@ interface EditFormProps {
 export default function Form({ customer }: EditFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
 
   const fromModal = searchParams.get('fromModal') === 'true';
 

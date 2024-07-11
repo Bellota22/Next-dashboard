@@ -39,7 +39,7 @@ interface CalendarProps {
 
 export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarProps) {
   const theme = useMantineTheme();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const initialEvents = vetSchedule?.map(event => ({
     id: event.id,
     title: event.title,
@@ -71,7 +71,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
     
     await editVetSchedule({
       id: event.id,
-      user_id: userId,
+      user_id: '',
       vet_id: vet.id,
       title: event.title,
       start_time: new Date(start),
@@ -92,7 +92,7 @@ export default function MyCalendar({ vetSchedule, setVetEvent, vet }: CalendarPr
     setEvents(nextEvents);
     await editVetSchedule({
       id: event.id,
-      user_id: userId,
+      user_id: '',
       vet_id: vet.id,
       title: event.title,
       start_time: new Date(start),

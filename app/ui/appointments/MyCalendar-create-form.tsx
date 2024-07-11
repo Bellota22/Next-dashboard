@@ -41,7 +41,7 @@ interface CalendarProps {
 export default function MyCalendar({ appointments, vetSchedule, setVetEvent, setSelectedAppointments, selectedAppointments }: CalendarProps) {
   const appointments_and_vetschedule = appointments.concat(vetSchedule ?? []);
   const theme = useMantineTheme();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const initialEvents = appointments_and_vetschedule?.map(event => ({
     id: event.id,
     title: event.title,
@@ -115,7 +115,7 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
         end_time: newEvent.end as Date,
         created_date: new Date(),
         updated_date: new Date(),
-        user_id: userId,
+        user_id: '',
         pet_id: '1',
         vet_id: '1',
         status: false,

@@ -37,7 +37,7 @@ interface CalendarEvent {
 }
 export default function Form({ appointments, vetSchedule, vets, pets }: FormProps) {
   const router = useRouter();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   
   const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
   const [selectedAppointments, setSelectedAppointments] = useState<Appointments[]>([]);
@@ -46,7 +46,7 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
     mode: 'uncontrolled',
     initialValues: {
       id: '',
-      user_id: userId,
+      user_id: '',
       vet_id: '',
       pet_id: '',
       title: '',
@@ -64,7 +64,6 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
   const handleSubmit = async (values: Appointments) => {
     const vetId = uuidv4(); 
     values.id = vetId;
-    values.user_id = userId;
     values.vet_id = selectedVetId;
     values.pet_id = selectedPetId;
 
@@ -78,7 +77,7 @@ export default function Form({ appointments, vetSchedule, vets, pets }: FormProp
       for (const appointments of selectedAppointments) {
         await createAppointment({
           id: uuidv4(),
-          user_id: userId,
+          user_id: '',
           vet_id: selectedVetId,
           pet_id: selectedPetId,
           start_time: appointments.start_time,

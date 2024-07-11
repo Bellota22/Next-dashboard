@@ -36,7 +36,7 @@ interface CalendarProps {
 
 export default function MyCalendar({ vetSchedule, setVetEvent }: CalendarProps) {
 
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const initialEvents = vetSchedule?.map(event => ({
     id: event.id,
     title: event.title,

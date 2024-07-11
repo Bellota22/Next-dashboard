@@ -26,7 +26,7 @@ interface FormProps {
 
 export default function Form({ customers, pet,  query, currentPage }: FormProps) {
   
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
 
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [gender, setGender] = useState<string | null>(pet.gender ? 'MACHO' : 'HEMBRA');
@@ -61,7 +61,7 @@ export default function Form({ customers, pet,  query, currentPage }: FormProps)
     mode: 'uncontrolled',
     initialValues: {
       id: pet.id,
-      user_id: userId,
+      user_id: '',
       customer_id: pet.customer_id,
       name: pet.name,
       birthday: pet.birthday || new Date(),

@@ -22,11 +22,10 @@ export default async function Page({
     page?: string;
   };
 }) {
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   const totalPages = await getCustomersPages(query);
-  const vets = await getFilteredVets(query, currentPage, userId);
+  const vets = await getFilteredVets(query, currentPage);
 
   
   return (

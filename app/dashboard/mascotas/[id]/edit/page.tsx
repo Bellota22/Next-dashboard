@@ -19,7 +19,7 @@ export default async function Page({ params }: {
     edit?: string;
    }
  }) {
-    const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+     
 
     const query = params?.query || '';
     const currentPage = Number(params?.page) || 1;

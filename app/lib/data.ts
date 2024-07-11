@@ -5,7 +5,6 @@ import {
   Customers,
   SaleWithProducts,
   PetWithCustomer,
-  ProductsForShoppingCart,
   Pets,
   MedicalHistory,
   Veterinary,
@@ -14,7 +13,6 @@ import {
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
-import { appointments } from './placeholder-data';
 import { cookies } from 'next/headers';
 
 
@@ -40,22 +38,7 @@ export async function getFilteredCustomers(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const users = await sql<Customers>`
-    SELECT
-      id,
-      user_id,
-      name,
-      dni,
-      birthday,
-      email,
-      cellphone,
-      department,
-      province,
-      district,
-      address,
-      tags,
-      image_url,
-      created_date,
-      updated_date
+    SELECT *
     FROM customers
     WHERE
       user_id = ${user_id} AND (
@@ -69,7 +52,7 @@ export async function getFilteredCustomers(
       address ILIKE ${`%${query}%`} OR
       tags ILIKE ${`%${query}%`}
     )
-    ORDER BY  created_date DESC
+    ORDER BY created_date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
 
@@ -137,7 +120,7 @@ export async function getPetsByCustomerId(id: string): Promise<Pets[]>{
 //pets
 
 
-export async function getAllFilteredPets(query: string, currentPage: number, userId: string): Promise<PetWithCustomer[]> {
+export async function getAllFilteredPets(query: string, currentPage: number): Promise<PetWithCustomer[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const pets = await sql`
@@ -176,7 +159,7 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
     FROM pets p
     JOIN customers c ON p.customer_id = c.id
     WHERE
-      p.user_id = ${userId} AND (
+      p.user_id = ${user_id} AND (
       p.name ILIKE ${`%${query}%`} OR
       p.specie ILIKE ${`%${query}%`} OR
       p.race ILIKE ${`%${query}%`} OR
@@ -190,7 +173,7 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
 
   return pets.rows.map(row => ({
     id: row.id,
-    user_id: userId,
+    user_id: user_id,
     customer_id: row.customer_id,
     name: row.pet_name,
     birthday: row.pet_birthday,
@@ -208,7 +191,7 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
     updated_date: row.pet_updated_date, 
     customer: {
       id: row.customer_id,
-      user_id: userId,
+      user_id: user_id,
       name: row.customer_name,
       dni: row.customer_dni,
       birthday: row.customer_birthday,
@@ -226,14 +209,14 @@ export async function getAllFilteredPets(query: string, currentPage: number, use
   }));
 }
 
-export async function getPetsPages(query: string, userId: string) {
+export async function getPetsPages(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
       FROM pets p
       JOIN customers c ON p.customer_id = c.id
       WHERE
-        p.user_id = ${userId} AND (
+        p.user_id = ${user_id} AND (
           p.name ILIKE ${`%${query}%`} OR
           p.specie ILIKE ${`%${query}%`} OR
           p.race ILIKE ${`%${query}%`} OR
@@ -387,28 +370,15 @@ export async function getVetById(id: string) {
 
 export async function getFilteredVets(
   query: string,
-  currentPage: number,
-  userId: string,
+  currentPage: number
 ): Promise<Veterinary[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const users = await sql<Veterinary>`
-    SELECT
-      id,
-      user_id,
-      name,
-      email,
-      dni,
-      cellphone,
-      address,
-      specialties,
-      image_url,
-      created_date,
-      updated_date
-      
+    SELECT *
     FROM vets
     WHERE
-      user_id = ${userId} AND (
+      user_id = ${user_id} AND (
       name ILIKE ${`%${query}%`} OR
       email ILIKE ${`%${query}%`} OR
       dni::text ILIKE ${`%${query}%`} OR
@@ -424,14 +394,14 @@ export async function getFilteredVets(
   return users.rows;
 }
 
-export async function getAllVetsSchedules(userId: string): Promise<VetSchedule[]> {
+export async function getAllVetsSchedules(): Promise<VetSchedule[]> {
 
   
   try {
     const data = await sql<VetSchedule>`
       SELECT *
       FROM vet_schedules
-      WHERE user_id = ${userId}
+      WHERE user_id = ${user_id}
     `;
 
     const adjustedData = data.rows.map(row => {
@@ -483,13 +453,13 @@ function convertToPeruTimezone(date: Date): Date {
 
 //appointments
 
-export async function getAllAppointments(userId: string): Promise<Appointments[]> {
+export async function getAllAppointments(): Promise<Appointments[]> {
   noStore();
   try {
     const data = await sql<Appointments>`
       SELECT *
       FROM appointments
-      WHERE user_id = ${userId}
+      WHERE user_id = ${user_id}
     `;
 
     const adjustedData = data.rows.map(row => {
@@ -511,13 +481,13 @@ export async function getAllAppointments(userId: string): Promise<Appointments[]
 
 //products
 
-export async function getProductsPage(query: string, userId: string) {
+export async function getProductsPage(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
       FROM products p
       WHERE
-        user_id = ${userId} AND (
+        user_id = ${user_id} AND (
         p.name ILIKE ${`%${query}%`} OR
         p.brand ILIKE ${`%${query}%`} OR
         p.measure_unit ILIKE ${`%${query}%`} OR
@@ -539,7 +509,7 @@ export async function getProductsPage(query: string, userId: string) {
   }
 }
 
-export async function getAllProducts(query: string, currentPage: number, userId: string) {
+export async function getAllProducts(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const products = await sql<Products>`
@@ -564,7 +534,7 @@ export async function getAllProducts(query: string, currentPage: number, userId:
     FROM products p
     JOIN users u ON p.user_id = u.id
     WHERE
-      p.user_id = ${userId} AND (
+      p.user_id = ${user_id} AND (
       p.name ILIKE ${`%${query}%`} OR
       p.brand ILIKE ${`%${query}%`} OR
       p.measure_unit ILIKE ${`%${query}%`} OR
@@ -618,14 +588,14 @@ export async function getProductById(id: string) {
 
 }
 
-export async function getSalesPages(query: string, userId: string) {
+export async function getSalesPages(query: string) {
   try {
     const count = await sql`
       SELECT COUNT(*)
       FROM sales s
       JOIN users u ON s.user_id = u.id
       WHERE
-        user_id = ${userId} AND (
+        user_id = ${user_id} AND (
           s.status ILIKE ${`%${query}%`} OR
           s.total_price::text ILIKE ${`%${query}%`}
         )
@@ -639,7 +609,7 @@ export async function getSalesPages(query: string, userId: string) {
   }
 }
 
-export async function getAllSales(query: string, currentPage: number, userId: string): Promise<SaleWithProducts[]> {
+export async function getAllSales(query: string, currentPage: number): Promise<SaleWithProducts[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   
   const sales = await sql`
@@ -654,7 +624,7 @@ export async function getAllSales(query: string, currentPage: number, userId: st
       s.updated_date
     FROM sales s
     JOIN customers c ON s.customer_id = c.id
-    WHERE s.user_id = ${userId} AND (
+    WHERE s.user_id = ${user_id} AND (
       s.status ILIKE ${`%${query}%`} OR
       s.total_price::text ILIKE ${`%${query}%`} OR
       c.name ILIKE ${`%${query}%`}

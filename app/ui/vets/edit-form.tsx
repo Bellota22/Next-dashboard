@@ -22,7 +22,7 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const [vetEvent, setVetEvent] = useState<VetSchedule[]>([]);
   const initualSpecialties = vet.specialties?.split(',').map((item: any)  => item.trim());
   console.log('initualSpecialties::: ', initualSpecialties);
@@ -32,7 +32,7 @@ export default function Form({ vetSchedule, vet }: VeterinaryFormProps) {
     mode: 'uncontrolled',
     initialValues: {
       id: vet.id,
-      user_id: userId,
+      user_id: '',
       name: vet.name,
       email: vet.email,
       dni: vet.dni,

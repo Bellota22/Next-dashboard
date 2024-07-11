@@ -34,7 +34,7 @@ interface CalendarEvent {
 export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   
   
   const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
@@ -45,7 +45,7 @@ export default function Form() {
     mode: 'uncontrolled',
     initialValues: {
       id: '',
-      user_id: userId,
+      user_id: '',
       name: '',
       email: '',
       dni: 0,
@@ -88,7 +88,7 @@ export default function Form() {
       for (const event of vetEvent) {
         await createVetSchedule({
           id:'',
-          user_id: userId,
+          user_id: '',
           vet_id: vetId,
           title: event.title,
           start_time: event.start,

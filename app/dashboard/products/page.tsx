@@ -26,7 +26,6 @@ export default async function Page({
 }) {
   const cookieStore = cookies();
 
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const query = searchParams?.query || '';
   const autocompleteCustomer = searchParams?.queryCustomer || '';
 
@@ -36,9 +35,9 @@ export default async function Page({
     customers,
     totalPages,
   ] = await Promise.all([
-    getAllProducts(query, currentPage, userId),
-    getFilteredCustomers(autocompleteCustomer, 1, userId),
-    getProductsPage(query, userId),
+    getAllProducts(query, currentPage),
+    getFilteredCustomers(autocompleteCustomer, 1),
+    getProductsPage(query),
   ]);
 
 

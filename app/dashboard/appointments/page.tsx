@@ -17,7 +17,6 @@ export default async function Page({
     queryVet?: string;
   };
 }) {
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
   const queryVet = searchParams?.queryVet || '';
   const queryPet = searchParams?.queryPet || '';
   const currentPage = Number(searchParams?.page) || 1;
@@ -29,10 +28,10 @@ export default async function Page({
     pets,
     vetSchedule
   ] = await Promise.all([
-    getAllAppointments(userId),
-    getFilteredVets(queryVet, currentPage, userId),
-    getAllFilteredPets(queryPet, currentPage, userId),
-    getAllVetsSchedules(userId)
+    getAllAppointments(),
+    getFilteredVets(queryVet, currentPage),
+    getAllFilteredPets(queryPet, currentPage),
+    getAllVetsSchedules()
   ]);
 
   return (

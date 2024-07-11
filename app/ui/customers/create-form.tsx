@@ -17,7 +17,7 @@ import { DEPARTMENTS, PROVINCES } from '@/app/constants';
 export default function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
 
   const fromModal = searchParams.get('fromModal') === 'true';
 
@@ -26,7 +26,7 @@ export default function Form() {
     mode: 'uncontrolled',
     initialValues: {
       id: '',
-      user_id: userId,
+      user_id: '',
       name: '',
       dni: '',
       birthday: new Date || null,

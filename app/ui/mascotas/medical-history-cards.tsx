@@ -21,7 +21,7 @@ interface FormProps {
 
 export default function Form({ pet, medicalHistories, query, currentPage }: FormProps) {
   const router = useRouter();
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   
   const handleCreateMedicalHistory = () => {
     

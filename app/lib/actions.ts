@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { signIn, signOut } from '@/auth';
 import { Appointments, Customers, Employee, MedicalHistory, Pets, Products, ProductsForShoppingCart, Sales, User, Veterinary, VetSchedule } from './definitions';
 import bcrypt from 'bcryptjs';
+import { cookies } from 'next/headers';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -16,6 +17,19 @@ const registerSchema = z.object({
     message: 'You must accept the terms and conditions',
   }),
 });
+
+const userCookie =  cookies().get('user')?.value
+let user = null;
+if (userCookie) {
+  try {
+    user = JSON.parse(userCookie);
+  } catch (error) {
+    console.error('Failed to parse user cookie:', error);
+  }
+}
+const user_id = user?.id || user?.user_id;
+console.log('user::: ', user);
+
 
 export async function registerUser({ email, name, password, terms }: z.infer<typeof registerSchema>): Promise<User> {
   const parsed = registerSchema.safeParse({ email, name, password, terms });
@@ -43,7 +57,6 @@ export async function registerUser({ email, name, password, terms }: z.infer<typ
 export async function registerEmployees(employe: Employee): Promise<Employee>{
 
   const {
-    user_id,
     email,
     name,
     password,
@@ -71,7 +84,6 @@ export async function createCustomer(customerData: Customers) {
   const created_date = new Date().toISOString();
   const updated_date = created_date; 
   const {
-    user_id,
     name,
     dni,
     birthday,
@@ -100,7 +112,6 @@ export async function createCustomer(customerData: Customers) {
 export async function editCustomer(customerData: Customers) {
     const { 
       id,
-      user_id,
       name,
       dni,
       birthday,
@@ -144,7 +155,6 @@ export async function createPet(pets: Pets) {
   const updated_date = created_date;
 
   const { 
-    user_id,
     customer_id,
     name,
     birthday,
@@ -181,7 +191,6 @@ export async function editPet(pet: Pets) {
   
   const {
     id,
-    user_id,
     customer_id,
     name,
     birthday,
@@ -246,7 +255,6 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
   const {
-    user_id,
     pet_id,
     date,
     reason,
@@ -282,13 +290,11 @@ export async function createMedicalHistory(medicalHistory: MedicalHistory) {
 
 //vets
 export async function createVet(vets: Veterinary) {
-  console.log('vets123::: ', vets);
   const created_date = new Date().toISOString();
   const updated_date = created_date;
 
   const { 
     id,
-    user_id,
     name,
     email,
     dni,
@@ -319,7 +325,6 @@ export async function editVet(vet: Veterinary) {
 
   const {
     id,
-    user_id,
     name,
     email,
     dni,
@@ -358,7 +363,6 @@ export async function createVetSchedule(vetSchedule: VetSchedule) {
   const created_date = new Date().toISOString();
   const updated_date = created_date;
   const {
-    user_id,
     vet_id,
     title,
     start_time,
@@ -387,7 +391,6 @@ export async function editVetSchedule(vetSchedule: VetSchedule) {
   const updated_date = new Date().toISOString();
   const {
     id,
-    user_id,
     vet_id,
     title,
     start_time,
@@ -428,7 +431,6 @@ export async function createAppointment(appointmentData: Appointments) {
   const updated_date = created_date;
 
   const {
-    user_id,
     pet_id,
     vet_id,
     start_time,
@@ -460,7 +462,6 @@ export async function createProduct(productsData: Products) {
   const updated_date = created_date;
 
   const {
-    user_id,
     name,
     brand,
     measure_unit,
@@ -491,7 +492,6 @@ export async function editProduct(productsData: Products) {
 
   const {
     id,
-    user_id,
     name,
     brand,
     measure_unit,
@@ -559,14 +559,14 @@ export async function deleteProduct(id: string) {
 }
 
 //sales
-export async function createSale(userId: string, customerId: string, products: ProductsForShoppingCart[] ) {
+export async function createSale(customerId: string, products: ProductsForShoppingCart[] ) {
 
   const status = true;
   const total_price = products.reduce((sum, product) => sum + product.sell_price * product.quantity, 0);
 
   const sale = await sql<Sales>`
     INSERT INTO sales (user_id, customer_id, status, total_price)
-    VALUES (${userId}, ${customerId}, ${status}, ${total_price})
+    VALUES (${user_id}, ${customerId}, ${status}, ${total_price})
     RETURNING id
   `;
 
@@ -575,7 +575,7 @@ export async function createSale(userId: string, customerId: string, products: P
   for (const product of products) {
     await sql`
       INSERT INTO sales_products (user_id, product_id, sale_id, quantity,  total_price)
-      VALUES (${userId}, ${product.id}, ${sale_id} , ${product.quantity},  ${product.sell_price * product.quantity})
+      VALUES (${user_id}, ${product.id}, ${sale_id} , ${product.quantity},  ${product.sell_price * product.quantity})
     `;
   }
 

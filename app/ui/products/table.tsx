@@ -28,7 +28,7 @@ export default function ProductsTable({
   savedSelectedProducts: Products[];
   savedQuantities: Record<string, number>;
 }) {
-  const userId = "410544b2-4001-4271-9855-fec4b6a6442a"; // Supón que tienes el userId almacenado en una cookie
+
   const theme = useMantineTheme();
   const [selectedProducts, setSelectedProducts] = useState<Products[]>(savedSelectedProducts);
   const [quantities, setQuantities] = useState<Record<string, number>>(savedQuantities);
@@ -177,7 +177,7 @@ export default function ProductsTable({
     }));
 
     try {
-      await createSale(userId, customer.id, productsToSell);
+      await createSale(customer.id, productsToSell);
       alert('Sale registered successfully');
       //reset cart
       setSelectedProducts([]);

@@ -21,12 +21,12 @@ interface FormProps {
 
 export default function Form({ pet, medicalHistories, query, currentPage }: FormProps) {
   
-  const userId = '410544b2-4001-4271-9855-fec4b6a6442a';
+   
   const form = useForm<MedicalHistory>({
     mode: 'uncontrolled',
     initialValues: {
       id: '',
-      user_id: userId,
+      user_id: '',
       pet_id: pet.id,
       date: new Date(),
       reason: '',

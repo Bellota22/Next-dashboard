@@ -27,7 +27,6 @@ export default function SideNav() {
   );
   const [type, toggle] = useToggle(['login', 'register']);
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-  const user_id = '410544b2-4001-4271-9855-fec4b6a6442a';
 
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
@@ -36,7 +35,7 @@ export default function SideNav() {
   const form = useForm<Employee>({
     initialValues: {
       id: '',
-      user_id: user_id,
+      user_id: '',
       email: '',
       name: '',
       password: '',
