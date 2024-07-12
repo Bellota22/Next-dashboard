@@ -10,6 +10,7 @@ import {
   Veterinary,
   VetSchedule,
   Appointments,
+  Employee,
 
 } from './definitions';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -31,6 +32,20 @@ const getUserId = () => {
     return null;
   }
 };
+//Employees
+
+export async function getAllEmployees():Promise<Employee[]> {
+  try {
+    const employees = await sql<Employee>`SELECT * FROM employees`;
+    return employees.rows;
+  } catch (error) {
+    console.error('Failed to fetch employees:', error);
+    throw new Error('Failed to fetch employees.');
+  }
+
+
+}
+
 
 //customers
 

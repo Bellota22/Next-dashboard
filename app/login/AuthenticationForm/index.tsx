@@ -158,9 +158,6 @@ export function AuthenticationForm(props: AuthenticationFormProps) {
         <GoogleButton size="md" radius="10px">
           Google
         </GoogleButton>
-        <FacebookButton size="md" radius="10px">
-          Facebook
-        </FacebookButton>
       </Group>
 
       <Text c="dimmed" size="sm" ta="center" mt="10%">

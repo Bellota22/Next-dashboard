@@ -2,7 +2,7 @@
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { Avatar, Box, Button, Checkbox, Flex, Menu, Modal, Paper, PasswordInput, rem, Stack, Switch, Text, TextInput, Title, useMantineTheme } from '@mantine/core';
 import { useState } from 'react';
-import { authenticate, handleServerSignOut, registerEmployees, registerUser } from '@/app/lib/actions';
+import { authenticate, handleServerSignOut, registerEmployees, registerUser, updateEmployeeState } from '@/app/lib/actions';
 import {
   IconSettings,
   IconLogout,
@@ -11,15 +11,19 @@ import {
 } from '@tabler/icons-react';
 import { upperFirst, useDisclosure, useToggle } from '@mantine/hooks';
 import { Employee, Products } from '@/app/lib/definitions';
-import { DeleteCustomer } from '../customers/buttons';
 import { set } from 'zod';
 import { notifications } from '@mantine/notifications';
 import { useForm } from "@mantine/form";
 import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { getCookie, setCookie } from 'cookies-next';
+import { DeleteEmployee } from './buttons';
 
-export default function SideNav() {
+interface SideNavProps {
+  employees: Employee[];
+}
+
+export default function SideNav({ employees: initialEmployees  }: SideNavProps) {
 
   const userCookie =  getCookie('user')
   let user = { name: 'User', email: ''};
@@ -31,11 +35,9 @@ export default function SideNav() {
     }
   }
   const [products, setProducts] = useState<Products[]>([]);
-  const [switchStates, setSwitchStates] = useState<Record<string, boolean>>(
-    Object.fromEntries(products.map((product: Products) => [product.id, product.status]))
-  );
   const [type, toggle] = useToggle(['login', 'register']);
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
 
   const theme = useMantineTheme();
   const [opened, { open, close }] = useDisclosure(false);
@@ -48,6 +50,7 @@ export default function SideNav() {
       email: '',
       name: '',
       password: '',
+      status: true,
       created_date: new Date(),
       updated_date: new Date(),
     },
@@ -90,6 +93,26 @@ export default function SideNav() {
     open();
   }
 
+  const handleSwitchChange = async (id: string) => {
+    // Encuentra el empleado y actualiza su estado
+    const updatedEmployees = employees.map((employee) =>
+      employee.id === id ? { ...employee, status: !employee.status } : employee
+    );
+
+    // Actualiza el estado local
+    setEmployees(updatedEmployees);
+
+    // Encuentra el nuevo estado del empleado para la actualización en la base de datos
+    const updatedEmployee = updatedEmployees.find((employee) => employee.id === id);
+
+    if (updatedEmployee) {
+      try {
+        await updateEmployeeState(id, updatedEmployee.status);
+      } catch (error) {
+        console.error('Failed to update employee state:', error);
+      }
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -101,6 +124,7 @@ export default function SideNav() {
       console.error('Error al cerrar sesión:', error);
     }
   };
+
 
   return (
     <Stack className="h-full px-3 py-4 pt-12 md:px-2">
@@ -176,41 +200,48 @@ export default function SideNav() {
             </Button>
           </Flex>
         </Stack>
-      </form>
+        </form>
       ) : (
         <>
           <Paper withBorder>
-            <Box p={10}>
-              <Flex align="center" justify="space-between" gap={10}>
-                <Avatar name={"Patitas felices"} size="md" variant="outline" color="primary" />
-                <Text>Patitas felices</Text>
-                <Flex gap={10}>
-                  <Switch
-                    className="flex items-center justify-end"
-                    checked={checked}
-                    onChange={(event) => setChecked(event.currentTarget.checked)}
-                    color="green"
-                    size="sm"
-                    thumbIcon={
-                      checked ? (
-                        <IconCheck
-                          style={{ width: rem(12), height: rem(12) }}
-                          color={theme.colors.green[6]}
-                          stroke={3}
-                        />
-                      ) : (
-                        <IconX
-                          style={{ width: rem(12), height: rem(12) }}
-                          color={theme.colors.red[6]}
-                          stroke={3}
-                        />
-                      )
-                    }
-                  />
-                  <DeleteCustomer id={'1'} />
+          {
+            employees.map((employee: Employee, index: number) => (
+              <Box p={10} key={employee.id || index}>
+                <Flex align="center" justify="space-between" gap={10}>
+                  <Avatar name={employee.name} size="md" variant="outline" color="primary" />
+                  <Text>{employee.name}</Text>
+                  <Flex gap={10}>
+                    <Switch
+                      className="flex items-center justify-end"
+                      checked={employee.status} // Asegúrate de que cada empleado tenga su propio estado
+                      onChange={() => handleSwitchChange(employee.id)}
+                      color="green"
+                      size="sm"
+                      thumbIcon={
+                        employee.status ? (
+                          <IconCheck
+                            style={{ width: rem(12), height: rem(12) }}
+                            color={theme.colors.green[6]}
+                            stroke={3}
+                          />
+                        ) : (
+                          <IconX
+                            style={{ width: rem(12), height: rem(12) }}
+                            color={theme.colors.red[6]}
+                            stroke={3}
+                          />
+                        )
+                      }
+                    />
+                    <Box onClick={close}>
+
+                      <DeleteEmployee  id={employee.id} /> {/* Usar el id del empleado */}
+                    </Box>
+                  </Flex>
                 </Flex>
-              </Flex>
-            </Box>
+              </Box>
+                ))
+              }     
           </Paper>
           <Flex mt="10px" justify="flex-end" w="100%">
 

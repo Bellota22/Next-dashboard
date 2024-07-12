@@ -13,6 +13,7 @@ export type Employee = {
   name: string;
   email: string;
   password: string;
+  status: boolean;
   created_date: Date;
   updated_date: Date;
 };

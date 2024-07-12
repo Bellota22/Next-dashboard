@@ -81,6 +81,29 @@ export async function registerEmployees(employe: Employee): Promise<Employee>{
   return newEmployee.rows[0];
 }
 
+export async function updateEmployeeState(id: string, status: boolean) {
+  try {
+    await sql`
+      UPDATE employees
+      SET status = ${status}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to update product state.');
+  }
+}
+
+export async function deleteEmployee(id: string) {
+  try{
+      await sql`DELETE FROM employees WHERE id = ${id}`;
+  }catch{
+      return {
+          message: 'Failed to delete employee'
+      }
+  }
+}
+
 
 // customer
 export async function createCustomer(customerData: Customers) {

@@ -7,6 +7,7 @@ import type { Employee, User } from '@/app/lib/definitions';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { NextApiRequest, NextApiResponse } from 'next';
+import GoogleProvider from 'next-auth/providers/google';
 
  
 async function getUser(email: string): Promise<User | undefined> {
@@ -31,6 +32,10 @@ async function getEmployee(email: string): Promise<Employee | undefined> {
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
@@ -56,3 +61,4 @@ export const { auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
