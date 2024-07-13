@@ -39,9 +39,7 @@ export default async function Page({
       <div className="flex w-full items-center justify-between">
         <Title className={styles.breadcrumbs} order={1}>Citas</Title>
       </div>
-      
       <Form appointments={appointments} vetSchedule={vetSchedule} vets={vets} pets={pets}  />
-
     </div>
   );
 }

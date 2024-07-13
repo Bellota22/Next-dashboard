@@ -18,7 +18,11 @@ const links = [
 
 ];
 
-export default function NavLinks() {
+interface NavLinksProps {
+  showText: boolean;
+}
+
+export default function NavLinks({ showText: showText }: NavLinksProps) {
   const pathname = usePathname();
   const theme = useMantineTheme();
 
@@ -31,8 +35,8 @@ export default function NavLinks() {
             key={link.name}
             href={link.href}
             className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-sm font-medium md:flex-none md:justify-start md:p-2 md:px-3',
-
+              'flex h-[48px] items-center gap-2 rounded-md p-3 text-sm font-medium md:p-2 md:px-3',
+              { 'justify-start': !showText }
             )}
             style={{
               color: pathname === link.href ? theme.colors.primary[6] : '',
@@ -52,7 +56,7 @@ export default function NavLinks() {
             }}
           >
             <LinkIcon className="w-6" />
-            <Text>{link.name}</Text>
+            {showText && <Text className="transition-opacity duration-500">{link.name}</Text>}
           </Link>
         );
       })}

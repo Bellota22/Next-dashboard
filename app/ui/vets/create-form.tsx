@@ -38,7 +38,6 @@ export default function Form() {
   
   
   const [vetEvent, setVetEvent] = useState<CalendarEvent[]>([]);
-  console.log('vetEvent::: ', vetEvent);
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
 
   const form = useForm<Veterinary>({

@@ -8,6 +8,7 @@ import {
   IconLogout,
   IconCheck,
   IconX,
+  IconMenu2,
 } from '@tabler/icons-react';
 import { upperFirst, useDisclosure, useToggle } from '@mantine/hooks';
 import { Employee, Products } from '@/app/lib/definitions';
@@ -43,12 +44,23 @@ export default function SideNav({employees}: SideNavProps) {
       console.error('Error al cerrar sesión:', error);
     }
   };
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [showText, setShowText] = useState(true);
 
 
   return (
-    <Stack className="h-full px-3 py-4 pt-12 md:px-2">
+    <Stack className={`h-full px-3 py-4 pt-12 md:px-2 transition-all duration-300 ${menuOpen ? 'w-full' : 'w-16'}`}>
       <Box className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
-        <NavLinks />
+        <button
+          className="absolute top-4 left-4 z-50 p-1 rounded-md bg-gray-50"
+          onClick={() => {
+            setMenuOpen(prev => !prev);
+            setShowText(prev => !prev);
+          }}
+        >
+          <IconMenu2 />
+        </button>
+        <NavLinks showText={showText} />
         <Box className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></Box>
         <MenuSettings
           handleOpenAdmin={handleOpenAdmin}

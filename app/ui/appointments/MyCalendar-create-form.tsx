@@ -16,8 +16,8 @@ import { stat } from "fs";
 interface CalendarEvent {
   id: string;
   title: string;
-  start: stringOrDate;
-  end: stringOrDate;
+  start: any;
+  end: any;
   allDay?: boolean;
   status?: boolean;
 }
@@ -54,6 +54,7 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
   const [view, setView] = useState<View>(Views.WEEK);
   const [modalOpen, setModalOpen] = useState(false);
   const [newEventInfo, setNewEventInfo] = useState({ title: '', start: null as Date | null, end: null as Date | null });
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   const moveEvent: withDragAndDropProps<CalendarEvent>['onEventDrop'] = ({ event, start, end, isAllDay: droppedOnAllDaySlot }) => {
     const idx = events.indexOf(event);
@@ -91,10 +92,7 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
   const handleSelectSlot = ({ start, end }: SlotInfo) => {
     setNewEventInfo({ title: '', start, end });
     setModalOpen(true);
-
-
-  
-    
+    setSelectedEvent(null); 
   };
 
   
@@ -125,6 +123,20 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
       setEvents(events.concat([newEvent]));
       setVetEvent?.(events.concat([newEvent]));
       setSelectedAppointments?.(selectedAppointments?.concat([newAppointment]));
+      setModalOpen(false);
+    }
+  };
+
+  const handleSelectEvent = (event: CalendarEvent) => {
+    setSelectedEvent(event); // Carga el evento seleccionado
+    setNewEventInfo({ title: event.title, start: event.start, end: event.end });
+    setModalOpen(true);
+  };
+  const handleDeleteEvent = async () => {
+    if (selectedEvent) {
+      const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
+      setEvents(updatedEvents);
+      setVetEvent(updatedEvents);
       setModalOpen(false);
     }
   };
@@ -161,6 +173,7 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
         resizable
         onEventResize={resizeEvent}
         onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent}
         onDragStart={console.log}
         defaultView={Views.MONTH}
         view={view} // Vista actual controlada por el estado
@@ -182,6 +195,11 @@ export default function MyCalendar({ appointments, vetSchedule, setVetEvent, set
           }
         />
         <Button onClick={handleCreateEvent} style={{ marginTop: 10 }}>Crear Evento</Button>
+        {selectedEvent && (
+          <Button onClick={handleDeleteEvent} style={{ marginTop: 10, marginLeft: 10 }}  variant="outline" color="red">
+            Eliminar Evento
+          </Button>
+        )}
       </Modal>
     </Box>
   );

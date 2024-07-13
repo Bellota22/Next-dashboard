@@ -26,36 +26,35 @@ function MenuSettings({ handleOpenAdmin, handleSignOut }: MenuSettingsProps) {
   
 
   return (
-   
-        <Menu shadow="md">
-            <Menu.Target>
-               {
-                user &&
-                    <Button
-                    style={{
-                        boxShadow: theme.shadows.xs,
-                    }}
-                    w="100%"
-                    color="primary" 
-                    leftSection={<Avatar name={`${user.name}`} size="md" variant="outline" color="primary" />}
-                    variant='light'
-                    >
-                    <Text>{user.name}</Text>
-                    </Button>
-                }
-            </Menu.Target>
+    <Menu shadow="md">
+        <Menu.Target>
+            {
+            user &&
+                <Button
+                style={{
+                    boxShadow: theme.shadows.xs,
+                }}
+                w="100%"
+                color="primary" 
+                leftSection={<Avatar name={`${user.name}`} size="md" variant="outline" color="primary" />}
+                variant='light'
+                >
+                <Text>{user.name}</Text>
+                </Button>
+            }
+        </Menu.Target>
 
-            <Menu.Dropdown>
-            <Menu.Label>Application</Menu.Label>
-            <Menu.Item onClick={handleOpenAdmin} leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}>
-                Admin
-            </Menu.Item>
-            <Menu.Item onClick={handleSignOut} leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}>
-                Cerrar sesión
-            </Menu.Item>
+        <Menu.Dropdown>
+        <Menu.Label>Application</Menu.Label>
+        <Menu.Item onClick={handleOpenAdmin} leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}>
+            Admin
+        </Menu.Item>
+        <Menu.Item onClick={handleSignOut} leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}>
+            Cerrar sesión
+        </Menu.Item>
 
-            </Menu.Dropdown>
-        </Menu>
+        </Menu.Dropdown>
+    </Menu>
 
   )
 }
