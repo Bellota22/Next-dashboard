@@ -1,5 +1,6 @@
-import NextAuth from 'next-auth';
+  import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
@@ -7,7 +8,6 @@ import type { Employee, User } from '@/app/lib/definitions';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { NextApiRequest, NextApiResponse } from 'next';
-import GoogleProvider from 'next-auth/providers/google';
 
  
 async function getUser(email: string): Promise<User | undefined> {
@@ -28,8 +28,7 @@ async function getEmployee(email: string): Promise<Employee | undefined> {
     throw new Error('Failed to fetch employee.');
   }
 }
- 
-export const { auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     GoogleProvider({
@@ -50,6 +49,7 @@ export const { auth, signIn, signOut } = NextAuth({
               const passwordsMatch = await bcrypt.compare(password, user.password);
               if (passwordsMatch) {
                 // Set the user object in a cookie 
+                
                 const serializedUser = JSON.stringify(user);
                 cookies().set('user', serializedUser);
                 return user;
@@ -61,4 +61,3 @@ export const { auth, signIn, signOut } = NextAuth({
     }),
   ],
 });
-

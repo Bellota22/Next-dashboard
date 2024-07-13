@@ -28,7 +28,7 @@ const getUserId = () => {
     const user = JSON.parse(userCookie);
     return user?.user_id || user?.id;
   } catch (error) {
-    console.error('Failed to parse user cookie:', error);
+    // console.error('Failed to parse user cookie:', error);
     return null;
   }
 };
@@ -89,7 +89,7 @@ export async function updateEmployeeState(id: string, status: boolean) {
       WHERE id = ${id}
     `;
   } catch (error) {
-    console.error('Database Error:', error);
+    // console.error('Database Error:', error);
     throw new Error('Failed to update product state.');
   }
 }
@@ -165,7 +165,7 @@ export async function editCustomer(customerData: Customers) {
   
       revalidatePath('/dashboard/customers');
     } catch (error) {
-      console.error('Error updating customer:', error);
+      // console.error('Error updating customer:', error);
       throw new Error('Error updating customer');
     }
 }
@@ -263,7 +263,7 @@ export async function editPet(pet: Pets) {
 
     revalidatePath('/dashboard/mascotas');
   } catch (error) {
-    console.error('Error updating customer:', error);
+    // console.error('Error updating customer:', error);
     throw new Error('Error updating customer');
   }
 }
@@ -451,7 +451,7 @@ export async function editVetSchedule(vetSchedule: VetSchedule) {
       WHERE id = ${id}
     `;
 
-    console.log('SQL Update Result:', res);
+    // console.log('SQL Update Result:', res);
 
   
 
@@ -581,7 +581,7 @@ export async function updateProductState(id: string, status: boolean) {
     `;
     revalidatePath('/dashboard/products');
   } catch (error) {
-    console.error('Database Error:', error);
+    // console.error('Database Error:', error);
     throw new Error('Failed to update product state.');
   }
 }
@@ -652,11 +652,22 @@ export async function authenticate(
       return undefined;
 
     } catch (error) {
-      console.error('Authentication error:', error);
+      // console.error('Authentication error:', error);
       throw error;
     }
 }
 
+export async function GoogleAuth(){
+  try {
+    const result = await signIn("google");
+    console.log('result::: ', result);
+
+
+  } catch (error) {
+    console.error('Authentication error:', error);
+    throw error;
+  }
+}
 
 
 export async function handleServerSignOut() {

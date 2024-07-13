@@ -35,8 +35,12 @@ const getUserId = () => {
 //Employees
 
 export async function getAllEmployees():Promise<Employee[]> {
+  const user_id = getUserId();
   try {
-    const employees = await sql<Employee>`SELECT * FROM employees`;
+    const employees = await sql<Employee>`
+    SELECT * FROM employees
+    WHERE user_id = ${user_id}
+    `;
     return employees.rows;
   } catch (error) {
     console.error('Failed to fetch employees:', error);

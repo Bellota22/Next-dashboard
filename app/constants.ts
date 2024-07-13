@@ -171,7 +171,7 @@ const PETS_CUSTOMER_BREADCRUMB = (id: string) => [
 const CREATE_PET_BREADCRUMB = [
   { label: 'Mascotas', href: '/dashboard/mascotas' },
   {
-    label: 'Crear mascota',
+    label: 'Crear mascota  ',
     href: '/dashboard/mascotas/create',
     active: true,
   },

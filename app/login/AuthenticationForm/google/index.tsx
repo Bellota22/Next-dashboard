@@ -1,8 +1,15 @@
-import { Button, ButtonProps } from "@mantine/core";
+import { Box, Button, ButtonProps } from "@mantine/core";
 import GoogleIcon from "./GoogleIcon";
-import { signIn } from "next-auth/react";
+import { GoogleAuth } from "@/app/lib/actions";
 
 export function GoogleButton(props: ButtonProps & React.ComponentPropsWithoutRef<'button'>) {
 
-  return <Button onClick={() => signIn('google')}leftSection={<GoogleIcon />} variant="default" {...props} />;
+  return (
+      <form action={async () =>{
+        await GoogleAuth()
+      }} >
+        <Button w="100%" type="submit" leftSection={<GoogleIcon />} variant="default" {...props} />
+
+      </form>
+  );
 }

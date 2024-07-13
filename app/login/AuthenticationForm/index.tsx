@@ -15,12 +15,13 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { authenticate, registerUser } from "@/app/lib/actions";
+import { authenticate, GoogleAuth, registerUser } from "@/app/lib/actions";
 import { useFormState } from "react-dom";
 import { upperFirst, useToggle } from "@mantine/hooks";
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { useRouter } from 'next/navigation'
+import { Suspense } from "react";
 
 interface AuthenticationFormProps extends React.ComponentPropsWithoutRef<'div'> {}
 interface FormValues {
@@ -155,9 +156,12 @@ export function AuthenticationForm(props: AuthenticationFormProps) {
       />
 
       <Group grow mb="md" mt="md">
-        <GoogleButton size="md" radius="10px">
-          Google
-        </GoogleButton>
+        <Suspense>
+          <GoogleButton size="md" radius="10px">
+            Google
+          </GoogleButton>
+
+        </Suspense>
       </Group>
 
       <Text c="dimmed" size="sm" ta="center" mt="10%">

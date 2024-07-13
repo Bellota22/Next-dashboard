@@ -1,5 +1,7 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
 import { getAllEmployees } from '../lib/data';
+import { Suspense } from 'react';
+import { InvoicesTableSkeleton } from '../ui/skeletons';
  
 export default async function Layout({ children }: { children: React.ReactNode }) {
 
