@@ -1,3 +1,5 @@
+import { IconShoppingBag, IconUsersGroup, IconPaw, IconPackage, IconStethoscope, IconCalendar } from '@tabler/icons-react';
+
 const FEATURES = [
     {
       title: 'Ultra-Fast Data Extraction',
@@ -277,6 +279,13 @@ const PROVINCES: Provinces = {
   'Ucayali': ['Coronel Portillo', 'Atalaya', 'Padre Abad', 'Purús']
 };
 
+const EMPTY_STATES = [
+  { hrefAction: '/dashboard/customers/create', name: 'Clientes', href: '/dashboard/customers', icon: IconUsersGroup, description: 'No hay clientes', 'buttonText': 'Agregue un nuevo cliente!' },
+  { hrefAction: '/dashboard/mascotas/create', name: 'Mascotas', href: '/dashboard/mascotas', icon: IconPaw, description: 'No hay mascotas', 'buttonText': 'Agregue una nueva mascota!' },
+  { hrefAction: '/dashboard/products/create', name: 'Productos', href: '/dashboard/products', icon: IconPackage, description: 'No hay productos', 'buttonText': 'Agregue un nuevo producto!' },
+  { hrefAction: '/dashboard/prodcuts', name: 'Ventas', href: '/dashboard/ventas', icon: IconShoppingBag, description: 'No hay ventas', 'buttonText': 'Agregue una nueva venta!' },
+  { hrefAction: '/dashboard/vets/create', name: 'Vets', href: '/dashboard/vets', icon: IconStethoscope, description: 'No hay veterinarios', 'buttonText': 'Agregue un nuevo veterinario!' },
+];
 
 export {
     FEATURES,
@@ -296,5 +305,6 @@ export {
     SPECIALTIES,
     EDIT_VETS_BREADCRUMB,
     DEPARTMENTS,
-    PROVINCES
+    PROVINCES,
+    EMPTY_STATES
 }

@@ -1,0 +1,29 @@
+.card {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  transition: box-shadow 0.3s ease;
+}
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card:hover {
+box-shadow: var(--mantine-shadow-md);
+}
+
+.card:active {
+box-shadow: var(--mantine-shadow-sm);
+}
+
+.icon {
+display: flex;
+justify-content: center;
+padding: var(--mantine-spacing-md) 0;
+}
+
+.badge {
+background: linear-gradient(90deg, var(--mantine-color-primary) 0%, var(--mantine-color-white) 100%);
+}

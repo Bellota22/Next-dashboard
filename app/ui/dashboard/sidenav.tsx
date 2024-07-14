@@ -49,7 +49,7 @@ export default function SideNav({employees}: SideNavProps) {
 
 
   return (
-    <Stack className={`h-full px-3 py-4 pt-12 md:px-2 transition-all duration-300 ${menuOpen ? 'w-full' : 'w-16'}`}>
+    <Stack className={`h-full px-3 py-4 pt-12 md:px-2 transition-all duration-300 ${menuOpen ? 'w-48' : 'w-16'}`}>
       <Box className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
         <button
           className="absolute top-4 left-4 z-50 p-1 rounded-md bg-gray-50"

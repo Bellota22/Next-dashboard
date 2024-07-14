@@ -11,6 +11,7 @@ import styles from './page.module.css';
 import PaginationPets from '@/app/ui/mascotas/Pagination';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import EmptyStatus from '@/app/ui/EmptyStatus';
 
 export const metadata: Metadata = {
   title: 'Mascotas | PettoCare',
@@ -35,23 +36,24 @@ export default async function Page({
       <div className="flex w-full items-center justify-between">
         <Title className={styles.breadcrumbs} order={1}>Mascotas</Title>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Buscar mascota..." />
-        <Button
-          color="primary.3"
-          component={Link}
-          rightSection={<PlusIcon className="h-5" />}
-          href="/dashboard/mascotas/create"
-        >
-          <Title order={6}>Crear Mascota</Title>{' '}
-        </Button>
-      </div>
-      <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table pets={pets} query={query} currentPage={currentPage} />
-      </Suspense>
-      <Flex justify="center" mt="md">
-        <PaginationPets totalPages={totalPages} currentPage={currentPage} />
-      </Flex>
+      {
+        pets.length < 0 ? (
+          <>
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <Search placeholder="Buscar mascotas..." />
+            <CreatePet />
+          </div>
+          <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+            <Table pets={pets} query={query} currentPage={currentPage} />
+          </Suspense>
+          <Flex justify="center" mt="md">
+            <PaginationPets totalPages={totalPages} currentPage={currentPage} />
+          </Flex>
+          </>
+        ) : (
+          <EmptyStatus />
+        )
+      }
     </div>
   );
 }

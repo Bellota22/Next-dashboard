@@ -9,6 +9,7 @@ import { cookies } from 'next/headers';
 import { Flex, Title } from '@mantine/core';
 import PaginationProduct from '@/app/ui/products/pagination';
 import styles from './page.module.css';
+import EmptyStatus from '@/app/ui/EmptyStatus';
 
 export const metadata: Metadata = {
   title: 'Productos | PettoCare',
@@ -50,23 +51,31 @@ export default async function Page({
         <Title className={styles.breadcrumbs} order={1}>Products</Title>
         
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Search products..." />
-        <CreateProduct />
-      </div>
-      <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
-        <Table
-          customers={customers}
-          products={products}
-          query={query}
-          currentPage={currentPage}
-          savedSelectedProducts={savedSelectedProducts}
-          savedQuantities={savedQuantities}
-        />
-      </Suspense>
-      <Flex justify="center" mt="md">
-        <PaginationProduct totalPages={totalPages} currentPage={currentPage} />
-      </Flex>
+      {
+        products.length < 0 ? (
+          <>
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <Search placeholder="Search products..." />
+            <CreateProduct />
+          </div>
+          <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+            <Table
+              customers={customers}
+              products={products}
+              query={query}
+              currentPage={currentPage}
+              savedSelectedProducts={savedSelectedProducts}
+              savedQuantities={savedQuantities}
+            />
+          </Suspense>
+          <Flex justify="center" mt="md">
+            <PaginationProduct totalPages={totalPages} currentPage={currentPage} />
+          </Flex>
+          </>
+        ) : (
+          <EmptyStatus />
+        )
+      }
     </div>
   );
 }

@@ -1,9 +1,6 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
 import { getAllEmployees } from '../lib/data';
-import { Suspense } from 'react';
-import { InvoicesTableSkeleton } from '../ui/skeletons';
-import { IconMenu2 } from '@tabler/icons-react';
- 
+
 export default async function Layout({ children }: { children: React.ReactNode }) {
 
   const employees = await getAllEmployees();
@@ -11,9 +8,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       
-      <div className="w-full flex-none md:w-64">
-        <SideNav employees={employees} />
-      </div>
+      <SideNav employees={employees} />
+     
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12">{children}</div>
     </div>
   );
